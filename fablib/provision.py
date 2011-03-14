@@ -66,7 +66,8 @@ def provision(public_ip, puppetmaster=False):
         run("pip install kokki=={0} python-cloudservers=={1}".format(
              KOKKI_VERSION, PYTHON_CLOUDSERVERS_VERSION))
     if "puppet" in settings.CONFIGURATORS:
-        raise NotImplementedError()
+        pass
+        # raise NotImplementedError()
         # puppet setup
         # https://github.com/uggedal/ddw-puppet
     # firewall + prevent root login

@@ -19,3 +19,7 @@ BIGGEST TASKS
     General use case configuration management for puppet.
     Actually make the the local_settings_xxx.j2 and gunicorn.j2 files 
     for each site.
+
+BUG?
+====
+Verify .gitconfig formatting on server.
