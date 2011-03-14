@@ -55,7 +55,7 @@ DOTFILE_REPOSITORY = "git://github.com/rizumu/deploymachine-dotfiles.git"
 CUMULUS_USERNAME = "me"
 CUMULUS_API_KEY = "@@@"
 CUMULUS_DEFAULT_IMAGE_ID = 69
-CLOUDSERVERS = {"appnode": [("ant", "1")]}
+CLOUDSERVERS = {"appnode": [("finnegan", "1")]}
 
 # @@@ Eventually we should allow a custom python version, ie 2.5, 2.6, 2.7.1
 PYTHON_VERSION = "2.6" #Distro's python version

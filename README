@@ -2,25 +2,26 @@
 DEPLOY MACHINE for Python Web Applications
 ==========================================
 
-
 INSTALLATION
 ============
 
 .. warning::
     
-    First off, this isn't really a python package. I think parts could end up in site-pacakges, but that is to be seen. DeployMachine is a project similar to a website, it needs an easily accesible folder, settings files, and recommended its own virtualenv. DeployMachine not a black box. The reccomended place to clone it to is:
-        ``/var/www/lib/deploymachine``
+    First off, this isn't really a python package. I think parts could end up in site-pacakges, but that is to be seen. DeployMachine is a project similar to a website, it needs an easily accesible folder, settings files, and is recommended for it to have it's own virtualenv. DeployMachine is not a black box. The reccomended place to clone it to is:
+        ``/var/www/lib/deploymachine/``
+
+    I've tried to keep the documentation to match the code as best as possible but since this is alpha, there is slightly more concept in the docs than actual code. Also KIM this system 100% working last Fall, but it has been refactored for public consumption, so now it's not 100% working, and there are remaining personal bits that need to be extracted before a beta. C'est la vie.
 
 MOTIVATION
 ==========
-http://articles.slicehost.com/ubuntu-10
-https://github.com/jacobian/django-deployment-workshop/
+SLICEHOST PROVISIONING DOCS: http://articles.slicehost.com/ubuntu-10
+DJANGO DEPLOYMENT WORKSHOP: https://github.com/jacobian/django-deployment-workshop/
 
 Architecting, documenting, and maintaining servers has community supported best practices up until a certain point in an applications life. Deploy machine attempts to put these best practices into code, to allow for launching a high performance web site in two shakes of a lambs tail.
 
 Deploy Machine is a bootstrapping tool for provisioning servers, a deployment framework for launching and maintaining websites, a slew of fabric commands for common tasks, and a tiny wrapper for configuration management tools.
 
-Each component and setting of the server stack really should be understood inside out. However, sometimes it is prudent to install now and learn later. Deploy Machine attempts to help speed things along by means of sensible defaults. Designed with server scalability in mind, the idea is to start with one server and add or remove as needed.
+Each component and setting of the server stack really should be understood inside out. However, sometimes it is prudent to install now and learn later. Deploy Machine attempts to help speed things along by means of sensible defaults. Designed with server scalability in mind, the idea is to start with one server and add or remove them as needed.
 
 Media files and database backups are stored in the cloud and the application code and configuration is in version control. Therefore all the servers can be killed and rebuilt in a matter of minutes, with no fear of data loss. 
 
