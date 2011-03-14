@@ -1,0 +1,14 @@
+#@@ go thorugh these and remove the cruft, update, :?
+gunicorn==0.12.0
+Jinja2==2.5.5
+kokki==0.4.1
+psycopg2==2.3.2
+python-cloudservers==1.2
+redis==2.2.2
+setproctitle==1.1.1
+fabric==1.0.0
+django-redis-cache==0.5.0
+sphinx==1.0.7
+
+# errors on clean install because it absolutely depends on setproctitle
+#gunicorn-console==0.1.11

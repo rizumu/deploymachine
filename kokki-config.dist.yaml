@@ -1,0 +1,101 @@
+# fab appbalancer kokki:kcb_test,new_style=True
+# cookbook_paths: ['kcb-unmodified']
+cookbook_paths: ['kokki-cookbooks']
+
+roles:
+    kcb_test:
+        description: Test appbalancer cookbooks for kokki ver2
+        recipes: [monit, munin.master, redis, ssh]
+
+    base:
+        description: Base role for all systems
+        recipes: [ssh, sysadmin, monit, apt]
+        #logrotate, logwatch, icinga, heartbeat
+        #hosts, iptables, locales, timezone, openntpd
+        default_attributes:
+            apt.sources:
+                - deb http://archive.ubuntu.com/ubuntu/ lucid main restricted universe multiverse
+                - deb http://archive.ubuntu.com/ubuntu/ lucid-updates main restricted universe multiverse
+                - deb http://security.ubuntu.com/ubuntu lucid-security main restricted universe multiverse
+            apt.configs:
+                - APT::Periodic:
+                    Unattended-Upgrade: 1
+                    MaxSize: 1024
+                    MinAge: 10
+                    MaxAge: 90
+
+    loadbalancer:
+        description: Load Balancer role
+        parents: [base]
+        recipes: [nginx.scene_machine, supervisor, munin.master]
+        default_attributes:
+            nginx.worker_processes: 4
+            nginx.worker_connections: 100
+            nginx.keepalive_timeout: 5
+            nginx.accept_mutex: False
+            nginx.client_max_body_size: '4G'
+            supervisor.sites: ['rizumu', 'dbx', 'insatsu', 'snowprayers']
+            supervisor.logrotate:
+                files:
+                    - /var/log/supervisord/*.log
+                    - /var/log/gunicorn/*.log
+                rotate: 10
+                interval: weekly
+            nginx.sites:
+                - name: 'rizumu'
+                  port: '8000'
+                  domains: ['rizumu', 'funkshun']
+                  primary: 'rizumu.us'
+                - name: 'dbx'
+                  port: '8001'
+                  domains: ['daniel-bell']
+                - name: 'insatsu'
+                  port: '8002'
+                  domains: ['insatsu']
+                  primary: 'insatsu.us'
+
+    appnode:
+        description: Appserver role
+        parents: [base]
+        recipes: [redis, munin.node]
+
+    dbserver:
+        description: Database role
+        parents: [base]
+        recipes: [postgresql84.server, munin.node]
+        default_attributes:
+            postgresql84.listen_addresses: '*'
+            postgresql84.port: 60000
+            postgresql84.auth:
+                - type: local
+                  database: all
+                  user: all
+                  method: md5
+                - type: host
+                  database: all
+                  user: all
+                  cidr: 127.0.0.1/32
+                  method: md5
+                - type: host
+                  database: all
+                  user: all
+                  cidr: ::1/128
+                  method: md5
+                - type: hostssl
+                  database: all
+                  user: all
+                  cidr: 10.179.0.0/16
+                  method: md5
+
+    cachenode:
+        description: Cache role
+        parents: [base]
+        recipes: [redis, munin.node]
+
+    appbalancer:
+        description: Appnode Loadbalancer Cache role
+        parents: [loadbalancer, cachenode, appnode]
+
+    dbappbalancer:
+        description: Appnode Loadbalancer Cache Database role
+        parents: [loadbalancer, cachenode, appnode, database]

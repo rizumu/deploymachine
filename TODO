@@ -1,0 +1,21 @@
+ALPHA TASKS
+===========
+
+Save download time and bandwith by cloning a default provision.
+    1. check if the image exists.
+    2. if it does not exist, create it.
+    3. if it does exist (and force_provision != True) use it and skip the provision step.
+
+DNSimple support for killing/booting the main loadbalancer and updating the DNS.
+
+Raise more informative exceptions, instead of NotImplementedError()
+
+Test all apptypes and combinations.
+
+Finish bootstrapping puppet.
+
+BIGGEST TASKS
+    Upgrade kokki recipies, we're back a few versions.
+    General use case configuration management for puppet.
+    Actually make the the local_settings_xxx.j2 and gunicorn.j2 files 
+    for each site.

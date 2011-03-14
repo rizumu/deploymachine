@@ -1,0 +1,123 @@
+==========================================
+DEPLOY MACHINE for Python Web Applications
+==========================================
+
+
+INSTALLATION
+============
+
+.. warning::
+    
+    First off, this isn't really a python package. I think parts could end up in site-pacakges, but that is to be seen. DeployMachine is a project similar to a website, it needs an easily accesible folder, settings files, and recommended its own virtualenv. DeployMachine not a black box. The reccomended place to clone it to is:
+        ``/var/www/lib/deploymachine``
+
+MOTIVATION
+==========
+http://articles.slicehost.com/ubuntu-10
+https://github.com/jacobian/django-deployment-workshop/
+
+Architecting, documenting, and maintaining servers has community supported best practices up until a certain point in an applications life. Deploy machine attempts to put these best practices into code, to allow for launching a high performance web site in two shakes of a lambs tail.
+
+Deploy Machine is a bootstrapping tool for provisioning servers, a deployment framework for launching and maintaining websites, a slew of fabric commands for common tasks, and a tiny wrapper for configuration management tools.
+
+Each component and setting of the server stack really should be understood inside out. However, sometimes it is prudent to install now and learn later. Deploy Machine attempts to help speed things along by means of sensible defaults. Designed with server scalability in mind, the idea is to start with one server and add or remove as needed.
+
+Media files and database backups are stored in the cloud and the application code and configuration is in version control. Therefore all the servers can be killed and rebuilt in a matter of minutes, with no fear of data loss. 
+
+SERVER TYPES
+============
+Deploy Machine supports three server types: ``load balancer``, ``application node``, and ``database server``.
+
+The current idea is to have one loadbalancer, one dbserver, and potentially multiple appnodes. However, in the case of a small app, it is probably best to start with a dbappblancer first. Or start with an appbalancer and a dbserver as I have done. One the app demands, split the loadbalncer off and scale each type individually.
+
+.. note::
+
+    **FUTURE FEATURE** A large app may need to add additional types of servers to the process such as a caching server, logging server, or a email server. A high traffic site will possibly need multiple database servers.
+
+Deploy Machine is intent on supporting the most common and practical cases, but not the kitchen sink.
+
+CONFIGURATION MANAGEMENT
+========================
+Deploy Machine leverages Kokki, a "System configuration management framework influenced by Chef" written in Python. More on Kokki at `http://github.com/samuel/kokki/wiki <https://github.com/samuel/kokki/wiki>`_
+
+Deploy Machine initially attempted to support both kokki and chef, but drifted towards Kokki, because of developer comfortability with Python syntax, and lack of Ruby knowledge. Now
+there is a strong desire to have a puppet support, and it's easy enough, a few bits are already in place. See: https://github.com/uggedal/ddw-puppet
+
+CLOUD SERVERS
+=============
+Deploy Machine supports Rackspace CloudServer and Cloudfiles via the Python API. `https://github.com/jacobian/python-cloudservers <https://github.com/jacobian/python-cloudservers>`_
+
+To view info on existing Rackspace servers::
+
+    $ cloudservers list
+
+.. note::
+
+    **FUTURE FEATURE** Amazon EC2 and S3 support is on demand, currently there is no demand, but it should be trivial to add it in.
+
+DNSIMPLE
+========
+Deploy Machine harnesses the dnsimple python API for directing our domain names to our loadbalancer's ip, even after a kill/create. @@@TODO
+
+VIRTUALBOX
+==========
+There is a script fabfile for booting up virtualbox instances instead of cloudservers. This is useful for testing in a developement environment.
+
+FIRST DEPLOYMENT
+================
+After private/personal configuration is complete, the general idea is as follows. From bare metal to production ready:::
+
+    $ fab cloudservers_bootem
+    $ fab root provisionem
+    $ fab dbserver launch:dbserver
+    $ fab loadbalancer launch:loadbalancer
+    $ fab appnode launch:appnode
+
+The ``fab cloudservers_bootem`` command runs the ``boot`` command for each server defined in the ``settings.py``. This will connect to the cloud providers API and boot a new machine.
+
+The ``fab root provisionem`` command runs the ``provision`` command for each server defined in the settings. This sets up core ubuntu packages, ssh, firewall, python, kokki, and root accounts. Security follows the best practice guidelines of the excellent Slicehost documentation.
+
+The ``fab apptype launch:servername`` is called once for each server type and it's goal is to take the newly provisioned servers to a production ready state. The launch command tells Kokki to cook the server to the custom specification defined in defined in the ``kokki-config.yaml``. See ``kokki-config.yaml.dist`` for an example.
+
+.. warning::
+
+    Currently untested with all possible combinations and quantities of server types.
+
+SCALING UP AND DOWN
+===================
+It should be effortless to split a combined dbappbalancer. First into an appbalancer and dbserver, then into three separate servers. Lastly it should be possible to increase/decrease the number of appnodes.
+
+.. warning::
+
+    **FUTURE FEATURE** Currently appbalacner works, but not dbappbalacner. The transition part is not complete either. This is a work in process, stay tuned.
+
+ONGOING DEPLOYMENTS
+===================
+To add a new app node to the mix follow the three step process::
+    $ fab boot appnode2
+    $ fab provision appnode2
+    $ fab appnode launch:appnode2
+
+Deploy machine provides a Fabric API for maintaining your application. Commands for git, pip, supervisor, nginx and django are included. See the ``dm_fab`` namespace for all the available options.
+
+DEPLOY MACHINE CONFIG
+=====================
+Private and custom settings live in ``settings.py``::
+
+    $ cp settings.dist.py settings.py
+
+Read the code to become comfortable with the API, its documented quite well.
+
+KOKKI VERSION NOTE
+==================
+Deploy Machine is a version behind on kokki, the recipies need an updating. The current cookbooks are in kokki-cookbooks. While the recipies are being upgrade, there are three folders.
+
+    kcb-new: Cookbooks which only exist in the new version of kokki.
+    kcb-unmodified: Existing cookbooks which will upgrade painlessly.
+    kcb-modfied: Cookbooks which have been modfied, sometimes quite heavily. These cookbooks will need to be converted to the new Kokki format manually.
+
+See ``kcb_TODO.rst`` for details.
+
+CONTRIBUTING
+============
+I hope you find some of the ideas here useful even if you don't use the code iself. I welcome advice and opinions, this is my first major attempt at a contribution of my own.

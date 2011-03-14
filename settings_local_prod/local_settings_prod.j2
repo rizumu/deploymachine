@@ -1,0 +1,93 @@
+import cloudservers
+
+DEBUG = False
+TEMPLATE_DEBUG = DEBUG
+COMPRESS = not DEBUG
+
+SENTRY_REMOTE_URL = ""
+SENTRY_KEY = ""
+SENTRY_ADMINS = (
+    ("Admin", "me@example.com"),
+)
+
+# Rackspace
+CUMULUS_USERNAME = "rizumu"
+CUMULUS_API_KEY = ""
+DEFAULT_FILE_STORAGE = "cumulus.storage.CloudFilesStorage"
+
+cs = cloudservers.CloudServers(CUMULUS_USERNAME, CUMULUS_API_KEY)
+for server in cs.servers.list():
+    if server.metadata["role"] == "dbserver":
+        db_internal_ip = server.addresses["private"][0]
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": "",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": db_internal_ip,
+        "PORT": "",
+   }
+}
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "sendmail@example.com"
+EMAIL_HOST_PASSWORD = ""
+EMAIL_PORT = 587
+
+
+CACHE_BACKEND = "redis_cache.cache://127.0.0.1:6379/?timeout=1500/"
+
+CUMULUS_CONTAINER = ""
+SECRET_KEY = ""
+
+GOOGLE_ANALYTICS_ID = ""
+OBSERVER_ID = ""
+REINVIGORATE_ID = ""
+
+AKISMET_API_KEY = ""
+DISQUS_API_KEY = ""
+DISQUS_WEBSITE_SHORTNAME = ""
+
+FACEBOOK_APPLICATION_ID = ""
+FACEBOOK_API_KEY = ""
+FACEBOOK_APPLICATION_SECRET = ""
+
+TWITTER_CONSUMER_KEY = ""
+TWITTER_CONSUMER_SECRET_KEY = ""
+TWITTER_REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
+TWITTER_ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
+TWITTER_AUTHORIZATION_URL = "https://api.twitter.com/oauth/authorize"
+
+OAUTH_ACCESS_SETTINGS = {
+    "facebook": {
+        "keys": {
+            "KEY": FACEBOOK_APPLICATION_ID,
+            "SECRET": FACEBOOK_APPLICATION_SECRET,
+        },
+        "endpoints": {
+            "access_token": "https://graph.facebook.com/oauth/access_token",
+            "authorize": "https://graph.facebook.com/oauth/authorize",
+            "provider_scope": [""],
+            "callback": "lib.oauth_callbacks.facebook_callback",
+        },
+    },
+    "twitter": {
+        "keys": {
+            "KEY": TWITTER_CONSUMER_KEY,
+            "SECRET": TWITTER_CONSUMER_SECRET_KEY,
+        },
+        "endpoints": {
+            "access_token": TWITTER_ACCESS_TOKEN_URL,
+            "authorize": TWITTER_AUTHORIZATION_URL,
+            "provider_scope": [""],
+            "request_token": TWITTER_REQUEST_TOKEN_URL,
+            "callback": "lib.oauth_callbacks.twitter_callback",
+        },
+    },
+    # "linkedin": "xxx",
+    # "yahoo": "xxx",
+    # "gmail": "xxx",
+}

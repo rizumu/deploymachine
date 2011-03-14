@@ -1,0 +1,14 @@
+*.pyc
+*.swp
+*.pub
+*_rsa
+*~
+kokki-config.yaml
+fabfile_local.py
+settings_local_dev/*.py
+settings_local_prod/*.py
+settings_deploymachine.py
+
+kokki-cookbooks
+_kcb-todo/
+gunicorn/*.conf

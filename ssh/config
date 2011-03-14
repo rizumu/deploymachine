@@ -1,0 +1,4 @@
+HostName github.com
+    StrictHostKeyChecking no
+    User git
+    IdentityFile /home/deploy/.ssh/rackspacecloud_rsa
