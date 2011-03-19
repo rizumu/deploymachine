@@ -35,13 +35,16 @@ Flavors:
     | 7  | 15.5GB server | 15872 | 620  |
     +----+---------------+-------+------+
 """
-# DeployMachine would have fewer lines of code and less complexity if it
+
+# Options "kokki", puppet", "chef"
+CONFIGURATORS = ["chef", "kokki", "puppet"]
+# DeployMachine would have fewer lines of code and a little less complex if it
 # ran all commands as root, but taking the extra precaution of requiring sudo
 # authentication for all commands post provision will be worth the added effort.
 DEPLOY_USERNAME = "deploy"
 # It is first necessary to encrypt the password with a unique password and salt:
-    # $ perl -e "print crypt('D3pl0YM@c4In3', '1k8u')"
-    # $ 1kHr.Jjj7EqAM
+    #perl -e "print crypt('D3pl0YM@c4In3', '1k8u')"
+DEPLOY_PASSWORD_RAW = "D3pl0YM@c4In3"
 DEPLOY_PASSWORD = "1kHr.Jjj7EqAM"
 
 DEPLOY_MACHINE_ROOT = "/var/www/lib/deploymachine"
@@ -56,24 +59,26 @@ CUMULUS_USERNAME = "me"
 CUMULUS_API_KEY = "@@@"
 CUMULUS_DEFAULT_IMAGE_ID = 69
 CLOUDSERVERS = {"appnode": [("finnegan", "1")]}
+PUPPETMASTER = "finnegan" # Name of puppetmaster machiene
 
-# @@@ Eventually we should allow a custom python version, ie 2.5, 2.6, 2.7.1
+# @@@ Eventually auto build a custom python version, ie 2.5, 2.6, 2.7.1
 PYTHON_VERSION = "2.6" #Distro's python version
 PINAX_VERSION = "0.9a2.dev10"
 
 # Change the default SSH port of 22
 SSH_PORT = "30000"
+# The following core packages are essential, only append core packages here.
+# Non-core packages to be installed via a configurationa management recipe.
 BASE_PACKAGES = [
     "build-essential",
-    "python-dev",
     "git-core",
-    "mercurial",
-    "libyaml-0-2",
-    "libyaml-dev",
-    "python-jinja2",
-    "python-yaml",
     "libjpeg62",
     "libjpeg62-dev",
+    "libyaml-0-2",
+    "libyaml-dev",
+    "mercurial",
+    "python-dev",
+    "python-yaml",
 ]
 # The names of the public key files for users who should have SSH access
 # Place these files in the ssh/ folder of ``DEPLOY_MACHINE_ROOT``
