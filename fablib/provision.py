@@ -31,6 +31,12 @@ def provision(public_ip, puppetmaster=False):
     Provisions a node.
     Usage:
         fab root provision:ip=127.0.0.1
+
+    .. warning::
+        If you get the following error, kill the machine and try again:
+        ``Server key was changed recently, or possible man-in-the-middle attack.``
+        @@@ Figure out why this occasionaly happens and prevent it.
+
     """
     if env.user != 'root':
         raise NotImplementedError()
@@ -56,9 +62,6 @@ def provision(public_ip, puppetmaster=False):
         run("python setup.py install && rm -rf /tmp/vcprompt/")
     run("easy_install pip && pip install virtualenv")
     # configuration management
-    if "chef" in settings.CONFIGURATORS:
-        run("aptitude install -y rdoc ruby rubygems")
-        run("gem install chef")
     if "kokki" in settings.CONFIGURATORS:
         run("aptitude install -y python-jinja2")
         put("{0}/kokki-config.yaml".format(settings.DEPLOY_MACHINE_ROOT),
@@ -68,12 +71,15 @@ def provision(public_ip, puppetmaster=False):
         run("chown -R {0}:{0} /home/{0}/".format("deploy"))
         run("pip install kokki=={0} python-cloudservers=={1}".format(
              KOKKI_VERSION, PYTHON_CLOUDSERVERS_VERSION))
-    if "puppet" in settings.CONFIGURATORS:
-        run("aptitude install -y ruby rubygems")
-        if puppetmaster == True:
-            run("aptitude install -y puppetmaster")
-        run("gem install puppet")
-        # https://github.com/uggedal/ddw-puppet # puppet example
+    if "chef" or "puppet" in settings.CONFIGURATORS:
+        run("aptitude install -y ruby-dev rubygems rdoc")
+        if "chef" in settings.CONFIGURATORS:
+            run("gem install chef")
+        if "puppet" in settings.CONFIGURATORS:
+            if puppetmaster == True:
+                run("aptitude install -y puppetmaster")
+            run("gem install puppet")
+            # https://github.com/uggedal/ddw-puppet # puppet example
     # firewall + prevent root login
     upload_template("templates/iptables.up.rules-provision.j2", "/etc/iptables.up.rules",
                     context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)
