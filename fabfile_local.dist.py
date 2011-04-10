@@ -24,6 +24,7 @@ def git_pull_pinax():
     with cd(settings.PINAX_ROOT):
         sudo("git pull", user=env.user)
 
+
 def dump_data_rizumu():
     venv("python manage.py dumpdata --format=yaml --indent=4 --natural \
           events people music places hyperlinks > ../../dumps/sitedump.yaml", "rizumu")
@@ -54,6 +55,7 @@ def full_deploy(collectstatic=False):
     git_pull()
     if collectstatic:
         collectstatic()
+
 
 def symlinks(connection, site=None):
     """
