@@ -15,5 +15,5 @@ def iptables():
                         "/etc/iptables.up.rules", use_sudo=True, use_jinja=True,
                         context={"SSH_PORT": settings.SSH_PORT})
         sudo("iptables --flush")
-        sudo("/sbin/iptables-restore < /etc/iptables.up.rules && 
+        sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
               rm -rf /root/.ssh/ && /etc/init.d/ssh reload")

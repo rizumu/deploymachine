@@ -58,7 +58,7 @@ def launch(role):
         sudo("groupadd --force webmaster")
         useradd(env.user, env.password)
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")
-        sudo("mkdir --parents {0} && chown -R deploy:webmaster {1} {2}".format(settings.LIB_ROOT, settings.SITES_ROOT) user=env.user))
+        sudo("mkdir --parents {0} && chown -R deploy:webmaster {1} {2}".format(settings.LIB_ROOT, settings.SITES_ROOT, user=env.user))
         with cd(settings.LIB_ROOT):
             sudo("git clone git@github.com:{0}/deploy-machine.git && git checkout master".format(env.github_username), user=env.user)
         # http://www.saltycrane.com/blog/2009/07/using-psycopg2-virtualenv-ubuntu-jaunty/

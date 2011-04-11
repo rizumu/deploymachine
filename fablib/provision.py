@@ -3,7 +3,7 @@ from fabric.contrib.files import append, upload_template
 
 from deploymachine.conf import settings
 from deploymachine.fablib.bootstrap.rackspace import cloudservers_get_ips
-from deploymachine.fablib.puppet import is_puppetmaster
+from deploymachine.fablib.scm.puppet import is_puppetmaster
 from deploymachine.fablib.users import useradd
 
 
