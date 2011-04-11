@@ -39,6 +39,8 @@ Each component and setting of the server stack really should be understood insid
 
 Media files and database backups are stored in the cloud and the application code and configuration is in version control. Therefore all the servers can be killed and rebuilt in a matter of minutes, with no fear of data loss.
 
+Very little OS specific logic occurs in the DeployMachine, minus the provision step. It is the job of Kokki, Puppet, or Chef to manage the OS packages beyond bootstrapping.
+
 
 SERVER TYPES
 ============
@@ -141,7 +143,7 @@ Read the code to become comfortable with the API, its documented quite well.
 
 KOKKI VERSION NOTE
 ==================
-Deploy Machine is a version behind on kokki and the recipies need an updating. The current cookbooks are in kokki-cookbooks. While the recipies are being upgraded, there are three folders.
+DeployMachine is a version behind on kokki and the recipies need an updating. The current cookbooks are in kokki-cookbooks. While the recipies are being upgraded, there are three folders.
 
     kcb-new: Cookbooks which only exist in the new version of kokki.
     kcb-unmodified: Existing cookbooks which will upgrade painlessly.
@@ -149,3 +151,8 @@ Deploy Machine is a version behind on kokki and the recipies need an updating. T
 
 See ``kcb_TODO.rst`` for details.
 
+
+OS NOTE
+=======
+DeployMachine runs on the current version of Ubuntu Server.
+Debian, Fedora and Arch support to come.
