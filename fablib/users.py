@@ -19,7 +19,7 @@ def useradd(username):
         if settings.DOTFILE_REPOSITORY:
             run("useradd --password {0} --groups wheel,sshers deploy".format(settings.DEPLOY_PASSWORD))
             run("git clone {0} {1}".format(settings.DOTFILE_REPOSITORY, settings.DEPLOY_HOME))
-            append(join(settings.DEPLOY_HOME, "/.git/info/exclude"), "\*") # exclude everything from git
+            append(join(settings.DEPLOY_HOME, ".git/info/exclude"), "\*") # exclude everything from git
         else:
             run("useradd --password {0} --create-home --groups wheel,sshers deploy".format(settings.PASSWORD))
         with cd(settings.DEPLOY_HOME):

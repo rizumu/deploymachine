@@ -1,3 +1,5 @@
+import os
+
 import cloudservers
 from fabric.api import local
 
@@ -30,15 +32,15 @@ def cloudservers_list():
 
 
 def cloudservers_boot(role, nodename, flavor=1,
-                      image=settings.CUMULUS_DEFAULT_IMAGE_ID):
+                      image=settings.CLOUD_SERVERS_DEFAULT_IMAGE_ID):
     """
     Boot a new node.
     Optionally takes an image name/id from which to clone from, or a flavor type.
     Usage:
         fab boot:role,nodename
     """
-    cs = cloudservers.CloudServers(settings.CUMULUS_USERNAME,
-                               settings.CUMULUS_API_KEY)
+    cs = cloudservers.CloudServers(os.environ.get("CLOUD_SERVERS_USERNAME"),
+                                   os.environ.get("CLOUD_SERVERS_API_KEY"))
     if type(image) is int:
         image_id = image
     elif type(image) is str:
@@ -52,7 +54,7 @@ def cloudservers_boot(role, nodename, flavor=1,
                --meta role={2} {3}".format(image_id, flavor, role, nodename))
 
 
-def cloudservers_bootem(image=settings.CUMULUS_DEFAULT_IMAGE_ID):
+def cloudservers_bootem(image=settings.CLOUD_SERVERS_DEFAULT_IMAGE_ID):
     """
     Boots the nodes for all roles in ``CLOUDSERVERS``.
     Optionally takes an image name/id from which to clone from.
@@ -91,9 +93,10 @@ def cloudservers_get_ips(roles, port="22", ip_type="public", append_port=True):
         fab cloudservers_get_ips("appnode", PORT, "private")
     """
     ips = []
-    cs = cloudservers.CloudServers(settings.CUMULUS_USERNAME,
-                                   settings.CUMULUS_API_KEY)
+    cs = cloudservers.CloudServers(os.environ.get("CLOUD_SERVERS_USERNAME"),
+                                   os.environ.get("CLOUD_SERVERS_API_KEY"))
     for server in cs.servers.list():
+
         for role in roles:
             if role == server.metadata["role"] and append_port:
                 ips.append(server.addresses[ip_type][0] + ":" + port)

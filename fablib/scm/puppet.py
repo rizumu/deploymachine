@@ -1,3 +1,5 @@
+import os
+
 import cloudservers
 
 from deploymachine.conf import settings
@@ -9,8 +11,8 @@ def is_puppetmaster(public_ip=None, server_name=None):
     Usage:
         fab is_puppetmaster(server_name)
     """
-    cs = cloudservers.CloudServers(settings.CUMULUS_USERNAME,
-                                   settings.CUMULUS_API_KEY)
+    cs = cloudservers.CloudServers(os.environ.get("CLOUD_SERVERS_USERNAME"),
+                                   os.environ.get("CLOUD_SERVERS_API_KEY"))
     for server in cs.servers.list():
         if (server.name == settings.PUPPETMASTER and
             (public_ip == server.public_ip or server_name == server.name)):

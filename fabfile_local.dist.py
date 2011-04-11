@@ -8,7 +8,7 @@ from deploymachine.fablib.supervisor import supervisor
 from deploymachine.fablib.fab import venv, venv_local
 
 
-PYDISCOGS_ROOT = "{0}/pydiscogs/pydiscogs".format(LIB_ROOT)
+PYDISCOGS_ROOT = "{0}/pydiscogs/pydiscogs".format(settings.LIB_ROOT)
 
 
 def deploy_git_rizumu():
@@ -73,29 +73,29 @@ def symlinks(connection, site=None):
         site_list = [site]
     if connection == "dev":
         site_packages = join(settings.VIRTUALENVS_ROOT, site,
-                        "/lib/python{0}".format(settings.PYTHON_VERSION),
-                        "/site-packages/")
+                        "lib/python{0}/".format(settings.PYTHON_VERSION),
+                        "site-packages/")
         for site in site_list:
             local("ln -sf {0} {1}".format(settings.PINAX_ROOT, 
-                  join(site_packages, "/pinax")))
+                  join(site_packages, "pinax")))
             local("ln -sf {0} {1}".format(settings.PYDISCOGS_ROOT, 
-                  join(site_packages, "/pydiscogs")))
-            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "/fabfile.py", 
-                                          join(settings.SITES_ROOT, site, site, "/fabfile.py"))
-            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "/settings.py"), 
-                                          join(settings.SITES_ROOT, site, site, "/settings.py")
-            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "/fablib/"),
-                                          join(settings.SITES_ROOT, site, site, "/fablib/"))
-        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "/fabfile.py"),
-                                      join(settings.DEPLOYMACHINE_ROOT, "/fabfile.py"))
-        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "/settings.py"),
-                                      join(settings.DEPLOYMACHINE_ROOT, "/settings.py"))
-        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "/fablib/"),
-                                      join(settings.DEPLOYMACHINE_ROOT, "/fablib/"))
+                  join(site_packages, "pydiscogs")))
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "fabfile.py"),
+                                          join(settings.SITES_ROOT, site, site, "fabfile.py")))
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "settings.py"),
+                                          join(settings.SITES_ROOT, site, site, "settings.py")))
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "fablib/"),
+                                          join(settings.SITES_ROOT, site, site, "fablib/")))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "fabfile.py"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "fabfile.py")))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "settings.py"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "settings.py")))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "fablib/"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "fablib/")))
     elif connection == "prod":
         for site in site_list:
-1            with cd(site_packages):
-                sudo("ln -sf {0}".format(settings.PINAX_ROOT, user="deploy")
+            with cd(site_packages):
+                sudo("ln -sf {0}".format(settings.PINAX_ROOT), user="deploy")
                 sudo("ln -sf {0}".format(settings.PYDISCOGS_ROOT), user="deploy")
     else:
         print("Bad connection type. Use ``dev`` or ``prod``.")

@@ -7,10 +7,6 @@ from deploymachine.fablib.scm.puppet import is_puppetmaster
 from deploymachine.fablib.users import useradd
 
 
-KOKKI_VERSION = "0.4.1"
-PYTHON_CLOUDSERVERS_VERSION = "1.2"
-
-
 def provisionem():
     """
     Provisions all nodes.
@@ -61,7 +57,7 @@ def provision(public_ip, puppetmaster=False):
     with cd("/tmp/vcprompt/"):
         run("python setup.py install && rm -rf /tmp/vcprompt/")
     run("easy_install pip && pip install virtualenv")
-    # configuration management
+    # software configuration management
     if "kokki" in settings.CONFIGURATORS:
         run("aptitude install -y python-jinja2")
         put("{0}/kokki-config.yaml".format(settings.DEPLOYMACHINE_ROOT),
@@ -70,7 +66,7 @@ def provision(public_ip, puppetmaster=False):
                settings.DEPLOYMACHINE_ROOT, "root", public_ip))
         run("chown -R {0}:{0} /home/{0}/".format("deploy"))
         run("pip install kokki=={0} python-cloudservers=={1}".format(
-             KOKKI_VERSION, PYTHON_CLOUDSERVERS_VERSION))
+             settings.KOKKI_VERSION, settings.PYTHON_CLOUDSERVERS_VERSION))
     if "chef" or "puppet" in settings.CONFIGURATORS:
         run("aptitude install -y ruby-dev rubygems rdoc")
         if "chef" in settings.CONFIGURATORS:

@@ -57,23 +57,23 @@ DEPLOY_HOME = "/home/deploy/"
 DEPLOY_PASSWORD_RAW = "D3pl0YM@c4In3"
 DEPLOY_PASSWORD = "1kHr.Jjj7EqAM"
 
-SITES_ROOT = os.path.join(DEPLOY_HOME, "/www/")
-LIB_ROOT = os.path.join(SITES_ROOT, "/lib/")
-DEPLOYMACHINE_ROOT = os.path.join(LIB_ROOT, "/deploymachine/")
-SCENEMACHINE_ROOT = os.path.join(LIB_ROOT, "/django-scene-machine/scene-machine/")
-PINAX_ROOT = os.path.join(LIB_ROOT, "/pinax/pinax/")
-VIRTUALENVS_ROOT = os.path.join(DEPLOY_HOME, "/.virtualenvs/")
+SITES_ROOT = os.path.join(DEPLOY_HOME, "www/")
+LIB_ROOT = os.path.join(SITES_ROOT, "lib/")
+DEPLOYMACHINE_ROOT = os.path.join(LIB_ROOT, "deploymachine/")
+SCENEMACHINE_ROOT = os.path.join(LIB_ROOT, "django-scene-machine/scene-machine/")
+PINAX_ROOT = os.path.join(LIB_ROOT, "pinax/pinax/")
+VIRTUALENVS_ROOT = os.path.join(DEPLOY_HOME, ".virtualenvs/")
 
 GITHUB_USERNAME = "me"
 GITHUB_TOKEN = "@@@"
 DOTFILE_REPOSITORY = "git://github.com/rizumu/deploymachine-dotfiles.git"
 
-CUMULUS_USERNAME = "me"
-CUMULUS_API_KEY = "@@@"
-CUMULUS_DEFAULT_IMAGE_ID = 69
+CLOUD_SERVERS_DEFAULT_IMAGE_ID = 69 # ubuntu. See ``cloudservers image-list`` for others.
 CLOUDSERVERS = {"appnode": [("finnegan", "1")]}
 PUPPETMASTER = "finnegan" # Name of puppetmaster machiene
 
+KOKKI_VERSION = "0.4.1"
+PYTHON_CLOUDSERVERS_VERSION = "1.2"
 # @@@ Eventually auto build a custom python version, ie 2.5, 2.6, 2.7.1
 PYTHON_VERSION = "2.6" # Distro's python version
 PINAX_VERSION = "0.9a2.dev10"
