@@ -1,33 +1,48 @@
+.. warning::
+   
+   Alpha until configuration management tools are fully supported. At the moment kokki is partially implemented. Then puppet followed by chef.
+
+
 ==========================================
-DEPLOY MACHINE for Python Web Applications
+DEPLOYMACHINE for Python Web Applications
 ==========================================
+
+DeployMachine is:
+
+    Bootstrapping tool for provisioning servers.
+    Tiny wrapper around configuration management tools such as chef, kokki, and puppet.
+    Deployment framework for launching and maintaining websites.
+    A slew of fabric commands for common tasks.
+
 
 INSTALLATION
 ============
 
 .. warning::
     
-    First off, this isn't really a python package. I think parts could end up in site-pacakges, but that is to be seen. DeployMachine is a project similar to a website, it needs an easily accesible folder, settings files, and is recommended for it to have it's own virtualenv. DeployMachine is not a black box. The reccomended place to clone it to is:
-        ``/var/www/lib/deploymachine/``
+    This isn't a python package to install, though it may grow up to be one. It needs an easily accesible folder, settings files, and recommended a ``deploymachine`` virtualenv. DeployMachine is not a black box, it is necessary to read the source.
 
-    I've tried to keep the documentation to match the code as best as possible but since this is alpha, there is slightly more concept in the docs than actual code. Also KIM this system 100% working last Fall, but it has been refactored for public consumption, so now it's not 100% working, and there are remaining personal bits that need to be extracted before a beta. C'est la vie.
+    Replacing ``username`` with your development machine's username, the recommended place to clone to is:
+        ``/home/username/www/lib/deploymachine/`` or ``Users/username/www/lib/deploymachine/``
+
+    The documentation covers the envisioned scope of this project and notes not yet implemented features. A work in progress. C'est la vie.
+
 
 MOTIVATION
 ==========
 SLICEHOST PROVISIONING DOCS: http://articles.slicehost.com/ubuntu-10
 DJANGO DEPLOYMENT WORKSHOP: https://github.com/jacobian/django-deployment-workshop/
 
-Architecting, documenting, and maintaining servers has community supported best practices up until a certain point in an applications life. Deploy machine attempts to put these best practices into code, to allow for launching a high performance web site in two shakes of a lambs tail.
-
-Deploy Machine is a bootstrapping tool for provisioning servers, a deployment framework for launching and maintaining websites, a slew of fabric commands for common tasks, and a tiny wrapper for configuration management tools.
+Launching a high performance web application has community supported best practices. Deploymachine attempts to put these best practices into code, simplifying launching and growing the application.
 
 Each component and setting of the server stack really should be understood inside out. However, sometimes it is prudent to install now and learn later. Deploy Machine attempts to help speed things along by means of sensible defaults. Designed with server scalability in mind, the idea is to start with one server and add or remove them as needed.
 
-Media files and database backups are stored in the cloud and the application code and configuration is in version control. Therefore all the servers can be killed and rebuilt in a matter of minutes, with no fear of data loss. 
+Media files and database backups are stored in the cloud and the application code and configuration is in version control. Therefore all the servers can be killed and rebuilt in a matter of minutes, with no fear of data loss.
+
 
 SERVER TYPES
 ============
-Deploy Machine supports three server types: ``load balancer``, ``application node``, and ``database server``.
+DeployMachine supports three server types: ``load balancer``, ``application node``, and ``database server``.
 
 The current idea is to have one loadbalancer, one dbserver, and potentially multiple appnodes. However, in the case of a small app, it is probably best to start with a dbappblancer first. Or start with an appbalancer and a dbserver as I have done. One the app demands, split the loadbalncer off and scale each type individually.
 
@@ -35,18 +50,20 @@ The current idea is to have one loadbalancer, one dbserver, and potentially mult
 
     **FUTURE FEATURE** A large app may need to add additional types of servers to the process such as a caching server, logging server, or a email server. A high traffic site will possibly need multiple database servers.
 
-Deploy Machine is intent on supporting the most common and practical cases, but not the kitchen sink.
+Deploymachine is intent on supporting the most common and practical cases, but not the kitchen sink.
+
 
 CONFIGURATION MANAGEMENT
 ========================
-Deploy Machine leverages Kokki, a "System configuration management framework influenced by Chef" written in Python. More on Kokki at `http://github.com/samuel/kokki/wiki <https://github.com/samuel/kokki/wiki>`_
+DeployMachine leverages Kokki, a "System configuration management framework influenced by Chef" written in Python. More on Kokki at `http://github.com/samuel/kokki/wiki <https://github.com/samuel/kokki/wiki>`_
 
-Deploy Machine initially attempted to support both kokki and chef, but drifted towards Kokki, because of developer comfortability with Python syntax, and lack of Ruby knowledge. Now
+DeployMachine initially attempted to support both kokki and chef, but drifted towards Kokki, because of developer comfortability with Python syntax, and lack of Ruby knowledge. Now
 there is a strong desire to have a puppet support, and it's easy enough, a few bits are already in place. See: https://github.com/uggedal/ddw-puppet
+
 
 CLOUD SERVERS
 =============
-Deploy Machine supports Rackspace CloudServer and Cloudfiles via the Python API. `https://github.com/jacobian/python-cloudservers <https://github.com/jacobian/python-cloudservers>`_
+DeployMachine supports Rackspace CloudServer and Cloudfiles via the Python API. `https://github.com/jacobian/python-cloudservers <https://github.com/jacobian/python-cloudservers>`_
 
 To view info on existing Rackspace servers::
 
@@ -56,13 +73,16 @@ To view info on existing Rackspace servers::
 
     **FUTURE FEATURE** Amazon EC2 and S3 support is on demand, currently there is no demand, but it should be trivial to add it in.
 
+
 DNSIMPLE
 ========
-Deploy Machine harnesses the dnsimple python API for directing our domain names to our loadbalancer's ip, even after a kill/create. @@@TODO
+DeployMachine harnesses the dnsimple python API for directing our domain names to our loadbalancer's ip, even after a kill/create. @@@TODO
+
 
 VIRTUALBOX
 ==========
 There is a script fabfile for booting up virtualbox instances instead of cloudservers. This is useful for testing in a developement environment.
+
 
 FIRST DEPLOYMENT
 ================
@@ -84,24 +104,33 @@ The ``fab apptype launch:servername`` is called once for each server type and it
 
     Currently untested with all possible combinations and quantities of server types.
 
+
 SCALING UP AND DOWN
 ===================
-It should be effortless to split a combined dbappbalancer. First into an appbalancer and dbserver, then into three separate servers. Lastly it should be possible to increase/decrease the number of appnodes.
+First start with a combined dbappbalancer, then when necessary split into an appbalancer and dbserver, followed by loadbalancer, appnode, dbserver. 
+
+Once application growth warrants more power, increase/decrease the number of appnodes, add a cachenode, lognode, or tasknode. 
+
+Growth beyond this can only suggest that the application is bringing in revenue. The good news is that the deploymachine has already prepared the application for further expansion by neatly separating repsonsibility between services.  
 
 .. warning::
 
-    **FUTURE FEATURE** Currently appbalacner works, but not dbappbalacner. The transition part is not complete either. This is a work in process, stay tuned.
+    Currently implemented are loadbalancer, appnode, dbserver and appbalancer.
+    Not yet implemented are dbappbalacner, cachenode, lognode or tasknode. 
+    The splitting process is not yet implemented, stay tuned.
+
 
 ONGOING DEPLOYMENTS
 ===================
-To add a new app node to the mix follow the three step process::
+To add a new app node to the mix follow this three step process::
     $ fab boot appnode2
     $ fab provision appnode2
     $ fab appnode launch:appnode2
 
-Deploy machine provides a Fabric API for maintaining your application. Commands for git, pip, supervisor, nginx and django are included. See the ``dm_fab`` namespace for all the available options.
+Deploy machine provides a Fabric API for maintaining your application. Commands for git, pip, supervisor, nginx, django and more are included. See the ``dm_fab`` namespace for all the available options, or help extend the existing library. Domain specific commands should be imported in fab_local.py. An example ``fab_local.dist.py`` is included.
 
-DEPLOY MACHINE CONFIG
+
+DEPLOYMACHINE CONFIG
 =====================
 Private and custom settings live in ``settings.py``::
 
@@ -109,9 +138,10 @@ Private and custom settings live in ``settings.py``::
 
 Read the code to become comfortable with the API, its documented quite well.
 
+
 KOKKI VERSION NOTE
 ==================
-Deploy Machine is a version behind on kokki, the recipies need an updating. The current cookbooks are in kokki-cookbooks. While the recipies are being upgrade, there are three folders.
+Deploy Machine is a version behind on kokki and the recipies need an updating. The current cookbooks are in kokki-cookbooks. While the recipies are being upgraded, there are three folders.
 
     kcb-new: Cookbooks which only exist in the new version of kokki.
     kcb-unmodified: Existing cookbooks which will upgrade painlessly.
@@ -119,6 +149,3 @@ Deploy Machine is a version behind on kokki, the recipies need an updating. The 
 
 See ``kcb_TODO.rst`` for details.
 
-CONTRIBUTING
-============
-I hope you find some of the ideas here useful even if you don't use the code iself. I welcome advice and opinions, this is my first major attempt at a contribution of my own.

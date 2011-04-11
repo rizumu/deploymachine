@@ -53,6 +53,7 @@ def pip_install(connection, repo, package, path=None, version=None, site=None):
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
 
+
 def pip_uninstall(connection, package, site=None):
     """
     Run the pip requirements file for a project.

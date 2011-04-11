@@ -1,22 +1,25 @@
+# scenemachine specific
 from fabric.api import cd, env, local, sudo
 
 from deploymachine.conf import settings
 from deploymachine.fablib.django import collectstatic, settings_local
-from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploy_machine
+from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploymachine
 from deploymachine.fablib.supervisor import supervisor
 from deploymachine.fablib.fab import venv, venv_local
 
 
-# rizumu specific
+PYDISCOGS_ROOT = "{0}/pydiscogs/pydiscogs".format(LIB_ROOT)
+
+
 def deploy_git_rizumu():
     git_pull("rizumu")
-    git_pull_scene_machine()
+    git_pull_scenemachine()
     collectstatic("rizumu")
     supervisor("rizumu")
 
 
-def git_pull_scene_machine():
-    with cd(settings.SCENE_MACHINE_ROOT):
+def git_pull_sceneachine():
+    with cd(settings.SCENEMACHINE_ROOT):
         sudo("git pull", user=env.user)
 
 
@@ -33,10 +36,10 @@ def dump_data_rizumu():
 def loaddata_sites(connection):
     if connection == 'dev':
         venv_local("python manage.py loaddata\
-        /var/www/lib/django-scene-machine/scene-machine/fixtures/sites/site_data.yaml", "smus")
+        /home/deploy/www/lib/scenemachine/scenemachine/fixtures/sites/site_data.yaml", "smus")
     elif connection == "prod":
         venv("python manage.py loaddata\
-        /var/www/lib/django-scene-machine/scene-machine/fixtures/sites/site_data.yaml", "smus")
+        /home/deploy/www/lib/scenemachine/scenemachine/fixtures/sites/site_data.yaml", "smus")
     else:
         print("Bad connection type. Use ``dev`` or ``prod``.")
 
@@ -49,8 +52,8 @@ def full_deploy(collectstatic=False):
 
     Remember to handle requirements separately.
     """
-    git_pull_deploy_machine()
-    git_pull_scene_machine()
+    git_pull_deploymachine()
+    git_pull_scenemachine()
     settings_local("prod")
     git_pull()
     if collectstatic:
@@ -69,24 +72,31 @@ def symlinks(connection, site=None):
     else:
         site_list = [site]
     if connection == "dev":
+        site_packages = join(settings.VIRTUALENVS_ROOT, site,
+                        "/lib/python{0}".format(settings.PYTHON_VERSION),
+                        "/site-packages/")
         for site in site_list:
-            try:
-                local("ln -sf /var/www/lib/pinax/pinax ~/.virtualenvs/{0}/lib/python2.7/site-packages/pinax".format(site))
-                local("ln -sf /var/www/lib/pydiscogs/pydiscogs ~/.virtualenvs/{0}/lib/python2.7/site-packages/pydiscogs".format(site))
-            except:
-                local("ln -sf /var/www/lib/pinax/pinax ~/.virtualenvs/{0}/lib/python2.6/site-packages/pinax".format(site))
-                local("ln -sf /var/www/lib/pydiscogs/pydiscogs ~/.virtualenvs/{0}/lib/python2.6/site-packages/pydiscogs".format(site))
-            local("ln -sf /var/www/lib/deploy-machine/fabfile.py /var/www/{0}/{0}/fabfile.py".format(site))
-            local("ln -sf /var/www/lib/deploy-machine/settings.py /var/www/{0}/{0}/settings.py".format(site))
-            local("ln -sf /var/www/lib/deploy-machine/dmfab /var/www/{0}/{0}/dmfab".format(site))
-        local("ln -sf /var/www/lib/deploy-machine/fabfile.py /var/www/lib/django-scene-machine/fabfile.py".format(site))
-        local("ln -sf /var/www/lib/deploy-machine/settings.py /var/www/lib/django-scene-machine/settings.py".format(site))
-        local("ln -sf /var/www/lib/deploy-machine/dmfab /var/www/lib/django-scene-machine/dmfab".format(site))
+            local("ln -sf {0} {1}".format(settings.PINAX_ROOT, 
+                  join(site_packages, "/pinax")))
+            local("ln -sf {0} {1}".format(settings.PYDISCOGS_ROOT, 
+                  join(site_packages, "/pydiscogs")))
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "/fabfile.py", 
+                                          join(settings.SITES_ROOT, site, site, "/fabfile.py"))
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "/settings.py"), 
+                                          join(settings.SITES_ROOT, site, site, "/settings.py")
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "/fablib/"),
+                                          join(settings.SITES_ROOT, site, site, "/fablib/"))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "/fabfile.py"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "/fabfile.py"))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "/settings.py"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "/settings.py"))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "/fablib/"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "/fablib/"))
     elif connection == "prod":
         for site in site_list:
-            with cd("/home/deploy/.virtualenvs/{0}/lib/python{1}/site-packages".format(site, env.python_version)):
-                sudo("ln -sf /var/www/lib/pinax/pinax", user="deploy")
-                sudo("ln -sf /var/www/lib/pydiscogs/pydiscogs".format(settings.PINAX_ROOT), user="deploy")
+1            with cd(site_packages):
+                sudo("ln -sf {0}".format(settings.PINAX_ROOT, user="deploy")
+                sudo("ln -sf {0}".format(settings.PYDISCOGS_ROOT), user="deploy")
     else:
         print("Bad connection type. Use ``dev`` or ``prod``.")
 

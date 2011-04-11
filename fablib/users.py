@@ -1,3 +1,5 @@
+from os.path import join
+
 from fabric.api import cd, run
 from fabric.contrib.files import append
 from fablib.credentials import ssh, gitconfig
@@ -16,11 +18,11 @@ def useradd(username):
     if username == settings.DEPLOY_USERNAME:
         if settings.DOTFILE_REPOSITORY:
             run("useradd --password {0} --groups wheel,sshers deploy".format(settings.DEPLOY_PASSWORD))
-            run("git clone {0} /home/deploy".format(settings.DOTFILE_REPOSITORY))
-            append("/home/deploy/.git/info/exclude", "\*")
+            run("git clone {0} {1}".format(settings.DOTFILE_REPOSITORY, settings.DEPLOY_HOME))
+            append(join(settings.DEPLOY_HOME, "/.git/info/exclude"), "\*") # exclude everything from git
         else:
             run("useradd --password {0} --create-home --groups wheel,sshers deploy".format(settings.PASSWORD))
-        with cd("/home/deploy/"):
+        with cd(settings.DEPLOY_HOME):
             run("mkdir .virtualenvs")
             run("mkdir --mode 700 .ssh/")
         run("chsh --shell /bin/bash deploy")

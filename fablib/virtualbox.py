@@ -8,6 +8,8 @@ def create_vm(name):
         fab create_vm:name=my_vm
 
     Assumes you already have downloaded a blank local image.
+    Use vagrant?
+    http://vagrantup.com/docs/getting-started/index.html
     """
     local("VBoxManage clonevdi lucid-server.vdi %s.vdi" % name)
     local("VBoxManage createvm --name '%s' --ostype 'Ubuntu_64'  --register" % name)

@@ -27,7 +27,7 @@ roles:
     loadbalancer:
         description: Load Balancer role
         parents: [base]
-        recipes: [nginx.scene_machine, supervisor, munin.master]
+        recipes: [nginx.scenemachine, supervisor, munin.master]
         default_attributes:
             nginx.worker_processes: 4
             nginx.worker_connections: 100

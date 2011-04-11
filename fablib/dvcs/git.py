@@ -19,15 +19,11 @@ def git_pull(site=None):
         supervisor("gunicorn-{0}".format(site))
 
 
-def git_pull_deploy_machine():
-    with cd(settings.DEPLOY_MACHINE_ROOT):
-        sudo("git pull", user=env.deploy_username)
+def git_pull_deploymachine():
+    with cd(settings.DEPLOYMACHINE_ROOT):
+        sudo("git pull", user=env.user)
 
 
 def git_log(site=None):
     "show last 3 commits"
     venv("git log -3", "rizumu")
-    with cd(settings.SCENE_MACHINE_ROOT):
-        sudo("git log -3", user=env.user)
-    with cd(settings.PINAX_ROOT):
-        sudo("git log -3", user=env.user)

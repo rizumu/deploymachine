@@ -1,3 +1,5 @@
+from os.path import join
+
 from fabric.api import put, run
 from fabric.contrib.files import append
 
@@ -10,18 +12,18 @@ def ssh():
 
     For more info, see the installation documentation regarding SSH.
     """
-    put("{0}/ssh/rackspacecloud_rsa".format(settings.DEPLOY_MACHINE_ROOT),
-        "/home/deploy/.ssh/rackspacecloud_rsa", mode=0600)
-    put("{0}/ssh/rackspacecloud_rsa.pub".format(settings.DEPLOY_MACHINE_ROOT),
-        "/home/deploy/.ssh/rackspacecloud_rsa.pub", mode=0644)
-    put("{0}/ssh/config".format(settings.DEPLOY_MACHINE_ROOT),
-        "/home/deploy/.ssh/config", mode=0600)
-    put("{0}/ssh/authorized_keys".format(settings.DEPLOY_MACHINE_ROOT),
-        "/home/deploy/.ssh/authorized_keys", mode=0600)
+    put(join(settings.DEPLOYMACHINE_ROOT, "/ssh/rackspacecloud_rsa"),
+        join(settings.DEPLOY_HOME, "/.ssh/rackspacecloud_rsa"), mode=0600)
+    put(join(settings.DEPLOYMACHINE_ROOT, "/ssh/rackspacecloud_rsa.pub"),
+        join(settings.DEPLOY_HOME, "/.ssh/rackspacecloud_rsa.pub"), mode=0644)
+    put(join(settings.DEPLOYMACHINE_ROOT, "/ssh/config"),
+        join(settings.DEPLOY_HOME, "/.ssh/config"), mode=0600)
+    put(join(settings.DEPLOYMACHINE_ROOT, "/ssh/authorized_keys"),
+        join(settings.DEPLOY_HOME, "/.ssh/authorized_keys"), mode=0600)
     for admin in settings.ADMIN_SSH_KEYS:
-        append("/home/deploy/.ssh/authorized_keys", "# {0}".format(admin))
-        append("/home/deploy/.ssh/authorized_keys".format(settings.DEPLOY_MACHINE_ROOT),
-               open("{0}/ssh/{1}".format(settings.DEPLOY_MACHINE_ROOT, admin), "rb").read())
+        append(join(settings.DEPLOY_HOME, "/.ssh/authorized_keys"), "# {0}".format(admin))
+        append(join(settings.DEPLOYMACHINE_ROOT, "/.ssh/authorized_keys"),
+               open(join(settings.DEPLOYMACHINE_ROOT, "/ssh/", admin), "rb").read())
 
 
 def gitconfig():

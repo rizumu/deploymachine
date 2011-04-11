@@ -5,17 +5,24 @@ Assumptions:
     You name the github project the same as the website.
 
 The Deploy Machine will create following folder for each website:
-    ``/var/www/sitename/``
+    ``/home/deploy/www/sitename/``
 
 Inside of this folder, Deploy Machine will checkout your github project of
 the same exact name, and inside the top level of that project, it expects to
 find the following structure.
 
-    ``/var/www/sitename/sitemame/.git``
-    ``/var/www/sitename/sitemame/manage.py``
-    ``/var/www/sitename/sitemame/settings.py``
-    ``/var/www/sitename/sitemame/settings_local.py``
-    ``/var/www/sitename/sitemame/requirements.txt``
+    ``/home/deploy/www/sitename/sitemame/.git``
+    ``/home/deploy/www/sitename/sitemame/manage.py``
+    ``/home/deploy/www/sitename/sitemame/settings.py``
+    ``/home/deploy/www/sitename/sitemame/settings_local.py``
+    ``/home/deploy/www/sitename/sitemame/requirements.txt``
+
+Use of the sitename/sitename structure  is to make a place for site
+specific files and folders that are outside of the repository. Mostly
+useful for local development, examples are high-res photos, personal 
+notes, local media files, fixture dumps, etc. A simple example is 
+to store some high-res photos in ``home/deploy/www/sitename/highres``
+theryby keeping them out of the repo.
 
 Roles are:
     loadbalancer, appnode, dbserver,
@@ -35,6 +42,8 @@ Flavors:
     | 7  | 15.5GB server | 15872 | 620  |
     +----+---------------+-------+------+
 """
+import os
+
 
 # Options "kokki", puppet", "chef"
 CONFIGURATORS = ["chef", "kokki", "puppet"]
@@ -42,14 +51,18 @@ CONFIGURATORS = ["chef", "kokki", "puppet"]
 # ran all commands as root, but taking the extra precaution of requiring sudo
 # authentication for all commands post provision will be worth the added effort.
 DEPLOY_USERNAME = "deploy"
+DEPLOY_HOME = "/home/deploy/"
 # It is first necessary to encrypt the password with a unique password and salt:
     #perl -e "print crypt('D3pl0YM@c4In3', '1k8u')"
 DEPLOY_PASSWORD_RAW = "D3pl0YM@c4In3"
 DEPLOY_PASSWORD = "1kHr.Jjj7EqAM"
 
-DEPLOY_MACHINE_ROOT = "/var/www/lib/deploymachine"
-SCENE_MACHINE_ROOT = "/var/www/lib/django-scene-machine/scene-machine"
-PINAX_ROOT = "/var/www/lib/pinax/pinax"
+SITES_ROOT = os.path.join(DEPLOY_HOME, "/www/")
+LIB_ROOT = os.path.join(SITES_ROOT, "/lib/")
+DEPLOYMACHINE_ROOT = os.path.join(LIB_ROOT, "/deploymachine/")
+SCENEMACHINE_ROOT = os.path.join(LIB_ROOT, "/django-scene-machine/scene-machine/")
+PINAX_ROOT = os.path.join(LIB_ROOT, "/pinax/pinax/")
+VIRTUALENVS_ROOT = os.path.join(DEPLOY_HOME, "/.virtualenvs/")
 
 GITHUB_USERNAME = "me"
 GITHUB_TOKEN = "@@@"
@@ -62,7 +75,7 @@ CLOUDSERVERS = {"appnode": [("finnegan", "1")]}
 PUPPETMASTER = "finnegan" # Name of puppetmaster machiene
 
 # @@@ Eventually auto build a custom python version, ie 2.5, 2.6, 2.7.1
-PYTHON_VERSION = "2.6" #Distro's python version
+PYTHON_VERSION = "2.6" # Distro's python version
 PINAX_VERSION = "0.9a2.dev10"
 
 # Change the default SSH port of 22
@@ -81,7 +94,7 @@ BASE_PACKAGES = [
     "python-yaml",
 ]
 # The names of the public key files for users who should have SSH access
-# Place these files in the ssh/ folder of ``DEPLOY_MACHINE_ROOT``
+# Place these files in the ssh/ folder of ``DEPLOYMACHINE_ROOT``
 ADMIN_SSH_KEYS = [
     "me.pub",
     "you.pub",

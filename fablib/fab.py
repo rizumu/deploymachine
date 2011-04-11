@@ -1,3 +1,5 @@
+from os.path import join
+
 from fabric.api import cd, env, sudo, local
 
 from bootstrap.rackspace import cloudservers_get_ips
@@ -49,11 +51,12 @@ def dbappbalancer():
 def venv(command, site):
     "The Python virtual environment used on the servers."
     with cd("/var/www/{0}/{0}".format(site)):
-        sudo("source /home/deploy/.virtualenvs/{0}/bin/activate && {1}".format(site, command),
-            user=env.user)
+        sudo("source {0} && {1}".format(
+             join(settings.VIRTUALENVS_DIR, site, "/bin/activate"), command), user=env.user)
 
 
 def venv_local(command, site):
     "The Python virtual environment used on the local machine."
-    with cd("/var/www/{0}/{0}".format(site)):
-        local("source ~/.virtualenvs/{0}/bin/activate && {1}".format(site, command))
+    with cd(join(settings.VIRTUALENVS_DIR, site)):
+        local("source {0} && {1}".format(
+              join(settings.VIRTUALENVS_DIR, site, "/bin/activate"), command))

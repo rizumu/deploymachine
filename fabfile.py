@@ -7,18 +7,18 @@ from deploymachine.conf import settings
 # Importing so commands are available to Fabric in the shell.
 # @@@ make more generic, this is ugly
 from deploymachine.fablib.fab import (venv, venv_local, root, appbalancer, appnode,
-                       dbserver, loadbalancer)
+    dbserver, loadbalancer)
 from deploymachine.fablib.bootstrap.rackspace import (cloudservers_list, cloudservers_boot,
-            cloudservers_bootem, cloudservers_kill, cloudservers_sudokillem)
+    cloudservers_bootem, cloudservers_kill, cloudservers_sudokillem)
 from deploymachine.fablib.credentials import ssh, gitconfig
 from deploymachine.fablib.django import collectstatic, settings_local, syncdb, test
-from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploy_machine
+from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploymachine
 from deploymachine.fablib.iptables import iptables
-from deploymachine.fablib.kokki import kokki
 from deploymachine.fablib.logs import site_logs
 from deploymachine.fablib.pip import pip_install, pip_requirements, pip_uninstall
 from deploymachine.fablib.provision import provisionem, provision
-from deploymachine.fablib.puppet import is_puppetmaster
+from deploymachine.fablib.scm.kokki import kokki
+from deploymachine.fablib.scm.puppet import is_puppetmaster
 from deploymachine.fablib.supervisor import supervisor
 from deploymachine.fablib.users import useradd
 from deploymachine.fablib.webservers.nginx import ensite, dissite, reload_nginx, reload_nginx
@@ -58,11 +58,11 @@ def launch(role):
         sudo("groupadd --force webmaster")
         useradd(env.user, env.password)
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")
-        sudo("mkdir --parents /var/www/lib/ && chown -R deploy:webmaster /var/www/ /home/{0}/".format(env.user))
-        with cd("/var/www/lib/"):
+        sudo("mkdir --parents {0} && chown -R deploy:webmaster {1} {2}".format(settings.LIB_ROOT, settings.SITES_ROOT) user=env.user))
+        with cd(settings.LIB_ROOT):
             sudo("git clone git@github.com:{0}/deploy-machine.git && git checkout master".format(env.github_username), user=env.user)
         # http://www.saltycrane.com/blog/2009/07/using-psycopg2-virtualenv-ubuntu-jaunty/
-        with cd("/var/www/lib/"):
+        with cd(settings.LIB_ROOT):
             sudo("git clone git@github.com:{0}/scene-machine.git django-scene-machine && git checkout master".format(env.github_username), user=env.user)
             sudo("git clone git://github.com/pinax/pinax.git && git checkout {0}".format(settings.PINAX_VERSION), user=env.user)
         for site in settings.SITES:

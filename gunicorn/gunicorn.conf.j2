@@ -17,7 +17,8 @@ from os.path import abspath, dirname, join
 sys.path.insert(0, abspath(join(dirname(__file__), "../../")))
 
 from site import addsitedir
-addsitedir("/home/deploy/.virtualenvs/{{ site_name }}/lib/python2.6/site-packages")
+addsitedir(join(settings.VIRTUALENVS_DIR, site_name, 
+                "lib/python{0}/".format(settings.PYTHON_VERSION), "/site-packages/"))
 
 from django.conf import settings
 os.environ["DJANGO_SETTINGS_MODULE"] = "{{ site_name }}.settings"
@@ -25,8 +26,8 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "{{ site_name }}.settings"
 sys.path.insert(0, join(settings.PROJECT_ROOT, "apps"))
 sys.path.insert(0, join(settings.PINAX_ROOT, "apps"))
 sys.path.insert(0, join(settings.PINAX_ROOT, "projects", "basic_project", "apps"))
-sys.path.insert(0, join(settings.SCENE_MACHINE_ROOT, "apps"))
-sys.path.insert(0, settings.SCENE_MACHINE_ROOT)
+sys.path.insert(0, join(settings.SCENEMACHINE_ROOT, "apps"))
+sys.path.insert(0, settings.SCENEMACHINE_ROOT)
 
 from django.core.handlers.wsgi import WSGIHandler
 application = WSGIHandler()
