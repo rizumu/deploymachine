@@ -60,6 +60,7 @@ DEPLOY_PASSWORD = "1kHr.Jjj7EqAM"
 SITES_ROOT = os.path.join(DEPLOY_HOME, "www/")
 LIB_ROOT = os.path.join(SITES_ROOT, "lib/")
 DEPLOYMACHINE_ROOT = os.path.join(LIB_ROOT, "deploymachine/")
+DEPLOYMACHINE_LOCAL_ROOT = "/home/rizumu/www/lib/deploymachine/"
 SCENEMACHINE_ROOT = os.path.join(LIB_ROOT, "django-scene-machine/scene-machine/")
 PINAX_ROOT = os.path.join(LIB_ROOT, "pinax/pinax/")
 VIRTUALENVS_ROOT = os.path.join(DEPLOY_HOME, ".virtualenvs/")
