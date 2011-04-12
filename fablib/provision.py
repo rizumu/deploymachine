@@ -2,7 +2,7 @@ from fabric.api import cd, env, local, run, put
 from fabric.contrib.files import append, upload_template
 
 from deploymachine.conf import settings
-from deploymachine.fablib.bootstrap.rackspace import cloudservers_get_ips
+from deploymachine.fablib.providers.rackspace import cloudservers_get_ips
 from deploymachine.fablib.scm.puppet import is_puppetmaster
 from deploymachine.fablib.users import useradd
 

@@ -2,7 +2,7 @@ from os.path import join
 
 from fabric.api import cd, env, sudo, local
 
-from bootstrap.rackspace import cloudservers_get_ips
+from providers.rackspace import cloudservers_get_ips
 from deploymachine.conf import settings
 
 

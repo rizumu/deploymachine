@@ -8,7 +8,7 @@ from deploymachine.conf import settings
 # @@@ make more generic, this is ugly
 from deploymachine.fablib.fab import (venv, venv_local, root, appbalancer, appnode,
     dbserver, loadbalancer)
-from deploymachine.fablib.bootstrap.rackspace import (cloudservers_list, cloudservers_boot,
+from deploymachine.fablib.providers.rackspace import (cloudservers_list, cloudservers_boot,
     cloudservers_bootem, cloudservers_kill, cloudservers_sudokillem)
 from deploymachine.fablib.credentials import ssh, gitconfig
 from deploymachine.fablib.django import collectstatic, settings_local, syncdb, test
