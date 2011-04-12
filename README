@@ -14,19 +14,26 @@ DeployMachine is:
     Deployment framework for launching and maintaining websites.
     A slew of fabric commands for common tasks.
 
+The documentation covers the envisioned scope of this project and notes not yet implemented features. A work in progress. C'est la vie.
 
 INSTALLATION
 ============
 
-.. warning::
-    
-    This isn't a python package to install, though it may grow up to be one. It needs an easily accesible folder, settings files, and recommended a ``deploymachine`` virtualenv. DeployMachine is not a black box, it is necessary to read the source.
+This isn't a python package to install, though it may grow up to be one. It needs an easily accesible folder, settings files, and recommended a ``deploymachine`` virtualenv. DeployMachine is not a black box, it is necessary to read the source.
 
-    Replacing ``username`` with your development machine's username, the recommended place to clone to is:
-        ``/home/username/www/lib/deploymachine/`` or ``Users/username/www/lib/deploymachine/``
+DeployMachine runs locally on OSX and Linux. It builds the current version of Ubuntu Server. Debian, Fedora and Arch support is forthcoming.
 
-    The documentation covers the envisioned scope of this project and notes not yet implemented features. A work in progress. C'est la vie.
+Replacing ``username`` with your development machine's username, the recommended place to clone to is:
 
+    ``/home/username/www/lib/deploymachine/`` or ``Users/username/www/lib/deploymachine/``
+
+Copy the example config files and customize:
+
+    $ cp fabfile_local.example.py fabfile_local.py
+    $ cp settings_deploymachine.example.py settings_deploymachine.py
+    $ cp kokki-config.example.yaml kokki-config.yaml
+
+A detailed explanation of each the available settings is forthcoming.
 
 MOTIVATION
 ==========
@@ -42,6 +49,13 @@ Media files and database backups are stored in the cloud and the application cod
 Very little OS specific logic occurs in the DeployMachine, minus the provision step. It is the job of Kokki, Puppet, or Chef to manage the OS packages beyond bootstrapping.
 
 
+CONFIGURATION MANAGEMENT
+========================
+DeployMachine leverages Kokki, a "System configuration management framework influenced by Chef" written in Python. More on Kokki at `http://github.com/samuel/kokki/wiki <https://github.com/samuel/kokki/wiki>`_
+
+DeployMachine initially attempted to support both kokki and chef, but drifted towards Kokki, because of developer comfortability with Python syntax, and lack of Ruby knowledge. Now there is a growing desire to have a puppet support, and it's easy enough, a few bits are already in place. See: https://github.com/uggedal/ddw-puppet
+
+
 SERVER TYPES
 ============
 DeployMachine supports three server types: ``load balancer``, ``application node``, and ``database server``.
@@ -55,14 +69,6 @@ The current idea is to have one loadbalancer, one dbserver, and potentially mult
 Deploymachine is intent on supporting the most common and practical cases, but not the kitchen sink.
 
 
-CONFIGURATION MANAGEMENT
-========================
-DeployMachine leverages Kokki, a "System configuration management framework influenced by Chef" written in Python. More on Kokki at `http://github.com/samuel/kokki/wiki <https://github.com/samuel/kokki/wiki>`_
-
-DeployMachine initially attempted to support both kokki and chef, but drifted towards Kokki, because of developer comfortability with Python syntax, and lack of Ruby knowledge. Now
-there is a strong desire to have a puppet support, and it's easy enough, a few bits are already in place. See: https://github.com/uggedal/ddw-puppet
-
-
 CLOUD SERVERS
 =============
 DeployMachine supports Rackspace CloudServer and Cloudfiles via the Python API. `https://github.com/jacobian/python-cloudservers <https://github.com/jacobian/python-cloudservers>`_
@@ -73,7 +79,7 @@ To view info on existing Rackspace servers::
 
 .. note::
 
-    **FUTURE FEATURE** Amazon EC2 and S3 support is on demand, currently there is no demand, but it should be trivial to add it in.
+    **FUTURE FEATURE** Amazon EC2 and S3 support is trivial once this feature is requested.
 
 
 DNSIMPLE
@@ -83,7 +89,7 @@ DeployMachine harnesses the dnsimple python API for directing our domain names t
 
 VIRTUALBOX
 ==========
-There is a script fabfile for booting up virtualbox instances instead of cloudservers. This is useful for testing in a developement environment.
+There is a script fabfile for booting up virtualbox instances instead of cloudservers. This is useful for testing in a developement environment. @@@TODO consider using Vagrant instead.
 
 
 FIRST DEPLOYMENT
@@ -129,7 +135,7 @@ To add a new app node to the mix follow this three step process::
     $ fab provision appnode2
     $ fab appnode launch:appnode2
 
-Deploy machine provides a Fabric API for maintaining your application. Commands for git, pip, supervisor, nginx, django and more are included. See the ``dm_fab`` namespace for all the available options, or help extend the existing library. Domain specific commands should be imported in fab_local.py. An example ``fab_local.dist.py`` is included.
+Deploy machine provides a Fabric API for maintaining your application. Commands for git, pip, supervisor, nginx, django and more are included. Take a peek inside the ``fablib`` folder for all the available options, or help extend the existing library. Domain specific commands can be imported from your personal in ``fab_local.py``. An example ``fab_local.example.py`` is included.
 
 
 DEPLOYMACHINE CONFIG
@@ -141,8 +147,8 @@ Private and custom settings live in ``settings.py``::
 Read the code to become comfortable with the API, its documented quite well.
 
 
-KOKKI VERSION NOTE
-==================
+KOKKI VERSION WARNING
+=====================
 DeployMachine is a version behind on kokki and the recipies need an updating. The current cookbooks are in kokki-cookbooks. While the recipies are being upgraded, there are three folders.
 
     kcb-new: Cookbooks which only exist in the new version of kokki.
@@ -150,9 +156,3 @@ DeployMachine is a version behind on kokki and the recipies need an updating. Th
     kcb-modfied: Cookbooks which have been modfied, sometimes quite heavily. These cookbooks will need to be converted to the new Kokki format manually.
 
 See ``kcb_TODO.rst`` for details.
-
-
-OS NOTE
-=======
-DeployMachine runs on the current version of Ubuntu Server.
-Debian, Fedora and Arch support to come.
