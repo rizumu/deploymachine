@@ -1,4 +1,5 @@
 from fabric.api import local, put, sudo
+from jinja2 import Environment, PackageLoader
 
 from deploymachine.conf import settings
 from deploymachine.fablib.fab import venv, venv_local
@@ -17,8 +18,32 @@ def collectstatic(site=None):
     for site in site_list:
         venv("python manage.py collectstatic --noinput", site)
 
+def generate_settings_main(connection, site=None):
+    """
+    Generate the site(s) main ``settings.py`` file.
+    Usage:
+        fab settings:dev,sitename
+    """
+    env = Environment(loader=PackageLoader("deploymachine", "templates"))
+    template = env.get_template("scene_machine_settings.j2")
+    if site is None:
+        site_list = settings.SITES
+    else:
+        site_list = [site]
+    for site in site_list:
+        result = template.render(settings.SETTINGS_CUSTOM[site])
+        if connection == "dev":
+            r_file = open("{0}{1}/{1}/settings.py".format(
+                settings.SITES_LOCAL_ROOT, site), "w")
+            r_file.write(result)
+            r_file.close()
+        elif connection == "prod":
+            print("not implemented yet")
+        else:
+            print("Bad connection type. Use ``dev`` or ``prod``.")
 
-def settings_local(connection, site=None):
+
+def generate_settings_local(connection, site=None):
     """
     Generate the site(s) settings_local files.
     Usage:
@@ -50,4 +75,4 @@ def test():
     local("python manage.py test")
 
 
-#@@ south stuff
+#@@ migrations stuff
