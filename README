@@ -35,6 +35,12 @@ Copy the example config files and customize:
 
 A detailed explanation of each the available settings is forthcoming.
 
+Place the public keys which should be granted login to the server in the ``ssh folder``:
+
+    $ cp ~/.ssh/me.pub ~/www/lib/deploymachine/ssh/me.pub
+    $ cp ~/.ssh/you.pub ~/www/lib/deploymachine/ssh/you.pub
+    $ cp ~/.ssh/her.pub ~/www/lib/deploymachine/ssh/her.pub
+
 MOTIVATION
 ==========
 SLICEHOST PROVISIONING DOCS: http://articles.slicehost.com/ubuntu-10
