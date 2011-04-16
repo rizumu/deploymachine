@@ -125,14 +125,14 @@ def generate_virtualenv(site):
     collectstatic(site)
 
 
-def launch_db(name, password):
+def launch_db(name, password, template="template1"):
     """
     Launches a new database. Typically used when launching a new site.
-    @@@ template_postgis as a setting?
+    An alternative template option is ``template_postgis`` for GeoDjango.
     """
     sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
     sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
-    sudo("createdb --template template_postgis --owner {0} {0}".format(name), user="postgres")
+    sudo("createdb --template template_postg --owner {1} {1}".format(name), user="postgres")
 
 
 # define domain specific fabric methods in fabfile_local.py, not tracked by git.
