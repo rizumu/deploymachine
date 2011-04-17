@@ -11,7 +11,8 @@ from deploymachine.fablib.fab import (venv, venv_local, root, appbalancer, appno
 from deploymachine.fablib.providers.rackspace import (cloudservers_list, cloudservers_boot,
     cloudservers_bootem, cloudservers_kill, cloudservers_sudokillem)
 from deploymachine.fablib.credentials import ssh, gitconfig
-from deploymachine.fablib.django import collectstatic, generate_settings_main, syncdb, test
+from deploymachine.fablib.django import (collectstatic, generate_settings_local,
+    generate_settings_main, generate_urls_main, syncdb, test)
 from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploymachine
 from deploymachine.fablib.iptables import iptables
 from deploymachine.fablib.logs import site_logs
