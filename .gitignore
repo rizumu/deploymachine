@@ -5,8 +5,6 @@
 *~
 kokki-config.yaml
 fabfile_local.py
-settings_local_dev/*.py
-settings_local_prod/*.py
 settings_deploymachine.py
 
 kokki-cookbooks

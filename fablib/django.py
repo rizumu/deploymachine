@@ -24,8 +24,10 @@ def generate_settings_main(connection, site=None):
     Usage:
         fab settings:dev,sitename
     """
-    env = Environment(loader=PackageLoader("deploymachine", "templates"))
-    template = env.get_template("scene_machine_settings.j2")
+    project_module = getattr(settings, 'PROJECT_MODULE', "deploymachine")
+    env = Environment(loader=PackageLoader("{0}".format(project_module),
+                                           "templates_deploymachine"))
+    template = env.get_template("scenemachine_settings_main.j2")
     if site is None:
         site_list = settings.SITES
     else:
@@ -49,16 +51,24 @@ def generate_settings_local(connection, site=None):
     Usage:
         fab settings:dev,sitename
     """
+    project_module = getattr(settings, 'PROJECT_MODULE', "deploymachine")
+    env = Environment(loader=PackageLoader("{0}".format(project_module),
+                                           "templates_deploymachine"))
     if site is None:
         site_list = settings.SITES
     else:
         site_list = [site]
     for site in site_list:
         if connection == "dev":
-            print("TODO")
-            #venv_local("cp {0}/settings_local_dev/{1}.py /var/www/{1}/settings_local.py".format(settings.DEPLOYMACHINE_ROOT, site), site)
+            template = env.get_template("scenemachine_settings_dev.j2")
+            result = template.render(settings.SETTINGS_CUSTOM[site])
+            r_file = open("{0}{1}/{1}/settings_local.py".format(
+                settings.SITES_LOCAL_ROOT, site), "w")
+            r_file.write(result)
+            r_file.close()
         elif connection == "prod":
-            print("TODO")
+            template = env.get_template("scenemachine_settings_prod.j2")
+            print("not implemented yet")
             #put("{0}/settings_local_prod/{1}.py".format(settings.DEPLOYMACHINE_ROOT, site), "/tmp/settings_local.py", mode=0755)
             #sudo("chown deploy:webmaster /tmp/settings_local.py && mv /tmp/settings_local.py /var/www/{0}/settings_local.py".format(site))
         else:
