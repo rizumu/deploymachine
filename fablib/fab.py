@@ -52,11 +52,11 @@ def venv(command, site):
     "The Python virtual environment used on the servers."
     with cd("/var/www/{0}/{0}".format(site)):
         sudo("source {0} && {1}".format(
-             join(settings.VIRTUALENVS_DIR, site, "/bin/activate"), command), user=env.user)
+             join(settings.VIRTUALENVS_ROOT, site, "/bin/activate"), command), user=env.user)
 
 
 def venv_local(command, site):
     "The Python virtual environment used on the local machine."
-    with cd(join(settings.VIRTUALENVS_DIR, site)):
+    with cd(join(settings.VIRTUALENVS_ROOT, site)):
         local("source {0} && {1}".format(
-              join(settings.VIRTUALENVS_DIR, site, "/bin/activate"), command))
+              join(settings.VIRTUALENVS_ROOT, site, "/bin/activate"), command))
