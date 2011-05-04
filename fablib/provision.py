@@ -60,10 +60,10 @@ def provision(public_ip, puppetmaster=False):
     # software configuration management
     if "kokki" in settings.CONFIGURATORS:
         run("aptitude install -y python-jinja2")
-        put("{0}/kokki-config.yaml".format(settings.DEPLOYMACHINE_ROOT),
+        put("{0}kokki-config.yaml".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
             "/home/deploy/kokki-config.yaml", mode=0644)
-        local("rsync -avzp {0}/kokki-cookbooks {1}@{2}:/home/deploy/kokki-cookbooks".format(
-               settings.DEPLOYMACHINE_ROOT, "root", public_ip))
+        local("rsync -avzp {0}kokki-cookbooks {1}@{2}:/home/deploy/kokki-cookbooks".format(
+               settings.DEPLOYMACHINE_LOCAL_ROOT, "root", public_ip))
         run("chown -R {0}:{0} /home/{0}/".format("deploy"))
         run("pip install kokki=={0} python-cloudservers=={1}".format(
              settings.KOKKI_VERSION, settings.PYTHON_CLOUDSERVERS_VERSION))
@@ -79,6 +79,6 @@ def provision(public_ip, puppetmaster=False):
     # firewall + prevent root login
     upload_template("templates/iptables.up.rules-provision.j2", "/etc/iptables.up.rules",
                     context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)
-    put("{0}/templates/iptables".format(settings.DEPLOYMACHINE_ROOT),
+    put("{0}templates/iptables".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
         "/etc/network/if-pre-up.d/iptables", mode=0755)
     run("/sbin/iptables-restore < /etc/iptables.up.rules && /etc/init.d/ssh reload")

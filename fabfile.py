@@ -133,7 +133,7 @@ def launch_db(name, password, template="template1"):
     """
     sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
     sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
-    sudo("createdb --template template_postg --owner {1} {1}".format(name), user="postgres")
+    sudo("createdb --template {0} --owner {1} {1}".format(template, name), user="postgres")
 
 
 # define domain specific fabric methods in fabfile_local.py, not tracked by git.
