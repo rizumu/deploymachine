@@ -2,13 +2,15 @@
 fabric==1.0.1
 gunicorn==0.12.1
 Jinja2==2.5.5
-kokki==0.4.1
 psycopg2==2.4
 python-cloudservers==1.2
 redis==2.2.4
 setproctitle==1.1.2
 django-redis-cache==0.5.0
 sphinx==1.0.7
+
+# must track master, don't rely on a tagged release
+git+git://github.com/samuel/kokki#egg=kokki
 
 # errors on clean install because it absolutely depends on setproctitle
 #gunicorn-console==0.1.11
