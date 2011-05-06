@@ -108,9 +108,13 @@ After private/personal configuration is complete, the general idea is as follows
     $ fab loadbalancer launch:loadbalancer
     $ fab appnode launch:appnode
 
-The ``fab cloudservers_bootem`` command runs the ``boot`` command for each server defined in the ``settings.py``. This will connect to the cloud providers API and boot a new machine.
+The ``fab cloudservers_bootem`` command runs the ``boot`` command for each server defined in the ``settings.py``. This will connect to the cloud providers API and boot a new machine. To list the details for your new machines, including ip addresses:
 
-The ``fab root provisionem`` command runs the ``provision`` command for each server defined in the settings. This sets up core ubuntu packages, ssh, firewall, python, kokki, and root accounts. Security follows the best practice guidelines of the excellent Slicehost documentation.
+    $ cloudservers list
+
+The ``fab root provisionem`` command runs the ``provision`` command for each server defined in the settings. This sets up core ubuntu packages, ssh, firewall, python, kokki, and root accounts. Security follows the best practice guidelines of the excellent Slicehost documentation. After provisioning is complete you can manually login to the machine using the following format:
+
+    $ ssh -p {port} deploy@{ip}
 
 The ``fab apptype launch:servername`` is called once for each server type and it's goal is to take the newly provisioned servers to a production ready state. The launch command tells Kokki to cook the server to the custom specification defined in defined in the ``kokki-config.yaml``. See ``kokki-config.yaml.dist`` for an example.
 
