@@ -1,0 +1,18 @@
+
+{% for host in env.config.nagios3.hosts.values() %}
+define host {
+    use {{ host.use }}
+    host_name {{ host.name }}
+    alias {{ host.alias }}
+    address {{ host.address }}
+}
+
+{% for s in host.services.values() %}
+define service {
+    use {{ s.use }}
+    host_name {{ s.host_name }}
+    service_description {{ s.service_description }}
+    check_command {{ s.check_command }}
+}
+{% endfor %}
+{% endfor %}

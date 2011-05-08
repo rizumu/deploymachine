@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"  href="configuration.xsl"?>
+<configuration>
+    {% if env.config.flume.master.servers %}
+    <property>
+        <name>flume.master.servers</name>
+        <value>{{ env.config.flume.master.servers }}</value>
+        <description>A comma-separated list of hostnames, one for each machine in the Flume Master.</description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.plugin.classes %}
+    <property>
+        <name>flume.plugin.classes</name>
+        <value>{{ env.config.flume.plugin.classes }}</value>
+        <description>Comma separated list of plugin classes</description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.collector.event.host %}
+    <property>
+        <name>flume.collector.event.host</name>
+        <value>{{ env.config.flume.collector.event.host }}</value>
+        <description>This is the host name of the default "remote" collector.</description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.collector.port %}
+    <property>
+        <name>flume.collector.port</name>
+        <value>{{ env.config.flume.collector.port }}</value>
+        <description>This default tcp port that the collector listens to in order to receive events it is collecting.</description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.master.zk.logdir %}
+    <property>
+        <name>flume.master.zk.logdir</name>
+        <value>{{ env.config.flume.master.zk.logdir }}</value>
+        <description>The base directory in which the ZBCS stores data.</description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.master.zk.server.quorum.port %}
+    <property>
+        <name>flume.master.zk.server.quorum.port</name>
+        <value>{{ env.config.flume.master.zk.server.quorum.port }}</value>
+        <description>ZooKeeper quorum port</description>
+    </property>
+    {% endif %}
+
+    {% if env.config.flume.master.zk.server.election.port %}
+    <property>
+        <name>flume.master.zk.server.election.port</name>
+        <value>{{ env.config.flume.master.zk.server.election.port }}</value>
+        <description>ZooKeeper election port</description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.master.zk.client.port %}
+    <property>
+        <name>flume.master.zk.client.port</name>
+        <value>{{ env.config.flume.master.zk.client.port }}</value>
+        <description>ZooKeeper client port</description>
+    </property>
+    {% endif %}
+    
+    <property>
+        <name>flume.master.zk.use.external</name>
+        <value>{% if env.config.flume.master.zk.use.external %}true{% else %}false{% endif %}</value>
+    </property>
+    
+    {% if env.config.flume.master.zk.servers %}
+    <property>
+        <name>flume.master.zk.servers</name>
+        <value>{{ env.config.flume.master.zk.servers }}</value>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.agent.logdir %}
+    <property>
+        <name>flume.agent.logdir</name>
+        <value>{{ env.config.flume.agent.logdir }}</value>
+        <description>
+            This is the directory that write-ahead logging data
+            or disk-failover data is collected from applications gets
+            written to. The agent watches this directory.
+        </description>
+    </property>
+    {% endif %}
+    
+    {% if env.config.flume.collector.dfs.dir %}
+    <property>
+        <name>flume.collector.dfs.dir</name>
+        <value>{{ env.config.flume.collector.dfs.dir }}</value>
+        <description>
+            This is a dfs directory that is the the final resting
+            place for logs to be stored in.  This defaults to a local dir in
+            /tmp but can be hadoop URI path that such as hdfs://namenode/path/
+        </description>
+    </property>
+    {% endif %}
+
+    <property>
+        <name>flume.collector.dfs.compress.gzip</name>
+        <value>{% if env.config.flume.collector.dfs.compress.gzip %}true{% else %}false{% endif %}</value>
+        <description>Writes compressed output in gzip format to dfs. value is boolean type, i.e. true/false    </description>
+    </property>
+
+    {% if env.config.flume.aws_access_key_id %}
+    <property>
+        <name>fs.s3n.awsAccessKeyId</name>
+        <value>{{ env.config.flume.aws_access_key_id }}</value>
+    </property>
+
+    <property>
+        <name>fs.s3n.awsSecretAccessKey</name>
+        <value>{{ env.config.flume.aws_secret_access_key }}</value>
+    </property>
+
+    <property>
+        <name>fs.s3.awsAccessKeyId</name>
+        <value>{{ env.config.flume.aws_access_key_id }}</value>
+    </property>
+
+    <property>
+        <name>fs.s3.awsSecretAccessKey</name>
+        <value>{{ env.config.flume.aws_secret_access_key }}</value>
+    </property>
+    {% endif %}
+</configuration>

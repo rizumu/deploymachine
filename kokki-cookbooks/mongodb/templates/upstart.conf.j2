@@ -1,0 +1,25 @@
+# Ubuntu upstart file at /etc/init/mongodb.conf
+
+pre-start script
+    mkdir -p {{ mongodb.logpath }}
+    {% if not mongodb.mongos %}
+    mkdir -p {{ mongodb.dbpath }}
+    chown -R mongodb.mongodb {{ mongodb.dbpath }}
+    {% endif %}
+    chown mongodb.mongodb {{ mongodb.dbpath }}
+end script
+
+limit nofile {{ mongodb.limit_nofile }} {{ mongodb.limit_nofile }}
+start on runlevel [2345]
+stop on runlevel [06]
+
+script
+  ENABLE_MONGODB="yes"
+  {% if "librato.silverline" in env.included_recipes %}
+  export SL_NAME=mongodb
+  {% endif %}
+  if [ -f /etc/default/mongodb ]; then . /etc/default/mongodb; fi
+  if [ "x$ENABLE_MONGODB" = "xyes" ]; then
+    exec start-stop-daemon --start --quiet --chuid mongodb --exec {% if mongodb.mongos %}/usr/bin/mongos{% else %}/usr/bin/mongod{% endif %} -- --config {{ mongodb.configpath }} {{ " ".join(mongodb.options) }}
+  fi
+end script
