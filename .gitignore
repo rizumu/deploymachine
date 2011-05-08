@@ -3,9 +3,14 @@
 *.pub
 *_rsa
 *~
-kokki-config.yaml
+kokki-config.py
 fabfile_local.py
 settings_deploymachine.py
+templates/gunicorn.conf.j2
+templates/settings_local_dev.j2
+templates/settings_local_prod.j2
+templates/settings_main.j2
+templates/urls.j2
 
 _kcb-todo/
-gunicorn/*.conf
+

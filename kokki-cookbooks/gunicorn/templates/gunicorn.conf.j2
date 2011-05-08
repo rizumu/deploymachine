@@ -1,3 +1,5 @@
+# gunicorn config for {{ name }}
+
 import os
 import sys
 
@@ -6,8 +8,8 @@ def numCPUs():
         raise RuntimeError("No sysconf detected.")
     return os.sysconf("SC_NPROCESSORS_ONLN")
 
-bind = "0.0.0.0:8001"
-workers = 1
+bind = "0.0.0.0:{{ port }}"
+workers = {{ worker_count }}
 
 # redirect sys.stdout to sys.stderr for bad libraries like geopy that uses
 # print statements for optional import exceptions.
@@ -17,13 +19,14 @@ from os.path import abspath, dirname, join
 sys.path.insert(0, abspath(join(dirname(__file__), "../../")))
 
 from site import addsitedir
-addsitedir(join(settings.VIRTUALENVS_ROOT, site_name, 
-                "lib/python{0}/".format(settings.PYTHON_VERSION), "/site-packages/"))
+addsitedir(join(settings.VIRTUALENVS_ROOT, name,
+                "lib/python{0}/".format(site.python_version), "/site-packages/"))
 
 from django.conf import settings
-os.environ["DJANGO_SETTINGS_MODULE"] = "{{ site_name }}.settings"
+os.environ["DJANGO_SETTINGS_MODULE"] = "{{ name }}.settings"
 
 sys.path.insert(0, join(settings.PROJECT_ROOT, "apps"))
+# TODO: The following path inserts need to be be gathered from settings
 sys.path.insert(0, join(settings.PINAX_ROOT, "apps"))
 sys.path.insert(0, join(settings.PINAX_ROOT, "projects", "basic_project", "apps"))
 sys.path.insert(0, join(settings.SCENEMACHINE_ROOT, "apps"))
