@@ -1,0 +1,50 @@
+# HTTP upstream for load balancers.
+# fail_timeout only works with multiple servers.
+
+upstream gunicorn_cluster_{{ site.name }} {
+    {% for ip in appnode_internal_ip_list %}server {{ ip }}:{{ site.port }}{% if loop.length != 1 %} fail_timeout=0{% endif %};{% endfor %}
+}
+
+# Virtual server definition
+server {
+
+    listen {{ env.config.nginx.port }};
+
+    {% if env.config.nginx.client_max_body_size %}
+    client_max_body_size {{ env.config.nginx.client_max_body_size }};
+    {% endif %}
+
+    server_name {% for domain in site.domains %}{{ domain }}.* www.{{ domain }}.* {% endfor %}{% if site.subdomains %}{% for domain in site.subdomains %}{{ domain }}{% endfor %}{% endif %};
+
+    {% if site.primary %}
+    if ($host != {{ site.primary }}) {
+        rewrite ^ http://{{ site.primary }}$uri permanent;
+    }
+    {% endif %}
+
+    # Serve media directly out of Nginx for performance
+    location /static/ {
+        alias /home/deploy/www/{{ site.name }}/{{ site.name }}/static_collected/;
+    }
+
+    access_log {{ env.config.nginx.log_dir }}/{{ site.name }}.access.log;
+
+    # Proxy everything else to the backend
+    location / {
+        if (-f /home/deploy/www/{{ site.name }}/maintenance.html) {
+            return 503;
+        }
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+
+        if (!-f $request_filename) {
+            proxy_pass http://gunicorn_cluster_{{ site.name }};
+            break;
+        }
+    }
+    error_page 503 @maintenance;
+    location @maintenance {
+        rewrite ^(.*)$ /maintenance.html break;
+    }
+}

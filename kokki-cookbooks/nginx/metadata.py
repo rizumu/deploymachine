@@ -92,4 +92,17 @@ __config__ = {
         description = "Directive assigns the size of basket in the hash-tables of the names of servers. (default 32/64/128 depending on architecture)",
         default = None,
     ),
+    #CUSTOM
+    "nginx.port": dict(
+        description = "Web port to listen on",
+        default = 80
+    ),
+    "nginx.accept_mutex": dict(
+        description = "Nginx uses accept mutex to serialize accept() syscalls",
+        default = True,
+    ),
+    "nginx.client_max_body_size": dict(
+        description = "The maximum accepted body size of client request",
+        default = None,
+    ),
 }
