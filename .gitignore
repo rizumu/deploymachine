@@ -7,6 +7,5 @@ kokki-config.yaml
 fabfile_local.py
 settings_deploymachine.py
 
-kokki-cookbooks
 _kcb-todo/
 gunicorn/*.conf
