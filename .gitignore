@@ -10,7 +10,7 @@ templates/gunicorn.conf.j2
 templates/settings_local_dev.j2
 templates/settings_local_prod.j2
 templates/settings_main.j2
-templates/urls.j2
+templates/urls_main.j2
 
 _kcb-todo/
 
