@@ -16,9 +16,9 @@ def pip_requirements(connection, site=None):
         site_list = [site]
     for site in site_list:
         if connection == "dev":
-            venv_local("yes w | pip install -r requirements", site)
+            venv_local("pip install -r requirements", site)
         elif connection == "prod":
-            venv("yes w | pip install -r requirements.txt", site)
+            venv("pip install -r requirements.txt", site)
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
 
