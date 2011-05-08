@@ -4,29 +4,33 @@ from fabric.api import cd, env, local, sudo, put
 
 from deploymachine.conf import settings
 from deploymachine.fablib.dvcs.git import git_pull_deploymachine
+from deploymachine.fablib.providers.rackspace import cloudservers_get_ips
 from deploymachine.fablib.supervisor import supervisor
 from deploymachine.fablib.webservers.nginx import reload_nginx
 
 
-def kokki(role, restart=False, new_style=False):
+def kokki(roles, restart=False, new_style=False):
     """
     Cook all nodes for the given role.
     Usage:
-        fab appnode kokki:appnode,restart=False,new_style=False
+        fab appnode kokki:appnode.dbserver.loadbalancer,restart=False,new_style=False
     """
-    raise NotImplementedError() # needs testing
-    # @@@ temp hack while upgrading kokki versions in progress
-    if new_style:
-        cookbook_list = ["kcb-modified", "kcb-new", "kcb-unmodified"]
-    else:
-        cookbook_list = ["kokki-cookbooks"]
-    # put the local cookbooks on the server
-    with cd(settings.DEPLOYMACHINE_HOME):
-        local("git push")
-    git_pull_deploymachine()
+    if type(roles) == str:
+        roles = " ".join(roles.split('.'))
+    elif type(roles) == list:
+        roles = " ".join(roles)
+    public_ip_addresses = cloudservers_get_ips([role for role in settings.CLOUDSERVERS],
+                                               append_port=False)
+    put("{0}kokki-config.py".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
+        "/home/deploy/kokki-config.py")
+    for public_ip in public_ip_addresses:
+        # put the local cookbooks on the server
+        local("rsync -e 'ssh -p {0}' -avzp {1}kokki-cookbooks/ \
+                                           deploy@{2}:/home/deploy/kokki-cookbooks/".format(
+            settings.SSH_PORT, settings.DEPLOYMACHINE_LOCAL_ROOT, public_ip))
     # run kokki and restart the apps
     with cd(settings.DEPLOY_HOME):
-        sudo("kokki kokki-config.yaml {0}".format(role))
-    if restart and role in ("appnode", "appbalancer"):
+        sudo("kokki -f kokki-config.py {0}".format(roles))
+    if restart and role == "appnode":
         reload_nginx()
         supervisor()

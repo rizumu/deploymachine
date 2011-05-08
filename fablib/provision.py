@@ -14,7 +14,7 @@ def provisionem():
         fab root provisionem
     """
     public_ip_addresses = cloudservers_get_ips([role for role in settings.CLOUDSERVERS],
-                                        append_port=False)
+                                               append_port=False)
     for public_ip in public_ip_addresses:
         if is_puppetmaster(public_ip=public_ip):
             provision(public_ip, puppetmaster=True)
@@ -60,13 +60,13 @@ def provision(public_ip, puppetmaster=False):
     # software configuration management
     if "kokki" in settings.CONFIGURATORS:
         run("aptitude install -y python-jinja2")
-        put("{0}kokki-config.yaml".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
-            "/home/deploy/kokki-config.yaml", mode=0644)
+        put("{0}kokki-config.py".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
+            "/home/deploy/kokki-config.py", mode=0644)
         local("rsync -avzp {0}kokki-cookbooks {1}@{2}:/home/deploy/kokki-cookbooks".format(
                settings.DEPLOYMACHINE_LOCAL_ROOT, "root", public_ip))
         run("chown -R {0}:{0} /home/{0}/".format("deploy"))
-        run("pip install kokki=={0} python-cloudservers=={1}".format(
-             settings.KOKKI_VERSION, settings.PYTHON_CLOUDSERVERS_VERSION))
+        run("pip install git+git://github.com/samuel/kokki#egg=kokki python-cloudservers=={1}".format(
+             settings.PYTHON_CLOUDSERVERS_VERSION))
     if "chef" or "puppet" in settings.CONFIGURATORS:
         run("aptitude install -y ruby-dev rubygems rdoc")
         if "chef" in settings.CONFIGURATORS:
