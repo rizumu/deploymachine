@@ -1,11 +1,7 @@
-import os
-import sys
-
-from fabric.api import cd, env, local, sudo, put
+from fabric.api import cd, env, local, sudo, put, run
 
 from deploymachine.conf import settings
-# Importing so commands are available to Fabric in the shell.
-# @@@ make more generic, this is ugly
+# Importing everything so commands are available to Fabric in the shell.
 from deploymachine.fablib.fab import (venv, venv_local, root, appbalancer, appnode,
     dbserver, loadbalancer)
 from deploymachine.fablib.providers.rackspace import (cloudservers_list, cloudservers_boot,
@@ -25,6 +21,12 @@ from deploymachine.fablib.users import useradd
 from deploymachine.fablib.webservers.nginx import ensite, dissite, reload_nginx, reload_nginx
 from deploymachine.fablib.webservers.maintenance_mode import splash_on, splash_off
 
+# define domain specific fabric methods in fabfile_local.py, not tracked by git.
+try:
+    from fabfile_local import *
+except ImportError:
+    pass
+
 """
 To view info on existing machines:
     cloudservers list
@@ -37,40 +39,39 @@ To launch system:
     fab appbalancer launch:appbalancer
 """
 
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
-
-def launch(role):
+def launch(roles):
     """
-    Launches all nodes for the given role.
+    Launches all nodes for the given roles.
     Usage:
-        fab loadbalancer launch:loadbalancer
+        fab appbalancer launch:loadbalancer.appnode
     """
-    if role in ("cachenode"):
-        raise NotImplementedError()
+    roles = roles.split(".")
+    if "cachenode" in roles:
+        pass # raise NotImplementedError()
     iptables()
-    kokki(role)
-    if role in ("appbalancer", "loadbalancer"):
-        dissite(name="default")
+    kokki(roles)
+    if "loadbalancer" in roles:
+        dissite(site="default")
         for site in settings.SITES:
-            ensite(name=site)
-    if role in ("appbalancer", "appnode"):
+            ensite(site=site)
+    if "appnode" in roles:
         sudo("aptitude build-dep -y python-psycopg2")
-        sudo("groupadd --force webmaster")
-        useradd(env.user, env.password)
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")
-        sudo("mkdir --parents {0} && chown -R deploy:webmaster {1} {2}".format(settings.LIB_ROOT, settings.SITES_ROOT, user=env.user))
+        run("mkdir --parents {0}".format(settings.LIB_ROOT))
         with cd(settings.LIB_ROOT):
-            sudo("git clone git@github.com:{0}/deploy-machine.git && git checkout master".format(env.github_username), user=env.user)
-        # http://www.saltycrane.com/blog/2009/07/using-psycopg2-virtualenv-ubuntu-jaunty/
+            run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(env.github_username))
         with cd(settings.LIB_ROOT):
-            sudo("git clone git@github.com:{0}/scene-machine.git django-scene-machine && git checkout master".format(env.github_username), user=env.user)
-            sudo("git clone git://github.com/pinax/pinax.git && git checkout {0}".format(settings.PINAX_VERSION), user=env.user)
-        for site in settings.SITES:
-            launch_app(site)
-            syncdb(site)
+            # TODO move these into fablib_local
+            run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(env.github_username))
+            run("git clone git://github.com/pinax/pinax.git")
+        with cd(settings.PINAX_ROOT):
+            run("git checkout {0}".format(settings.PINAX_VERSION))
+    for site in settings.SITES:
+        launch_app(site)
+        syncdb(site)
         supervisor()
-    if role == "dbserver":
+    if "dbserver" in roles:
         sudo("createdb -E UTF8 template_postgis", user="postgres") # Create the template spatial database.
         sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
         sudo("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
@@ -86,7 +87,7 @@ def unlaunch():
     """
     Undo the launch step, useful for debugging without reprovisioning.
     """
-    sudo("userdel --remove deploy && rm -Rf /var/www/")
+    sudo("rm -Rf {0}".format(settings.SITES_ROOT))
 
 
 def launch_app(site):
@@ -95,35 +96,33 @@ def launch_app(site):
     virtualenv. Additionally the configuration management will need to be run
     to configure the webserver.
     """
-    sudo("mkdir --parents /var/www/{0}/".format(site), user=env.user)
-    with cd("/var/www/{0}/".format(site)):
-        sudo("git clone git@github.com:{0}/{1}.git &&\
-              git checkout master".format(env.github_username, site), user=env.user)
-    settings_local("prod", site)
+    run("mkdir --parents {0}{1}/".format(settings.SITES_ROOT, site))
+    with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
+        run("git clone --branch master git@github.com:{0}/{1}.git".format(env.github_username, site))
     generate_virtualenv(site)
+    generate_settings_local("prod", site)
+    generate_settings_main("prod", site)
+    collectstatic(site)
 
 
 def generate_virtualenv(site):
     """
     Creates or rebuilds a site's virtualenv.
-    @@@ Todo, allow for muliple envs for one project. A la predictable rollbacks.
+    TODO muliple envs for one site, aka predictable rollbacks.
     """
-    if "/home/{0}/.virtualenvs/{1}/".format(env.user, site):
-        sudo("rm -rf /home/{0}/.virtualenvs/{1}/".format(env.user, site))
-    with cd("/home/{0}/.virtualenvs/".format(env.user)):
-        sudo("virtualenv --no-site-packages --distribute {0}".format(site, env.user), user=env.user)
-    with cd("/var/www/{0}/".format(site)):
-        sudo("ln -s /home/deploy/.virtualenvs/{0}/lib/python{1}/site-packages".format(site, env.python_version), user=env.user)
-    venv("curl --remote-name http://python-distribute.org/distribute_setup.py &&\
-          python distribute_setup.py && rm distribute*".format(site), site)
-    # i forget exactly why we need to additionally install egenix-mx-base here
-    # probably a psycopg2 dependency (see http://goo.gl/nEG8n)
+    run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
+    with cd(settings.VIRTUALENVS_ROOT):
+        run("virtualenv --no-site-packages --distribute {0}".format(site, env.user))
+    with cd("{0}{1}".format(settings.SITES_ROOT, site)):
+        run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, env.python_version))
+    # egenix-mx-base is a strange psycopg2 dependency (http://goo.gl/paKd5 & http://goo.gl/nEG8n)
     venv("easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base".format(site), site)
-    venv("easy_install pip && pip install virtualenv PyYaml".format(site), site)
-    venv("ln -s ../settings_local.py", site)
     pip_requirements("prod", site)
-    symlinks(site)
-    collectstatic(site)
+    try:
+        # Hack to add sylinks for personal libraries which aren't on pypi and therefore not in requirements.
+        symlinks("prod", site)
+    except ImportError:
+        pass
 
 
 def launch_db(name, password, template="template1"):
@@ -134,10 +133,3 @@ def launch_db(name, password, template="template1"):
     sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
     sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
     sudo("createdb --template {0} --owner {1} {1}".format(template, name), user="postgres")
-
-
-# define domain specific fabric methods in fabfile_local.py, not tracked by git.
-try:
-    from fabfile_local import *
-except ImportError:
-    pass
