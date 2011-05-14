@@ -65,7 +65,7 @@ def provision(public_ip, puppetmaster=False):
         local("rsync -avzp {0}kokki-cookbooks {1}@{2}:/home/deploy/kokki-cookbooks".format(
                settings.DEPLOYMACHINE_LOCAL_ROOT, "root", public_ip))
         run("chown -R {0}:{0} /home/{0}/".format("deploy"))
-        run("pip install git+git://github.com/samuel/kokki#egg=kokki python-cloudservers=={1}".format(
+        run("pip install git+git://github.com/samuel/kokki#egg=kokki python-cloudservers=={0}".format(
              settings.PYTHON_CLOUDSERVERS_VERSION))
     if "chef" or "puppet" in settings.CONFIGURATORS:
         run("aptitude install -y ruby-dev rubygems rdoc")
