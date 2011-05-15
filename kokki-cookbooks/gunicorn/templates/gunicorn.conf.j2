@@ -19,8 +19,7 @@ from os.path import abspath, dirname, join
 sys.path.insert(0, abspath(join(dirname(__file__), "../../")))
 
 from site import addsitedir
-addsitedir(join(settings.VIRTUALENVS_ROOT, name,
-                "lib/python{0}/".format(site.python_version), "/site-packages/"))
+addsitedir("{{ virtualenvs_root }}{{ name }}/lib/python{{ python_version }}/site-packages/")
 
 from django.conf import settings
 os.environ["DJANGO_SETTINGS_MODULE"] = "{{ name }}.settings"
