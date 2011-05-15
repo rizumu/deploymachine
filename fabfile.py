@@ -66,17 +66,17 @@ def launch():
         for name, password in settings.DATABASES.iteritems():
             launch_db(name, password)
     if "appnode" in env.server_types:
-        #sudo("aptitude build-dep -y python-psycopg2") # move to site requirements? Is this necessary?
-        #sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
-        #run("mkdir --parents {0}".format(settings.LIB_ROOT))
-        #with cd(settings.LIB_ROOT):
-        #    run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
-        #with cd(settings.LIB_ROOT):
+        sudo("aptitude build-dep -y python-psycopg2") # move to site requirements? Is this necessary?
+        sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
+        run("mkdir --parents {0}".format(settings.LIB_ROOT))
+        with cd(settings.LIB_ROOT):
+            run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
+        with cd(settings.LIB_ROOT):
             # TODO move these into contrib_local
-        #    run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
-        #    run("git clone git://github.com/pinax/pinax.git")
-        #with cd(settings.PINAX_ROOT):
-        #    run("git checkout {0}".format(settings.PINAX_VERSION))
+            run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
+            run("git clone git://github.com/pinax/pinax.git")
+        with cd(settings.PINAX_ROOT):
+            run("git checkout {0}".format(settings.PINAX_VERSION))
         # call an extra checkouts signal signal
         for site in settings.SITES:
             launch_app(site["name"])
