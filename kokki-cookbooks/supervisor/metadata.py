@@ -25,6 +25,10 @@ __config__ = {
         description = "Path to the supervisor log file",
         default = "/var/log/supervisord.log",
     ),
+    "supervisor.sites": dict(
+        description = "gunicorn_django processes to watch",
+        default = None,
+    ),
 }
 
 # if env.system.platform == "ubuntu":
