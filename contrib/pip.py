@@ -1,7 +1,7 @@
 from fabric.api import local
 
 from deploymachine.conf import settings
-from deploymachine.fablib.fab import venv, venv_local
+from deploymachine.contrib.fab import venv, venv_local
 
 
 def pip_requirements(connection, site=None):
@@ -11,10 +11,10 @@ def pip_requirements(connection, site=None):
         fab appnode pip_requirements:prod,sitename
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         if connection == "dev":
             venv_local("pip install -r requirements", site)
         elif connection == "prod":
@@ -42,10 +42,10 @@ def pip_install(connection, repo, package, path=None, version=None, site=None):
     else:
         print("Repo type does not exist, use git, hg, or pypi")
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         if connection == "dev":
             venv_local("pip install --ignore-installed {0}".format(fmt_egg), site)
         elif connection == "prod":
@@ -62,10 +62,10 @@ def pip_uninstall(connection, package, site=None):
         fab appnode pip_uninstall:prod,PIL,rizumu
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         try:
             if connection == "dev":
                 venv_local("pip uninstall --yes {0}".format(package), site)

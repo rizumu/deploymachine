@@ -7,7 +7,7 @@ from jinja2 import Environment, PackageLoader
 
 import deploymachine
 from deploymachine.conf import settings
-from deploymachine.fablib.fab import venv, venv_local
+from deploymachine.contrib.fab import venv, venv_local
 
 
 def collectstatic(site=None):
@@ -17,10 +17,10 @@ def collectstatic(site=None):
         fab collectstatic:sitename
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         venv("python manage.py collectstatic --noinput", site)
 
 
@@ -31,10 +31,10 @@ def generate_settings_main(connection, site=None):
         fab generate_settings_main:dev,sitename
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         if connection == "dev":
             env = Environment(loader=PackageLoader("deploymachine", "templates"))
             template = env.get_template("settings_main.j2")
@@ -58,10 +58,10 @@ def generate_settings_local(connection, database, site=None):
         fab generate_settings_local:dev,dbname,sitename
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         if connection == "dev":
             env = Environment(loader=PackageLoader("deploymachine", "templates"))
             template = env.get_template("settings_local_dev.j2")
@@ -89,10 +89,10 @@ def generate_urls_main(connection, site=None):
         fab generate_urls_main:dev,sitename
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         if connection == "dev":
             env = Environment(loader=PackageLoader("deploymachine", "templates"))
             template = env.get_template("urls_main.j2")

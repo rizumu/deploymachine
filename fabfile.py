@@ -2,24 +2,24 @@ from fabric.api import cd, env, local, sudo, put, run
 
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
-from deploymachine.fablib.fab import (venv, venv_local, root, appbalancer, appnode,
+from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
     dbserver, loadbalancer)
-from deploymachine.fablib.providers.rackspace import (cloudservers_list, cloudservers_boot,
+from deploymachine.contrib.providers.rackspace import (cloudservers_list, cloudservers_boot,
     cloudservers_bootem, cloudservers_kill, cloudservers_sudokillem)
-from deploymachine.fablib.credentials import ssh, gitconfig
-from deploymachine.fablib.django import (collectstatic, generate_settings_local,
+from deploymachine.contrib.credentials import ssh, gitconfig
+from deploymachine.contrib.django import (collectstatic, generate_settings_local,
     generate_settings_main, generate_urls_main, syncdb, test)
-from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploymachine
-from deploymachine.fablib.iptables import iptables
-from deploymachine.fablib.logs import site_logs
-from deploymachine.fablib.pip import pip_install, pip_requirements, pip_uninstall
-from deploymachine.fablib.provision import provision
-from deploymachine.fablib.scm.kokki import kokki
-from deploymachine.fablib.scm.puppet import is_puppetmaster
-from deploymachine.fablib.supervisor import supervisor
-from deploymachine.fablib.users import useradd
-from deploymachine.fablib.webservers.nginx import ensite, dissite, reload_nginx, reload_nginx
-from deploymachine.fablib.webservers.maintenance_mode import splash_on, splash_off
+from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
+from deploymachine.contrib.iptables import iptables
+from deploymachine.contrib.logs import site_logs
+from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
+from deploymachine.contrib.provision import provision
+from deploymachine.contrib.scm.kokki import kokki
+from deploymachine.contrib.scm.puppet import is_puppetmaster
+from deploymachine.contrib.supervisor import supervisor
+from deploymachine.contrib.users import useradd
+from deploymachine.contrib.webservers.nginx import ensite, dissite, reload_nginx, reload_nginx
+from deploymachine.contrib.webservers.maintenance_mode import splash_on, splash_off
 
 # define domain specific fabric methods in fabfile_local.py, not tracked by git.
 try:
@@ -49,12 +49,12 @@ def launch(roles):
     roles = roles.split(".")
     if "cachenode" in roles:
         pass # raise NotImplementedError()
-    iptables()
-    kokki(roles)
+    #iptables()
+    #kokki(roles)
     if "loadbalancer" in roles:
         dissite(site="default")
         for site in settings.SITES:
-            ensite(site=site)
+            ensite(site=site["name"])
     if "dbserver" in roles:
         sudo("createdb -E UTF8 template_postgis", user="postgres") # Create the template spatial database.
         sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
@@ -66,19 +66,21 @@ def launch(roles):
         for name, password in settings.DATABASES.iteritems():
             launch_db(name, password)
     if "appnode" in roles:
-        sudo("aptitude build-dep -y python-psycopg2")
-        sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")
-        run("mkdir --parents {0}".format(settings.LIB_ROOT))
-        with cd(settings.LIB_ROOT):
-            run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
-        with cd(settings.LIB_ROOT):
-            # TODO move these into fablib_local
-            run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
-            run("git clone git://github.com/pinax/pinax.git")
-        with cd(settings.PINAX_ROOT):
-            run("git checkout {0}".format(settings.PINAX_VERSION))
+        #sudo("aptitude build-dep -y python-psycopg2") # move to site requirements? Is this necessary?
+        #sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
+        #run("mkdir --parents {0}".format(settings.LIB_ROOT))
+        #with cd(settings.LIB_ROOT):
+        #    run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
+        #with cd(settings.LIB_ROOT):
+            # TODO move these into contrib_local
+        #    run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
+        #    run("git clone git://github.com/pinax/pinax.git")
+        #with cd(settings.PINAX_ROOT):
+        #    run("git checkout {0}".format(settings.PINAX_VERSION))
+        # call an extra checkouts signal signal
         for site in settings.SITES:
-            launch_app(site)
+            launch_app(site["name"])
+        supervisor()
 
 
 def unlaunch():
@@ -102,7 +104,6 @@ def launch_app(site):
     generate_settings_main("prod", site)
     collectstatic(site)
     syncdb(site)
-    supervisor()
 
 
 def generate_virtualenv(site):

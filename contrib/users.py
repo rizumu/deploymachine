@@ -3,7 +3,7 @@ from os.path import join
 from fabric.api import cd, run
 from fabric.contrib.files import append
 
-from fablib.credentials import ssh, gitconfig
+from contrib.credentials import ssh, gitconfig
 
 from deploymachine.conf import settings
 

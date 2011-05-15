@@ -2,10 +2,10 @@
 from fabric.api import cd, env, local, sudo
 
 from deploymachine.conf import settings
-from deploymachine.fablib.django import collectstatic, settings_local
-from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploymachine
-from deploymachine.fablib.supervisor import supervisor
-from deploymachine.fablib.fab import venv, venv_local
+from deploymachine.contrib.django import collectstatic, settings_local
+from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
+from deploymachine.contrib.supervisor import supervisor
+from deploymachine.contrib.fab import venv, venv_local
 
 
 PYDISCOGS_ROOT = "{0}/pydiscogs/pydiscogs".format(settings.LIB_ROOT)
@@ -84,14 +84,14 @@ def symlinks(connection, site=None):
                                           join(settings.SITES_ROOT, site, site, "fabfile.py")))
             local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "settings.py"),
                                           join(settings.SITES_ROOT, site, site, "settings.py")))
-            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "fablib/"),
-                                          join(settings.SITES_ROOT, site, site, "fablib/")))
+            local("ln -sf {0} {1}".format(join(settings.DEPLOYMACHINE_ROOT, "contrib/"),
+                                          join(settings.SITES_ROOT, site, site, "contrib/")))
         local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "fabfile.py"),
                                       join(settings.DEPLOYMACHINE_ROOT, "fabfile.py")))
         local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "settings.py"),
                                       join(settings.DEPLOYMACHINE_ROOT, "settings.py")))
-        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "fablib/"),
-                                      join(settings.DEPLOYMACHINE_ROOT, "fablib/")))
+        local("ln -sf {0} {1}".format(join(settings.SCENEMACHINE_ROOT, "contrib/"),
+                                      join(settings.DEPLOYMACHINE_ROOT, "contrib/")))
     elif connection == "prod":
         for site in site_list:
             with cd(site_packages):

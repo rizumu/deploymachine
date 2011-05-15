@@ -7,9 +7,9 @@ from fabric.network import connect
 from fabric.utils import abort
 
 from deploymachine.conf import settings
-from deploymachine.fablib.providers.rackspace import cloudservers_get_ips
-from deploymachine.fablib.scm.puppet import is_puppetmaster
-from deploymachine.fablib.users import useradd
+from deploymachine.contrib.providers.rackspace import cloudservers_get_ips
+from deploymachine.contrib.scm.puppet import is_puppetmaster
+from deploymachine.contrib.users import useradd
 
 
 def provision():

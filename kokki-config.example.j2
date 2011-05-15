@@ -48,7 +48,7 @@ def loadbalancer(kit):
         "nginx.keepalive_timeout": 5,
         "nginx.accept_mutex": False,
         "nginx.client_max_body_size": "4G",
-        "nginx.sites": {{ deploymachine_settings.SITES_DETAIL }},
+        "nginx.sites": {{ deploymachine_settings.SITES }},
     })
 
 
@@ -60,8 +60,8 @@ def appnode(kit):
         "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
         "virtualenvs_root": "{{ deploymachine_settings.VIRTUALENVS_ROOT }}",
         "munin.dbdir": "/var/lib/munin",
-        "gunicorn.sites": {{ deploymachine_settings.SITES_DETAIL }},
-        "supervisor.sites": {{ deploymachine_settings.SITES_DETAIL }},
+        "gunicorn.sites": {{ deploymachine_settings.SITES }},
+        "supervisor.sites": {{ deploymachine_settings.SITES }},
         "supervisor.logrotate": dict(
             files=[
                 "/var/log/supervisord/*.log",

@@ -1,8 +1,8 @@
 from fabric.api import env, cd, sudo
 
 from deploymachine.conf import settings
-from deploymachine.fablib.supervisor import supervisor
-from deploymachine.fablib.fab import venv
+from deploymachine.contrib.supervisor import supervisor
+from deploymachine.contrib.fab import venv
 
 
 def git_pull(site=None):
@@ -11,10 +11,10 @@ def git_pull(site=None):
         fab appnode git-pull:sitename
     """
     if site is None:
-        site_list = settings.SITES
+        sites = [site["name"] for site in settings.SITES]
     else:
-        site_list = [site]
-    for site in site_list:
+        sites = [site]
+    for site in sites:
         venv("git pull", site)
         supervisor("gunicorn-{0}".format(site))
 
