@@ -7,8 +7,9 @@ COOKBOOK_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kokki
 def base(kit):
     kit.add_cookbook_path(COOKBOOK_PATH)
     kit.update_config({
-        "cloud_servers": dict(username="{{ deploymachine_settings.CLOUD_SERVERS_USERNAME }}",
-                              api_key="{{ deploymachine_settings.CLOUD_SERVERS_API_KEY }}"),
+        "openstack_compute": dict(username="{{ deploymachine_settings.OPENSTACK_USERNAME }}",
+                                  api_key="{{ deploymachine_settings.OPENSTACK_API_KEY }}",
+                                  servers={{ deploymachine_settings.OPENSTACK_SERVERS }}),
         "limits": [
             dict(domain="redis", type="soft", item="nofile", value="10000"),
             dict(domain="redis", type="hard", item="nofile", value="10000"),

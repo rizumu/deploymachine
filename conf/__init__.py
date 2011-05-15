@@ -1,5 +1,5 @@
-from deploymachine import settings_deploymachine as custom_settings
+from deploymachine import settings_deploymachine
 
 
 # @@@ this is dumb, but makes for a honking namespace.
-settings = custom_settings
+settings = settings_deploymachine

@@ -5,23 +5,23 @@ from fabric.contrib.files import upload_template
 
 from deploymachine.conf import settings
 from deploymachine.contrib.dvcs.git import git_pull_deploymachine
-from deploymachine.contrib.providers.rackspace import cloudservers_get_ips
+from deploymachine.contrib.providers.openstack_api import openstack_get_ips
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.webservers.nginx import reload_nginx
 
 
-def kokki(roles, restart=False, new_style=False):
+def kokki(role, restart=False):
     """
     Cook all nodes for the given role.
     Usage:
-        fab appnode kokki:appnode.dbserver.loadbalancer,restart=False,new_style=False
+        fab appnode kokki:appnode.dbserver.loadbalancer,restart=False
     """
-    if type(roles) == str:
-        roles = " ".join(roles.split('.'))
-    elif type(roles) == list:
-        roles = " ".join(roles)
-    public_ip_addresses = cloudservers_get_ips([role for role in settings.CLOUD_SERVERS],
-                                               append_port=False)
+    nodes = []
+    for node in settings.OPENSTACK_SERVERS:
+        if role in node["roles"]:
+            nodes.append(node)
+    if nodes == []: return
+    public_ip_addresses = openstack_get_ips(env.server_types, port=settings.SSH_PORT, append_port=False)
     upload_template("kokki-config.j2", "/home/deploy/kokki-config.py",
                      context={"deploymachine_settings": settings}, use_jinja=True)
     for public_ip in public_ip_addresses:
@@ -31,7 +31,7 @@ def kokki(roles, restart=False, new_style=False):
                settings.SSH_PORT, settings.DEPLOYMACHINE_LOCAL_ROOT, public_ip))
     # run kokki and restart the apps
     with cd(settings.DEPLOY_HOME):
-        sudo("kokki -f kokki-config.py {0}".format(roles))
+        sudo("kokki -f kokki-config.py {0}".format(role))
     if restart and role == "appnode":
         reload_nginx()
         supervisor()

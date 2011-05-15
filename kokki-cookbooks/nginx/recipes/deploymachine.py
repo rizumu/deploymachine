@@ -1,16 +1,23 @@
 
-import cloudservers
+import openstack.compute
 
 from kokki import Package, Directory, File, Template, Service
 
 
 def get_internal_appnode_ips():
     appnode_list = []
-    cs = cloudservers.CloudServers(env.config.cloud_servers.username,
-                                   env.config.cloud_servers.api_key)
-    for server in cs.servers.list():
-        if server.metadata["role"] == "appnode":
-            appnode_list.append(server.addresses["private"][0])
+    compute = openstack.compute.Compute(username=env.config.openstack_compute.username,
+                                        apikey=env.config.openstack_compute.api_key)
+    for server in compute.servers.list():
+        # Verify (by name) that the live server was defined in the settings.
+        try:
+            node = [n for n in env.config.openstack_compute.servers if n['nodename'] == server.name][0]
+        except IndexError:
+            continue
+        # If a ``roles`` list was passed in, verify it matches the node's roles.
+        if "appnode" not in node["roles"]:
+            continue
+        appnode_list.append(server.addresses["private"][0])
     return appnode_list
 
 

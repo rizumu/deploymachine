@@ -4,8 +4,8 @@ from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
 from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
     dbserver, loadbalancer)
-from deploymachine.contrib.providers.rackspace import (cloudservers_list, cloudservers_boot,
-    cloudservers_bootem, cloudservers_kill, cloudservers_sudokillem)
+from deploymachine.contrib.providers.openstack_api import (openstack_list, openstack_boot,
+    openstack_bootem, openstack_kill, openstack_sudokillem)
 from deploymachine.contrib.credentials import ssh, gitconfig
 from deploymachine.contrib.django import (collectstatic, generate_settings_local,
     generate_settings_main, generate_urls_main, syncdb, test)
@@ -29,33 +29,33 @@ except ImportError:
 
 """
 To view info on existing machines:
-    cloudservers list
-http://github.com/jacobian/python-cloudservers for cloudservers api.
+    openstack-compute list (or) fab openstack list
+http://github.com/jacobian/openstack.compute for more info on the OpenStack API.
 
 To launch system:
-    fab cloudservers-bootem
+    fab openstack_bootem
     fab root provision
     fab dbserver launch:dbserver
     fab appbalancer launch:appbalancer.appnode
 """
 
 
-def launch(roles):
+def launch():
     """
-    Launches all nodes for the given roles.
+    Launches all nodes in the given env.
     Usage:
-        fab appbalancer launch:loadbalancer.appnode
+        fab appbalancer launch
     """
-    roles = roles.split(".")
-    if "cachenode" in roles:
+    if "cachenode" in env.server_types:
         pass # raise NotImplementedError()
-    #iptables()
-    #kokki(roles)
-    if "loadbalancer" in roles:
+    iptables()
+    for role in env.server_types:
+        kokki(role)
+    if "loadbalancer" in env.server_types:
         dissite(site="default")
         for site in settings.SITES:
             ensite(site=site["name"])
-    if "dbserver" in roles:
+    if "dbserver" in env.server_types:
         sudo("createdb -E UTF8 template_postgis", user="postgres") # Create the template spatial database.
         sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
         sudo("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
@@ -65,7 +65,7 @@ def launch(roles):
         sudo("psql -d template_postgis -c \"GRANT ALL ON spatial_ref_sys TO PUBLIC;\"", user="postgres")
         for name, password in settings.DATABASES.iteritems():
             launch_db(name, password)
-    if "appnode" in roles:
+    if "appnode" in env.server_types:
         #sudo("aptitude build-dep -y python-psycopg2") # move to site requirements? Is this necessary?
         #sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
         #run("mkdir --parents {0}".format(settings.LIB_ROOT))

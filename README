@@ -25,19 +25,24 @@ Clone the deploymachine to an easily accesible folder on your local machine. Rep
 
     ``/home/username/www/lib/deploymachine/`` or ``Users/username/www/lib/deploymachine/``
 
-Copy the example config files and customize:
+Copy the example files and customize for your project. A suggestion is to instead symlink into a private repository:
 
     $ cp fabfile_local.example.py fabfile_local.py
     $ cp settings_deploymachine.example.py settings_deploymachine.py
     $ cp kokki-config.example.j2 kokki-config.j2
-
-A detailed explanation of each the available settings is forthcoming.
 
 Place the public keys to be authorized access to all servers in the ``ssh folder``:
 
     $ cp ~/.ssh/me.pub ~/www/lib/deploymachine/ssh/me.pub
     $ cp ~/.ssh/you.pub ~/www/lib/deploymachine/ssh/you.pub
     $ cp ~/.ssh/her.pub ~/www/lib/deploymachine/ssh/her.pub
+
+Install the requirements into your local site-packages of the python environment. The suggestion is to use virtualenv to create a virtualenv named ``deploymachine``:
+
+    $ virtualenv --no-site-packages --distribute deploymachine
+    $ pip install -r requirements.txt
+
+See http://pypi.python.org/pypi/virtualenv and http://pypi.python.org/pypi/pip if you are unfamiliar with either pip or virtualenv.
 
 MOTIVATION
 ==========
@@ -75,15 +80,15 @@ Deploymachine is intent on supporting the most common and practical cases, but n
 
 CLOUD SERVERS
 =============
-DeployMachine supports Rackspace CloudServer and Cloudfiles via the Python API. `https://github.com/jacobian/python-cloudservers <https://github.com/jacobian/python-cloudservers>`_
+DeployMachine supports the OpenStack Compute API. `https://github.com/jacobian/openstack.compute <https://github.com/jacobian/openstack.compute>`_
 
-To view info on existing Rackspace servers::
+To view info on existing servers::
 
-    $ cloudservers list
+    $ openstack-compute list
 
 .. note::
 
-    **FUTURE FEATURE** Amazon EC2 and S3 support is trivial once this feature is requested.
+    **FUTURE FEATURE** Amazon EC2 and S3 support will be trivial to implement once desired.
 
 
 DNSIMPLE
@@ -93,28 +98,28 @@ DeployMachine harnesses the dnsimple python API for directing our domain names t
 
 VIRTUALBOX
 ==========
-There is a script fabfile for booting up virtualbox instances instead of cloudservers. This is useful for testing in a developement environment. @@@TODO consider using Vagrant instead.
+There is a fabfile method to boot virtualbox instances. This is useful for testing in a developement environment. TODO: This hasn't been tested in a while, consider harnessing Vagrant.
 
 
 FIRST DEPLOYMENT
 ================
 After private/personal configuration is complete, the general idea is as follows. From bare metal to production ready:::
 
-    $ fab cloudservers_bootem
+    $ fab bootem
     $ fab root provision
-    $ fab dbserver launch:dbserver
-    $ fab loadbalancer launch:loadbalancer
-    $ fab appnode launch:appnode
+    $ fab dbserver launch
+    $ fab loadbalancer launch
+    $ fab appnode launch
 
-The ``fab cloudservers_bootem`` command runs the ``boot`` command for each server defined in the ``settings.py``. This will connect to the cloud providers API and boot a new machine. To list the details for your new machines, including ip addresses:
+The ``fab bootem`` command runs the ``boot`` command for each server defined in the ``settings.py``. To list the details for your new machines, including ip addresses:
 
-    $ cloudservers list
+    $ openstack-compute list
 
 The ``fab root provision`` command tries to provision each server defined in the settings, skipping those which have already been provisioned. Provisioning configures core ubuntu packages, ssh, firewall, python, kokki, and root accounts. Security follows the best practice guidelines of the excellent Slicehost documentation. After provisioning is complete you can manually login to the machine using the following format:
 
     $ ssh -p {port} deploy@{ip}
 
-The ``fab apptype launch:servername`` is called once for each server type and it's goal is to take the newly provisioned servers to a production ready state. The launch command tells Kokki to cook the server to the custom specification defined in defined in the ``kokki-config.yaml``. See ``kokki-config.yaml.dist`` for an example.
+The ``fab apptype launch`` is called once for each server type and it's goal is to take the newly provisioned servers to a production ready state. The launch command tells Kokki to cook the server to the custom specification defined in defined in the ``kokki-config.yaml``. See ``kokki-config.yaml.dist`` for an example.
 
 .. warning::
 
@@ -140,16 +145,8 @@ ONGOING DEPLOYMENTS
 ===================
 To add a new app node to the mix follow this three step process::
     $ fab boot appnode2
-    $ fab provision appnode2
-    $ fab appnode launch:appnode2
+    $ fab provision
+    $ fab appnode launch
+    $ fab kokki:loadbalancer
 
 Deploy machine provides a Fabric API for maintaining your application. Commands for git, pip, supervisor, nginx, django and more are included. Take a peek inside the ``contrib`` folder for all the available options, or help extend the existing library. Domain specific commands can be imported from your personal in ``fab_local.py``. An example ``fab_local.example.py`` is included.
-
-
-DEPLOYMACHINE CONFIG
-=====================
-Private and custom settings live in ``settings.py``::
-
-    $ cp settings.dist.py settings.py
-
-Read the code to become comfortable with the API, its documented quite well.

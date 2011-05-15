@@ -7,7 +7,7 @@ from fabric.network import connect
 from fabric.utils import abort
 
 from deploymachine.conf import settings
-from deploymachine.contrib.providers.rackspace import cloudservers_get_ips
+from deploymachine.contrib.providers.openstack_api import openstack_get_ips
 from deploymachine.contrib.scm.puppet import is_puppetmaster
 from deploymachine.contrib.users import useradd
 
@@ -66,8 +66,8 @@ def provision():
     # software configuration management
     if "kokki" in settings.CONFIGURATORS:
         run("aptitude install -y python-jinja2")
-        run("pip install git+git://github.com/samuel/kokki#egg=kokki python-cloudservers=={0}".format(
-             settings.PYTHON_CLOUDSERVERS_VERSION))
+        run("pip install git+git://github.com/samuel/kokki#egg=kokki \
+                         git+git://github.com/jacobian/openstack.compute#egg=openstack_compute")
     if "chef" or "puppet" in settings.CONFIGURATORS:
         run("aptitude install -y ruby-dev rubygems rdoc")
         if "chef" in settings.CONFIGURATORS:

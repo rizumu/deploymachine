@@ -69,12 +69,12 @@ GITHUB_USERNAME = "me"
 GITHUB_TOKEN = "@@@"
 DOTFILE_REPOSITORY = "git://github.com/rizumu/deploymachine-dotfiles.git"
 
-CLOUD_SERVERS_DEFAULT_IMAGE_ID = 69 # ubuntu. See ``cloudservers image-list`` for others.
-CLOUDSERVERS = {"appnode": [("finnegan", "1")]}
+OPENSTACK_DEFAULT_IMAGE_ID = 69 # ubuntu. See ``openstack-compute image-list`` for others.
+OPENSTACK_SERVERS = {"appnode": [("finnegan", "1")]}
 PUPPETMASTER = "finnegan" # Name of puppetmaster machiene
 
 KOKKI_VERSION = "0.4.1"
-PYTHON_CLOUDSERVERS_VERSION = "1.2"
+OPENSTACK_COMPUTE_VERSION = None # currently must install from git 
 # @@@ Eventually auto build a custom python version, ie 2.5, 2.6, 2.7.1
 PYTHON_VERSION = "2.6" # Distro's python version
 PINAX_VERSION = "0.9a2.dev10"

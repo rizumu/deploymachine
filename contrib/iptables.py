@@ -10,8 +10,8 @@ def iptables():
     Usage:
         fab appnode iptables
     """
-    for server_type in env.server_types:
-        upload_template("templates/iptables.up.rules-{0}.j2".format(server_type),
+    for roles in env.roles:
+        upload_template("templates/iptables.up.rules-{0}.j2".format(roles),
                         "/etc/iptables.up.rules", use_sudo=True, use_jinja=True,
                         context={"SSH_PORT": settings.SSH_PORT})
         sudo("iptables --flush")

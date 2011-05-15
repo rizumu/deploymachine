@@ -2,12 +2,12 @@ from os.path import join
 
 from fabric.api import cd, env, run, local
 
-from providers.rackspace import cloudservers_get_ips
+from providers.openstack_api import openstack_get_ips
 from deploymachine.conf import settings
 
 
 def root():
-    env.hosts = cloudservers_get_ips([role for role in settings.CLOUD_SERVERS])
+    env.hosts = openstack_get_ips()
     env.user = "root"
 
 
@@ -15,8 +15,8 @@ def env_base(server_types):
     "This is the base from which all server types inherit from."
     env.user = settings.DEPLOY_USERNAME
     env.password = settings.DEPLOY_PASSWORD_RAW
-    env.hosts = cloudservers_get_ips(server_types, settings.SSH_PORT)
-    env.internal = cloudservers_get_ips(server_types, settings.SSH_PORT, "private")
+    env.hosts = openstack_get_ips(server_types, settings.SSH_PORT)
+    env.internal = openstack_get_ips(server_types, settings.SSH_PORT, "private")
     env.server_types = server_types
 
 
@@ -37,12 +37,12 @@ def dbserver():
 
 def appbalancer():
     "Combined ``loadbalancer`` and ``appnode`` environment specific settings."
-    env_base(["appbalancer"])
+    env_base(["appnode", "loadbalancer"])
 
 
 def dbappbalancer():
     "Combined ``loadbalancer``, ``appnode``, ``dbserver`` environment specific settings."
-    env_base(["dbappbalancer"])
+    env_base(["appnode", "dbserver", "loadbalancer"])
 
 
 def venv(command, site):

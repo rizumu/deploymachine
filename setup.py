@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 README = read('README.rst')
-VERSION = __import__("compressor").__version__
+VERSION = __import__("deploymachine").__version__
 
 setup(
     name = "deploymachine",
@@ -16,7 +16,10 @@ setup(
     author_email = "tom@insatsu.us",
     packages = find_packages(),
     install_requries = [
-        "python-cloudservers", "fabric", "Jinja2", "kokki",
+        #"openstack.compute",
+        "fabric",
+        "Jinja2",
+        "kokki",
     ]
     classifiers= [
         "Development Status :: 3 - Alpha",

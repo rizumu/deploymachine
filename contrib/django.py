@@ -1,3 +1,4 @@
+import deploymachine
 import os
 import sys
 
@@ -5,7 +6,6 @@ from fabric.api import local, put, sudo
 from fabric.contrib.files import upload_template
 from jinja2 import Environment, PackageLoader
 
-import deploymachine
 from deploymachine.conf import settings
 from deploymachine.contrib.fab import venv, venv_local
 
