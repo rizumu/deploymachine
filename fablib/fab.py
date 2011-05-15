@@ -7,7 +7,7 @@ from deploymachine.conf import settings
 
 
 def root():
-    env.hosts = cloudservers_get_ips([role for role in settings.CLOUDSERVERS])
+    env.hosts = cloudservers_get_ips([role for role in settings.CLOUD_SERVERS])
     env.user = "root"
 
 

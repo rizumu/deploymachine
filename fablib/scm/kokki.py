@@ -1,6 +1,7 @@
 from os.path import join
 
 from fabric.api import cd, env, local, sudo, put
+from fabric.contrib.files import upload_template
 
 from deploymachine.conf import settings
 from deploymachine.fablib.dvcs.git import git_pull_deploymachine
@@ -19,15 +20,15 @@ def kokki(roles, restart=False, new_style=False):
         roles = " ".join(roles.split('.'))
     elif type(roles) == list:
         roles = " ".join(roles)
-    public_ip_addresses = cloudservers_get_ips([role for role in settings.CLOUDSERVERS],
+    public_ip_addresses = cloudservers_get_ips([role for role in settings.CLOUD_SERVERS],
                                                append_port=False)
-    put("{0}kokki-config.py".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
-        "/home/deploy/kokki-config.py")
+    upload_template("kokki-config.j2", "/home/deploy/kokki-config.py",
+                     context={"deploymachine_settings": settings}, use_jinja=True)
     for public_ip in public_ip_addresses:
         # put the local cookbooks on the server
-        local("rsync -e 'ssh -p {0}' -avzp {1}kokki-cookbooks/ \
-                                           deploy@{2}:/home/deploy/kokki-cookbooks/".format(
-            settings.SSH_PORT, settings.DEPLOYMACHINE_LOCAL_ROOT, public_ip))
+        local("rsync -e 'ssh -p {0}' -avzp \
+               {1}kokki-cookbooks/ deploy@{2}:/home/deploy/kokki-cookbooks/".format(
+               settings.SSH_PORT, settings.DEPLOYMACHINE_LOCAL_ROOT, public_ip))
     # run kokki and restart the apps
     with cd(settings.DEPLOY_HOME):
         sudo("kokki -f kokki-config.py {0}".format(roles))

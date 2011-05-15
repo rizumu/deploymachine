@@ -58,12 +58,12 @@ def cloudservers_boot(role, nodename, flavor=1, image=settings.CLOUD_SERVERS_DEF
 
 def cloudservers_bootem(image=settings.CLOUD_SERVERS_DEFAULT_IMAGE_ID):
     """
-    Boots the nodes for all roles in ``CLOUDSERVERS``.
+    Boots the nodes for all roles in ``CLOUD_SERVERS``.
     Optionally takes an image name/id from which to clone from.
     Usage:
         fab bootem
     """
-    for role, nodes in settings.CLOUDSERVERS.iteritems():
+    for role, nodes in settings.CLOUD_SERVERS.iteritems():
         for node in nodes:
             cloudservers_boot(role, node[0], node[1], image)
 
@@ -83,7 +83,7 @@ def cloudservers_sudokillem():
     Usage:
         fab killem
     """
-    for role, nodes in settings.CLOUDSERVERS.iteritems():
+    for role, nodes in settings.CLOUD_SERVERS.iteritems():
         for node in nodes:
             cloudservers_kill(node[0])
 
