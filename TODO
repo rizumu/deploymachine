@@ -8,18 +8,15 @@ Save download time and bandwith by cloning a default provision.
 
 DNSimple support for killing/booting the main loadbalancer and updating the DNS.
 
-Raise more informative exceptions, instead of NotImplementedError()
-
 Test all apptypes and combinations.
 
-Finish bootstrapping puppet.
+BETA TASKS
+==========
+Support other configurators:
+    Chef examples:
+        http://bkonkle.github.com/docs/serversetup.html
+        https://github.com/bkonkle/chef-cookbooks
 
-BIGGEST TASKS
-    Upgrade kokki recipies, we're back a few versions.
-    General use case configuration management for puppet.
-    Actually make the the local_settings_xxx.j2 and gunicorn.j2 files 
-    for each site.
+    Puppet examples:
+        https://github.com/uggedal/ddw-puppet
 
-BUG?
-====
-Verify .gitconfig formatting on server.

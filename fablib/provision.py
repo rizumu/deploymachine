@@ -1,5 +1,10 @@
+import errno
+import paramiko
+
 from fabric.api import cd, env, local, run, put
 from fabric.contrib.files import append, upload_template
+from fabric.network import connect
+from fabric.utils import abort
 
 from deploymachine.conf import settings
 from deploymachine.fablib.providers.rackspace import cloudservers_get_ips
@@ -7,26 +12,11 @@ from deploymachine.fablib.scm.puppet import is_puppetmaster
 from deploymachine.fablib.users import useradd
 
 
-def provisionem():
+def provision():
     """
-    Provisions all nodes.
+    Provisions all unprovisioned servers.
     Usage:
-        fab root provisionem
-    """
-    public_ip_addresses = cloudservers_get_ips([role for role in settings.CLOUDSERVERS],
-                                               append_port=False)
-    for public_ip in public_ip_addresses:
-        if is_puppetmaster(public_ip=public_ip):
-            provision(public_ip, puppetmaster=True)
-        else:
-            provision(public_ip)
-
-
-def provision(public_ip, puppetmaster=False):
-    """
-    Provisions a node.
-    Usage:
-        fab root provision:ip=127.0.0.1
+        fab root provision
 
     .. warning::
         If you get the following error, kill the machine and try again:
@@ -34,22 +24,38 @@ def provision(public_ip, puppetmaster=False):
         @@@ Figure out why this occasionaly happens and prevent it.
 
     """
-    if env.user != 'root':
-        raise NotImplementedError()
-    # system
-    local("ssh {0}@{1} -o StrictHostKeyChecking=no &".format("root", public_ip))
+    # preliminary testing to determine if machine can and should be provisioned
+    if env.user != "root":
+        abort("Must provision as root: ``fab root provision``")
+    if settings.SSH_PORT == "22":
+        abort("Must change ``settings.SSH_PORT`` to something other than ``22``")
+    try:
+        client = paramiko.SSHClient()
+        client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname=env.host, username=env.user)
+        client.close()
+    except EnvironmentError as exc:
+        client.close()
+        if exc.errno == errno.ECONNREFUSED:
+            print("{0} is already provisioned".format(env.host))
+            return
+        else:
+            raise
+    # system setup
+    local("ssh {0}@{1} -o StrictHostKeyChecking=no &".format(env.user, env.host))
     run("sed -i 's/universe/universe multiverse/g' /etc/apt/sources.list")
     run("/usr/sbin/locale-gen en_US.UTF-8 && /usr/sbin/update-locale LANG=en_US.UTF-8")
     run("aptitude update && aptitude -y safe-upgrade")
     run("aptitude install -y {0}".format(" ".join(settings.BASE_PACKAGES)))
-    # users
+    # deploy user setup
     run("groupadd wheel && groupadd sshers")
     run("cp /etc/sudoers /etc/sudoers.bak")
     append("/etc/sudoers", "%wheel  ALL=(ALL) ALL")
     useradd("deploy")
     upload_template("templates/sshd_config.j2", "/etc/ssh/sshd_config",
                     context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)
-    # pip/virtualenv on system python
+    # pip/virtualenv for system python
     with cd("/tmp/"):
         run("curl --remote-name http://python-distribute.org/distribute_setup.py")
         run("python distribute_setup.py && rm distribute*")
@@ -63,7 +69,7 @@ def provision(public_ip, puppetmaster=False):
         put("{0}kokki-config.py".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
             "/home/deploy/kokki-config.py", mode=0644)
         local("rsync -avzp {0}kokki-cookbooks {1}@{2}:/home/deploy/kokki-cookbooks".format(
-               settings.DEPLOYMACHINE_LOCAL_ROOT, "root", public_ip))
+               settings.DEPLOYMACHINE_LOCAL_ROOT, env.user, env.host))
         run("chown -R {0}:{0} /home/{0}/".format("deploy"))
         run("pip install git+git://github.com/samuel/kokki#egg=kokki python-cloudservers=={0}".format(
              settings.PYTHON_CLOUDSERVERS_VERSION))
@@ -72,10 +78,9 @@ def provision(public_ip, puppetmaster=False):
         if "chef" in settings.CONFIGURATORS:
             run("gem install chef")
         if "puppet" in settings.CONFIGURATORS:
-            if puppetmaster == True:
+            if is_puppetmaster(public_ip=env.host):
                 run("aptitude install -y puppetmaster")
             run("gem install puppet")
-            # https://github.com/uggedal/ddw-puppet # puppet example
     # firewall + prevent root login
     upload_template("templates/iptables.up.rules-provision.j2", "/etc/iptables.up.rules",
                     context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)

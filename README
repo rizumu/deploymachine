@@ -103,7 +103,7 @@ FIRST DEPLOYMENT
 After private/personal configuration is complete, the general idea is as follows. From bare metal to production ready:::
 
     $ fab cloudservers_bootem
-    $ fab root provisionem
+    $ fab root provision
     $ fab dbserver launch:dbserver
     $ fab loadbalancer launch:loadbalancer
     $ fab appnode launch:appnode
@@ -112,7 +112,7 @@ The ``fab cloudservers_bootem`` command runs the ``boot`` command for each serve
 
     $ cloudservers list
 
-The ``fab root provisionem`` command runs the ``provision`` command for each server defined in the settings. This sets up core ubuntu packages, ssh, firewall, python, kokki, and root accounts. Security follows the best practice guidelines of the excellent Slicehost documentation. After provisioning is complete you can manually login to the machine using the following format:
+The ``fab root provision`` command tries to provision each server defined in the settings, skipping those which have already been provisioned. Provisioning configures core ubuntu packages, ssh, firewall, python, kokki, and root accounts. Security follows the best practice guidelines of the excellent Slicehost documentation. After provisioning is complete you can manually login to the machine using the following format:
 
     $ ssh -p {port} deploy@{ip}
 

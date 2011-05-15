@@ -21,7 +21,7 @@ def git_pull(site=None):
 
 def git_pull_deploymachine():
     with cd(settings.DEPLOYMACHINE_ROOT):
-        sudo("git pull", user=env.user)
+        sudo("git pull", user=settings.DEPLOY_USERNAME)
 
 
 def git_log(site=None):

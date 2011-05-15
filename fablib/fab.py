@@ -9,17 +9,12 @@ from deploymachine.conf import settings
 def root():
     env.hosts = cloudservers_get_ips([role for role in settings.CLOUDSERVERS])
     env.user = "root"
-    env.github_username = settings.GITHUB_USERNAME
 
 
 def env_base(server_types):
     "This is the base from which all server types inherit from."
-    env.user = settings.DEPLOY_USERNAME
-    env.password = settings.DEPLOY_PASSWORD_RAW
-    env.github_username = settings.GITHUB_USERNAME
     env.hosts = cloudservers_get_ips(server_types, settings.SSH_PORT)
     env.internal = cloudservers_get_ips(server_types, settings.SSH_PORT, "private")
-    env.python_version = settings.PYTHON_VERSION
     env.server_types = server_types
 
 
@@ -57,6 +52,6 @@ def venv(command, site):
 
 def venv_local(command, site):
     "The Python virtual environment used on the local machine."
-    with cd(join(settings.VIRTUALENVS_ROOT, site)):
+    with cd("{0}{1}/{1}".format(settings.SITES_LOCAL_ROOT, site)):
         local("source {0} && {1}".format(
-              join(settings.VIRTUALENVS_ROOT, site, "bin/activate"), command))
+              join(settings.VIRTUALENVS_LOCAL_ROOT, site, "bin/activate"), command))

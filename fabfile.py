@@ -13,7 +13,7 @@ from deploymachine.fablib.dvcs.git import git_pull, git_pull_deploymachine
 from deploymachine.fablib.iptables import iptables
 from deploymachine.fablib.logs import site_logs
 from deploymachine.fablib.pip import pip_install, pip_requirements, pip_uninstall
-from deploymachine.fablib.provision import provisionem, provision
+from deploymachine.fablib.provision import provision
 from deploymachine.fablib.scm.kokki import kokki
 from deploymachine.fablib.scm.puppet import is_puppetmaster
 from deploymachine.fablib.supervisor import supervisor
@@ -34,7 +34,7 @@ http://github.com/jacobian/python-cloudservers for cloudservers api.
 
 To launch system:
     fab cloudservers-bootem
-    fab root provisionem
+    fab root provision
     fab dbserver launch:dbserver
     fab appbalancer launch:appbalancer
 """
@@ -98,7 +98,7 @@ def launch_app(site):
     """
     run("mkdir --parents {0}{1}/".format(settings.SITES_ROOT, site))
     with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
-        run("git clone --branch master git@github.com:{0}/{1}.git".format(env.github_username, site))
+        run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.github_username, site))
     generate_virtualenv(site)
     generate_settings_local("prod", site)
     generate_settings_main("prod", site)
@@ -112,9 +112,9 @@ def generate_virtualenv(site):
     """
     run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
     with cd(settings.VIRTUALENVS_ROOT):
-        run("virtualenv --no-site-packages --distribute {0}".format(site, env.user))
+        run("virtualenv --no-site-packages --distribute {0}".format(site, settings.DEPLOY_USERNAME))
     with cd("{0}{1}".format(settings.SITES_ROOT, site)):
-        run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, env.python_version))
+        run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.python_version))
     # egenix-mx-base is a strange psycopg2 dependency (http://goo.gl/paKd5 & http://goo.gl/nEG8n)
     venv("easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base".format(site), site)
     pip_requirements("prod", site)
