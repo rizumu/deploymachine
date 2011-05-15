@@ -66,11 +66,6 @@ def provision():
     # software configuration management
     if "kokki" in settings.CONFIGURATORS:
         run("aptitude install -y python-jinja2")
-        put("{0}kokki-config.py".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
-            "/home/deploy/kokki-config.py", mode=0644)
-        local("rsync -avzp {0}kokki-cookbooks {1}@{2}:/home/deploy/kokki-cookbooks".format(
-               settings.DEPLOYMACHINE_LOCAL_ROOT, env.user, env.host))
-        run("chown -R {0}:{0} /home/{0}/".format("deploy"))
         run("pip install git+git://github.com/samuel/kokki#egg=kokki python-cloudservers=={0}".format(
              settings.PYTHON_CLOUDSERVERS_VERSION))
     if "chef" or "puppet" in settings.CONFIGURATORS:
@@ -81,6 +76,7 @@ def provision():
             if is_puppetmaster(public_ip=env.host):
                 run("aptitude install -y puppetmaster")
             run("gem install puppet")
+    run("chown -R {0}:{0} /home/{0}/".format("deploy"))
     # firewall + prevent root login
     upload_template("templates/iptables.up.rules-provision.j2", "/etc/iptables.up.rules",
                     context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)
