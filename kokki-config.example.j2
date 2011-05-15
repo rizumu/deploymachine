@@ -40,7 +40,7 @@ def base(kit):
 
 def loadbalancer(kit):
     base(kit) 
-    kit.include_recipe("munin.master", "nginx.scenemachine")
+    kit.include_recipe("munin.master", "nginx.deploymachine")
     kit.update_config({
         "munin.dbdir": "/var/lib/munin",
         "nginx.worker_processes": 4,
@@ -54,7 +54,7 @@ def loadbalancer(kit):
 
 def appnode(kit):
     base(kit)
-    kit.include_recipe("munin.node", "redis", "gunicorn.scenemachine")
+    kit.include_recipe("munin.node", "redis", "supervisor", "gunicorn.deploymachine")
     kit.update_config({
         "python_version": "{{ deploymachine_settings.PYTHON_VERSION }}",
         "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
