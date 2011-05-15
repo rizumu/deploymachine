@@ -36,7 +36,7 @@ To launch system:
     fab cloudservers-bootem
     fab root provision
     fab dbserver launch:dbserver
-    fab appbalancer launch:appbalancer
+    fab appbalancer launch:appbalancer.appnode
 """
 
 
@@ -55,22 +55,6 @@ def launch(roles):
         dissite(site="default")
         for site in settings.SITES:
             ensite(site=site)
-    if "appnode" in roles:
-        sudo("aptitude build-dep -y python-psycopg2")
-        sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")
-        run("mkdir --parents {0}".format(settings.LIB_ROOT))
-        with cd(settings.LIB_ROOT):
-            run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(env.github_username))
-        with cd(settings.LIB_ROOT):
-            # TODO move these into fablib_local
-            run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(env.github_username))
-            run("git clone git://github.com/pinax/pinax.git")
-        with cd(settings.PINAX_ROOT):
-            run("git checkout {0}".format(settings.PINAX_VERSION))
-    for site in settings.SITES:
-        launch_app(site)
-        syncdb(site)
-        supervisor()
     if "dbserver" in roles:
         sudo("createdb -E UTF8 template_postgis", user="postgres") # Create the template spatial database.
         sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
@@ -81,6 +65,20 @@ def launch(roles):
         sudo("psql -d template_postgis -c \"GRANT ALL ON spatial_ref_sys TO PUBLIC;\"", user="postgres")
         for name, password in settings.DATABASES.iteritems():
             launch_db(name, password)
+    if "appnode" in roles:
+        sudo("aptitude build-dep -y python-psycopg2")
+        sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")
+        run("mkdir --parents {0}".format(settings.LIB_ROOT))
+        with cd(settings.LIB_ROOT):
+            run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
+        with cd(settings.LIB_ROOT):
+            # TODO move these into fablib_local
+            run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
+            run("git clone git://github.com/pinax/pinax.git")
+        with cd(settings.PINAX_ROOT):
+            run("git checkout {0}".format(settings.PINAX_VERSION))
+        for site in settings.SITES:
+            launch_app(site)
 
 
 def unlaunch():
@@ -98,11 +96,13 @@ def launch_app(site):
     """
     run("mkdir --parents {0}{1}/".format(settings.SITES_ROOT, site))
     with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
-        run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.github_username, site))
+        run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.GITHUB_USERNAME, site))
     generate_virtualenv(site)
-    generate_settings_local("prod", site)
+    generate_settings_local("prod", "scenemachine", site) # TODO: remove hardcoded database name.
     generate_settings_main("prod", site)
     collectstatic(site)
+    syncdb(site)
+    supervisor()
 
 
 def generate_virtualenv(site):
@@ -114,7 +114,7 @@ def generate_virtualenv(site):
     with cd(settings.VIRTUALENVS_ROOT):
         run("virtualenv --no-site-packages --distribute {0}".format(site, settings.DEPLOY_USERNAME))
     with cd("{0}{1}".format(settings.SITES_ROOT, site)):
-        run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.python_version))
+        run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
     # egenix-mx-base is a strange psycopg2 dependency (http://goo.gl/paKd5 & http://goo.gl/nEG8n)
     venv("easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base".format(site), site)
     pip_requirements("prod", site)
