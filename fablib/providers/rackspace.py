@@ -31,8 +31,7 @@ def cloudservers_list():
     print(local("cloudservers list"))
 
 
-def cloudservers_boot(role, nodename, flavor=1,
-                      image=settings.CLOUD_SERVERS_DEFAULT_IMAGE_ID):
+def cloudservers_boot(role, nodename, flavor=1, image=settings.CLOUD_SERVERS_DEFAULT_IMAGE_ID):
     """
     Boot a new node.
     Optionally takes an image name/id from which to clone from, or a flavor type.
@@ -41,17 +40,20 @@ def cloudservers_boot(role, nodename, flavor=1,
     """
     cs = cloudservers.CloudServers(os.environ.get("CLOUD_SERVERS_USERNAME"),
                                    os.environ.get("CLOUD_SERVERS_API_KEY"))
-    if type(image) is int:
-        image_id = image
-    elif type(image) is str:
+    if nodename in [i.name for i in cs.servers.list()]:
+        print("``{0}`` has already been booted, skipping.".format(nodename))
+        return
+    try:
+        image_id = int(image)
+    except ValueError:
         for i in cs.servers.api.images.list():
             if i.name == image:
                 image_id = i.id
                 break
         else:
-            raise Exception #@@@ server name not found
-    local("cloudservers boot --key ~/.ssh/id_rsa.pub --image={0} --flavor={1}\
-               --meta role={2} {3}".format(image_id, flavor, role, nodename))
+            abort("Image not found. Run ``cloudservers image-list`` to view options.")
+    local("cloudservers boot --key {0} --image={1} --flavor={2} --meta role={3} {4}".format(
+           settings.SSH_PUBLIC_KEY, image_id, flavor, role, nodename))
 
 
 def cloudservers_bootem(image=settings.CLOUD_SERVERS_DEFAULT_IMAGE_ID):
@@ -96,7 +98,6 @@ def cloudservers_get_ips(roles, port="22", ip_type="public", append_port=True):
     cs = cloudservers.CloudServers(os.environ.get("CLOUD_SERVERS_USERNAME"),
                                    os.environ.get("CLOUD_SERVERS_API_KEY"))
     for server in cs.servers.list():
-
         for role in roles:
             if role == server.metadata["role"] and append_port:
                 ips.append(server.addresses[ip_type][0] + ":" + port)
