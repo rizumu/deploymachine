@@ -13,6 +13,8 @@ def root():
 
 def env_base(server_types):
     "This is the base from which all server types inherit from."
+    env.user = settings.DEPLOY_USERNAME
+    env.password = settings.DEPLOY_PASSWORD_RAW
     env.hosts = cloudservers_get_ips(server_types, settings.SSH_PORT)
     env.internal = cloudservers_get_ips(server_types, settings.SSH_PORT, "private")
     env.server_types = server_types
