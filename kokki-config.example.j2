@@ -1,0 +1,112 @@
+import os
+
+
+COOKBOOK_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kokki-cookbooks")
+
+
+def base(kit):
+    kit.add_cookbook_path(COOKBOOK_PATH)
+    kit.update_config({
+        "cloud_servers": dict(username="{{ deploymachine_settings.CLOUD_SERVERS_USERNAME }}",
+                              api_key="{{ deploymachine_settings.CLOUD_SERVERS_API_KEY }}"),
+        "limits": [
+            dict(domain="redis", type="soft", item="nofile", value="10000"),
+            dict(domain="redis", type="hard", item="nofile", value="10000"),
+            dict(domain="nginx", type="soft", item="nofile", value="10000"),
+            dict(domain="nginx", type="hard", item="nofile", value="10000"),
+            dict(domain="www-data", type="soft", item="nofile", value="10000"),
+            dict(domain="www-data", type="hard", item="nofile", value="10000"),
+            dict(domain="root", type="soft", item="nofile", value="30000"),
+            dict(domain="root", type="hard", item="nofile", value="30000"),
+        ],
+        "apt.sources": [
+             "deb http://archive.ubuntu.com/ubuntu/ lucid main restricted universe multiverse",
+             "deb http://archive.ubuntu.com/ubuntu/ lucid-updates main restricted universe multiverse",
+             "deb http://security.ubuntu.com/ubuntu lucid-security main restricted universe multiverse",
+         ],
+         "apt.configs": {
+             "APT::Periodic": {
+                 "Unattended-Upgrade": 1,
+                 "MaxSize": 1024,
+                 "MinAge": 10,
+                 "MaxAge": 90,
+             },
+         },
+    })
+    kit.include_recipe("limits", "monit", "sysadmin")#, "apt")
+    #logrotate, logwatch, icinga, heartbeat
+    #hosts, iptables, locales, timezone, openntpd
+
+
+def loadbalancer(kit):
+    base(kit) 
+    kit.include_recipe("munin.master", "nginx.scenemachine")
+    kit.update_config({
+        "munin.dbdir": "/var/lib/munin",
+        "nginx.worker_processes": 4,
+        "nginx.worker_connections": 100,
+        "nginx.keepalive_timeout": 5,
+        "nginx.accept_mutex": False,
+        "nginx.client_max_body_size": "4G",
+        "nginx.sites": {{ deploymachine_settings.SITES_DETAIL }},
+    })
+
+
+def appnode(kit):
+    base(kit)
+    kit.include_recipe("munin.node", "redis", "gunicorn.scenemachine")
+    kit.update_config({
+        "python_version": "{{ deploymachine_settings.PYTHON_VERSION }}",
+        "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
+        "virtualenvs_root": "{{ deploymachine_settings.VIRTUALENVS_ROOT }}",
+        "munin.dbdir": "/var/lib/munin",
+        "gunicorn.sites": {{ deploymachine_settings.SITES_DETAIL }},
+        "supervisor.sites": {{ deploymachine_settings.SITES_DETAIL }},
+        "supervisor.logrotate": dict(
+            files=[
+                "/var/log/supervisord/*.log",
+                "/var/log/gunicorn/*.log",
+            ],
+            rotate=10,
+            interval="weekly",
+        ),
+    })
+
+
+def dbserver(kit):
+    base(kit)
+    kit.include_recipe("munin.node", "postgresql9.server")
+    kit.update_config({
+        "postgresql9.listen_addresses": "*",
+        "postgresql9.port": "{{ deploymachine_settings.PGSQL_PORT }}",
+        "postgresql9.auth": [
+            dict(type="local",
+                 database="all",
+                 user="all",
+                 method="md5",
+            ),
+            dict(type="host",
+                 database="all",
+                 uset="all",
+                 cidr="127.0.0.1/32",
+                 method="md5",
+            ),
+            dict(type="host",
+                 database="all",
+                 user="all",
+                 cidr="::1/128",
+                 method="md5",
+            ),
+            dict(type="hostssl",
+                 database="all",
+                 user="all",
+                 cidr="10.179.0.0/16",
+                 method="md5",
+            ),
+        ],
+     })
+
+
+def cachenode(kit):
+    base(kit)
+    kit.include_recipe("munin.node", "redis")
