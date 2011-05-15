@@ -3,7 +3,7 @@
 *.pub
 *_rsa
 *~
-kokki-config.py
+kokki-config.j2
 fabfile_local.py
 settings_deploymachine.py
 templates/gunicorn.conf.j2
