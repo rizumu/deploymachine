@@ -23,7 +23,7 @@ def base(kit):
         "apt.sources": [
              "deb http://archive.ubuntu.com/ubuntu/ lucid main restricted universe multiverse",
              "deb http://archive.ubuntu.com/ubuntu/ lucid-updates main restricted universe multiverse",
-             "deb http://security.ubuntu.com/ubuntu lucid-security main restricted universe multiverse",
+             "deb http://security.ubuntu.com/ubuntu/ lucid-security main restricted universe multiverse",
          ],
          "apt.configs": {
              "APT::Periodic": {
@@ -40,7 +40,7 @@ def base(kit):
 
 
 def loadbalancer(kit):
-    base(kit) 
+    base(kit)
     kit.include_recipe("munin.master", "nginx.deploymachine")
     kit.update_config({
         "munin.dbdir": "/var/lib/munin",

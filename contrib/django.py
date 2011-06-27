@@ -76,6 +76,8 @@ def generate_settings_local(connection, database, site=None):
                 "site": site,
                 "psql_port": settings.PGSQL_PORT,
                 "db_password": settings.DATABASES[database],
+                "openstack_username": settings.OPENSTACK_USERNAME,
+                "openstack_api_key": settings.OPENSTACK_API_KEY,
             }
             upload_template(filename, destination, context=context, use_jinja=True)
         else:

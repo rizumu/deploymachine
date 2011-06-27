@@ -10,10 +10,9 @@ def iptables():
     Usage:
         fab appnode iptables
     """
-    for roles in env.roles:
-        upload_template("templates/iptables.up.rules-{0}.j2".format(roles),
-                        "/etc/iptables.up.rules", use_sudo=True, use_jinja=True,
-                        context={"SSH_PORT": settings.SSH_PORT})
-        sudo("iptables --flush")
-        sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
-              rm -rf /root/.ssh/ && /etc/init.d/ssh reload")
+    upload_template("templates/iptables.up.rules-{0}.j2".format("_".join(env.server_types)),
+                    "/etc/iptables.up.rules", use_sudo=True, use_jinja=True,
+                    context={"SSH_PORT": settings.SSH_PORT})
+    sudo("iptables --flush")
+    sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
+          rm -rf /root/.ssh/ && /etc/init.d/ssh reload")

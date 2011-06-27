@@ -3,7 +3,7 @@ from fabric.api import cd, env, local, sudo, put, run
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
 from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
-    dbserver, loadbalancer)
+    dbserver, dbappbalancer, loadbalancer)
 from deploymachine.contrib.providers.openstack_api import (openstack_list, openstack_boot,
     openstack_bootem, openstack_kill, openstack_sudokillem)
 from deploymachine.contrib.credentials import ssh, gitconfig
@@ -32,39 +32,54 @@ To view info on existing machines:
     openstack-compute list (or) fab openstack list
 http://github.com/jacobian/openstack.compute for more info on the OpenStack API.
 
-To launch system:
-    fab openstack_bootem
-    fab root provision
-    fab dbserver launch:dbserver
-    fab appbalancer launch:appbalancer.appnode
+Aside from prelimiary customizations and ongoing maintenance...
+
+    From start to finish:
+        fab openstack_bootem
+        fab root provision
+        fab loadbalancer launch
+        fab dbserver launch
+        fab appbalancer launch
 """
 
 
-def launch():
+def launch(template="template1"):
     """
-    Launches all nodes in the given env.
+    Launches all nodes in the given env: ./contrib/fab.py
+
     Usage:
+        fab loadbalancer launch
+        fab appnode launch
         fab appbalancer launch
+        fab dbserver launch:template_postgis
     """
     if "cachenode" in env.server_types:
-        pass # raise NotImplementedError()
+        raise NotImplementedError()
+
     iptables()
+
     for role in env.server_types:
         kokki(role)
+
     if "loadbalancer" in env.server_types:
         dissite(site="default")
         for site in settings.SITES:
             ensite(site=site["name"])
+
     if "dbserver" in env.server_types:
-        sudo("createdb -E UTF8 template_postgis", user="postgres") # Create the template spatial database.
-        sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
-        sudo("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
-        sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis.sql", user="postgres") # Loading the PostGIS SQL routines
-        sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/spatial_ref_sys.sql", user="postgres")
-        sudo("psql -d template_postgis -c \"GRANT ALL ON geometry_columns TO PUBLIC;\"", user="postgres") # Enabling users to alter spatial tables.
-        sudo("psql -d template_postgis -c \"GRANT ALL ON spatial_ref_sys TO PUBLIC;\"", user="postgres")
+        if db_template == "template_postgis":
+            sudo("createdb -E UTF8 template_postgis -T template0", user="postgres") # Create the template spatial database.
+            sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
+            sudo("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
+            sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis.sql", user="postgres") # Loading the PostGIS SQL routines
+            sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/spatial_ref_sys.sql", user="postgres")
+            sudo("psql -d template_postgis -c \"GRANT ALL ON geometry_columns TO PUBLIC;\"", user="postgres") # Enabling users to alter spatial tables.
+            sudo("psql -d template_postgis -c \"GRANT ALL ON spatial_ref_sys TO PUBLIC;\"", user="postgres")
+        else:
+            raise NotImplementedError
         for name, password in settings.DATABASES.iteritems():
-            launch_db(name, password)
+            launch_db(name, password, db_template)
+
     if "appnode" in env.server_types:
         sudo("aptitude build-dep -y python-psycopg2") # move to site requirements? Is this necessary?
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
@@ -126,11 +141,11 @@ def generate_virtualenv(site):
         pass
 
 
-def launch_db(name, password, template="template1"):
+def launch_db(name, password, db_template="template1"):
     """
     Launches a new database. Typically used when launching a new site.
-    An alternative template option is ``template_postgis`` for GeoDjango.
+    An alternative database template is ``template_postgis`` for GeoDjango.
     """
     sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
     sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
-    sudo("createdb --template {0} --owner {1} {1}".format(template, name), user="postgres")
+    sudo("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")
