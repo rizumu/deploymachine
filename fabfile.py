@@ -68,20 +68,21 @@ def launch(template="template1"):
 
     if "dbserver" in env.server_types:
         if db_template == "template_postgis":
-            sudo("createdb -E UTF8 template_postgis -T template0", user="postgres") # Create the template spatial database.
-            sudo("createlang -d template_postgis plpgsql", user="postgres") # Adding PLPGSQL language support.
+            sudo("createdb -E UTF8 template_postgis -T template0", user="postgres")  # Create the template spatial database.
+            sudo("createlang -d template_postgis plpgsql", user="postgres")  # Adding PLPGSQL language support.
             sudo("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
-            sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis.sql", user="postgres") # Loading the PostGIS SQL routines
+            sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis.sql", user="postgres")  # Loading the PostGIS SQL routines
             sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/spatial_ref_sys.sql", user="postgres")
-            sudo("psql -d template_postgis -c \"GRANT ALL ON geometry_columns TO PUBLIC;\"", user="postgres") # Enabling users to alter spatial tables.
+            sudo("psql -d template_postgis -c \"GRANT ALL ON geometry_columns TO PUBLIC;\"", user="postgres")  # Enabling users to alter spatial tables.
             sudo("psql -d template_postgis -c \"GRANT ALL ON spatial_ref_sys TO PUBLIC;\"", user="postgres")
         else:
             raise NotImplementedError
+
         for name, password in settings.DATABASES.iteritems():
             launch_db(name, password, db_template)
 
     if "appnode" in env.server_types:
-        sudo("aptitude build-dep -y python-psycopg2") # move to site requirements? Is this necessary?
+        sudo("aptitude build-dep -y python-psycopg2")  # move to site requirements? Is this necessary?
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
         run("mkdir --parents {0}".format(settings.LIB_ROOT))
         with cd(settings.LIB_ROOT):
@@ -115,7 +116,7 @@ def launch_app(site):
     with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
         run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.GITHUB_USERNAME, site))
     generate_virtualenv(site)
-    generate_settings_local("prod", "scenemachine", site) # TODO: remove hardcoded database name.
+    generate_settings_local("prod", "scenemachine", site)  # TODO: remove hardcoded database name.
     generate_settings_main("prod", site)
     collectstatic(site)
     syncdb(site)
