@@ -10,8 +10,15 @@ DeployMachine is:
 * Deployment framework for launching and maintaining websites.
 * Slew of fabric commands for common tasks.
 
-This documentation notes any features which have yet to be
-implemented. A work in progress. C'est la vie.
+Documentation about the usage and installation of Django Podcasting
+can be found at http://deploymachine.readthedocs.org
+
+The source code and issue tracker can be found on GitHub.
+https://github.com/rizumu/deploymachine
+
+.. note::
+    This documentation notes any features which have yet to be
+    implemented. A work in progress. C'est la vie.
 
 .. warning::
 
