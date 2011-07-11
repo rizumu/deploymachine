@@ -1,8 +1,14 @@
+build
+dist
+MANIFEST
+*.egg-info
+*.egg
+docs/_build/
+
 *.pyc
-*.swp
 *.pub
 *_rsa
-*~
+
 kokki-config.j2
 fabfile_local.py
 settings_deploymachine.py
@@ -13,4 +19,3 @@ templates/settings_main.j2
 templates/urls_main.j2
 
 _kcb-todo/
-
