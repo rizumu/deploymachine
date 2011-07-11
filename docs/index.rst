@@ -11,6 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   preface
+   background
+   install
+   external
+   deployment
+
+
 Indices and tables
 ==================
 
