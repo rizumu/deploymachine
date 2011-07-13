@@ -2,8 +2,9 @@ Installation
 ============
 
 DeployMachine runs locally on OSX or GNU/Linux. It builds the current
-version of Ubuntu Server. @@@ Debian, Fedora and Arch support are next
-in the queue.
+version of Ubuntu Server.
+
+TODO: Debian, Fedora and Arch support are next in the queue.
 
 Clone the deploymachine to an easily accesible folder on your local
 machine. Replacing ``username`` with your local username, the
@@ -39,3 +40,11 @@ virtualenv named ``deploymachine``::
 See http://pypi.python.org/pypi/virtualenv and
 http://pypi.python.org/pypi/pip if you are unfamiliar with either pip
 or virtualenv and learn how to use them before going any further.
+
+You must also set some environment variables for your interactive
+shell. For example, add the following to your ``~/.bashrc`` and edit
+accordingly::
+    export OPENSTACK_COMPUTE_USERNAME=""  # your rackspace username
+    export OPENSTACK_COMPUTE_APIKEY=""  # your rackspace apikey
+    export VIRTUALENVS_LOCAL_ROOT=""  # typically /home/username/.virtualenvs/
+    export SITES_LOCAL_ROOT=""  # try /home/username/www/
