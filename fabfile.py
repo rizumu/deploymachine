@@ -150,3 +150,17 @@ def launch_db(name, password, db_template="template1"):
     sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
     sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
     sudo("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")
+
+
+def venv(command, site):
+    "The Python virtual environment used on the servers."
+    with cd("{0}{1}/{1}".format(settings.SITES_ROOT, site)):
+        run("source {0} && {1}".format(
+             join(settings.VIRTUALENVS_ROOT, site, "bin/activate"), command))
+
+
+def venv_local(command, envname):
+    "The Python virtual environment used on the local machine."
+    with cd("{0}{1}/{1}".format(settings.SITES_LOCAL_ROOT, envname)):
+        local("source {0} && {1}".format(
+              join(settings.VIRTUALENVS_LOCAL_ROOT, site, "bin/activate"), command))
