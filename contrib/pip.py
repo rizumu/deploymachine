@@ -17,8 +17,10 @@ def pip_requirements(connection, site=None):
     for site in sites:
         print("started pip install for {0}".format(site))
         if connection == "dev":
+            venv_local("pip install --upgrade pip", site)
             venv_local("pip install --quiet --requirement=requirements", site)
         elif connection == "prod":
+            venv("pip install --upgrade pip", site)
             venv("pip install --quiet --requirement=requirements.txt", site)
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
