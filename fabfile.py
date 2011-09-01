@@ -85,7 +85,6 @@ def launch(template="template1"):
             launch_db(name, password, db_template)
 
     if "appnode" in env.server_types:
-        sudo("aptitude build-dep -y python-psycopg2")  # move to site requirements? Is this necessary?
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")  # move to recipies
         if not exists(settings.LIB_ROOT):
             run("mkdir --parents {0}".format(settings.LIB_ROOT))
