@@ -6,7 +6,7 @@ from deploymachine.contrib.fab import venv, venv_local
 
 def pip_requirements(connection, site=None):
     """
-    Run the pip requirements file for a project.
+    Run the pip requirements file for a project, or all projects.
     Usage:
         fab appnode pip_requirements:prod,sitename
     """
@@ -15,17 +15,20 @@ def pip_requirements(connection, site=None):
     else:
         sites = [site]
     for site in sites:
+        print("started pip install for {0}".format(site))
         if connection == "dev":
-            venv_local("pip install -r requirements", site)
+            venv_local("pip install --quiet --requirement=requirements", site)
         elif connection == "prod":
-            venv("pip install -r requirements.txt", site)
+            venv("pip install --quiet --requirement=requirements.txt", site)
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
+        print("finished pip install for {0}".format(site))
+
 
 
 def pip_install(connection, repo, package, path=None, version=None, site=None):
     """
-    Run the pip requirements file for a project.
+    Install one package for a project, or all projects.
     Usage:
         fab pip_install:dev,git,django-oauth-access,git://github.com/eldarion,site=rizumu
         fab appnode pip_install:prod,pypi,Django,version=1.2.3,site=rizumu
@@ -56,7 +59,7 @@ def pip_install(connection, repo, package, path=None, version=None, site=None):
 
 def pip_uninstall(connection, package, site=None):
     """
-    Run the pip requirements file for a project.
+    Uninstall one package for a project, or all projects.
     Usage:
         fab pip_uninstall:dev,PIL,rizumu
         fab appnode pip_uninstall:prod,PIL,rizumu
