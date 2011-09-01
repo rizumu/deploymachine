@@ -138,8 +138,6 @@ def generate_virtualenv(site):
     if not exists("{0}{1}/site-packages".format(settings.SITES_ROOT, site)):
         with cd("{0}{1}".format(settings.SITES_ROOT, site)):
             run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
-    # egenix-mx-base is a strange psycopg2 dependency (http://goo.gl/paKd5 & http://goo.gl/nEG8n)
-    venv("easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base".format(site), site)
     pip_requirements("prod", site)
     try:
         # Hack to add sylinks for personal libraries which aren't on pypi and therefore not in requirements.
