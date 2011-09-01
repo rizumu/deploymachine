@@ -117,7 +117,7 @@ def launch_app(site):
     to configure the webserver.
     """
     run("mkdir --parents {0}{1}/".format(settings.SITES_ROOT, site))
-    if not exists("{0}{1}/".format(settings.SITES_ROOT, site)):
+    if not exists("{0}{1}/{1}/".format(settings.SITES_ROOT, site)):
         with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
             run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.GITHUB_USERNAME, site))
     generate_virtualenv(site)
