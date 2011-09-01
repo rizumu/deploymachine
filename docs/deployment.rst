@@ -3,13 +3,13 @@ First Deployment
 After private/personal configuration is complete, the general idea is
 as follows. From bare metal to production ready::
 
-    $ fab bootem
+    $ fab openstack_bootem
     $ fab root provision
     $ fab dbserver launch
     $ fab loadbalancer launch
     $ fab appnode launch
 
-The ``fab bootem`` command runs the ``boot`` command for each server
+The ``fab openstack_bootem`` command runs the ``openstack_boot`` command for each server
 defined in the ``settings.py``. To list the details for your new
 machines, including ip addresses::
 
@@ -64,7 +64,7 @@ Ongoing Deployments
 ===================
 To add a new app node to the mix follow this three step process::
 
-    $ fab boot appnode2
+    $ fab openstack_boot appnode2
     $ fab provision
     $ fab appnode launch
     $ fab kokki:loadbalancer

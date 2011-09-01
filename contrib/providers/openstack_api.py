@@ -36,7 +36,7 @@ def openstack_boot(nodename, flavor=1, image=69):
     Boot a new node.
     Optionally takes an image name/id from which to clone from, or a flavor type.
     Usage:
-        fab boot:role,nodename
+        fab openstack_boot:role,nodename
     """
     compute = openstack.compute.Compute(username=settings.OPENSTACK_USERNAME,
                                         apikey=settings.OPENSTACK_API_KEY)
@@ -61,7 +61,7 @@ def openstack_bootem():
     Boots the nodes for all roles in ``OPENSTACK``.
     Optionally takes an image name/id from which to clone from.
     Usage:
-        fab bootem
+        fab openstack_bootem
     """
     for node in settings.OPENSTACK_SERVERS:
         openstack_boot(node["nodename"], node["flavor"], node["image"])
@@ -80,7 +80,7 @@ def openstack_sudokillem():
     """
     Kills all nodes, database too, be careful!
     Usage:
-        fab killem
+        fab openstack_sudokillem
     """
     for node in settings.OPENSTACK_SERVERS:
         openstack_kill(node["nodename"])
