@@ -15,4 +15,4 @@ def iptables():
                     context={"SSH_PORT": settings.SSH_PORT})
     sudo("iptables --flush")
     sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
-          rm -rf /root/.ssh/ && /etc/init.d/ssh reload")
+          rm -rf /root/.ssh/ && reload ssh")

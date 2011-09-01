@@ -82,4 +82,4 @@ def provision():
                     context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)
     put("{0}templates/iptables".format(settings.DEPLOYMACHINE_LOCAL_ROOT),
         "/etc/network/if-pre-up.d/iptables", mode=0755)
-    run("/sbin/iptables-restore < /etc/iptables.up.rules && /etc/init.d/ssh reload")
+    run("/sbin/iptables-restore < /etc/iptables.up.rules && reload ssh")
