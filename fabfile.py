@@ -1,4 +1,7 @@
+import os
+
 from fabric.api import cd, env, local, sudo, put, run
+from fabric.contrib.files import exists
 
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
@@ -53,7 +56,7 @@ def launch(template="template1"):
         fab appbalancer launch
         fab dbserver launch:template_postgis
     """
-    if "cachenode" in env.server_types:
+    if ("cachenode" or "brokernode") in env.server_types:
         raise NotImplementedError()
 
     iptables()
@@ -83,16 +86,17 @@ def launch(template="template1"):
 
     if "appnode" in env.server_types:
         sudo("aptitude build-dep -y python-psycopg2")  # move to site requirements? Is this necessary?
-        sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/") # move to recipies
-        run("mkdir --parents {0}".format(settings.LIB_ROOT))
-        with cd(settings.LIB_ROOT):
-            run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
-        with cd(settings.LIB_ROOT):
-            # TODO move these into contrib_local
-            run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
-            run("git clone git://github.com/pinax/pinax.git")
-        with cd(settings.PINAX_ROOT):
-            run("git checkout {0}".format(settings.PINAX_VERSION))
+        sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")  # move to recipies
+        if not exists(settings.LIB_ROOT):
+            run("mkdir --parents {0}".format(settings.LIB_ROOT))
+            with cd(settings.LIB_ROOT):
+                run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
+            with cd(settings.LIB_ROOT):
+                # TODO move these into contrib_local
+                run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
+                run("git clone git://github.com/pinax/pinax.git")
+            with cd(settings.PINAX_ROOT):
+                run("git checkout {0}".format(settings.PINAX_VERSION))
         # call an extra checkouts signal signal
         for site in settings.SITES:
             launch_app(site["name"])
@@ -113,8 +117,9 @@ def launch_app(site):
     to configure the webserver.
     """
     run("mkdir --parents {0}{1}/".format(settings.SITES_ROOT, site))
-    with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
-        run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.GITHUB_USERNAME, site))
+    if not exists("{0}{1}/".format(settings.SITES_ROOT, site)):
+        with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
+            run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.GITHUB_USERNAME, site))
     generate_virtualenv(site)
     generate_settings_local("prod", "scenemachine", site)  # TODO: remove hardcoded database name.
     generate_settings_main("prod", site)
@@ -130,8 +135,9 @@ def generate_virtualenv(site):
     run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
     with cd(settings.VIRTUALENVS_ROOT):
         run("virtualenv --no-site-packages --distribute {0}".format(site, settings.DEPLOY_USERNAME))
-    with cd("{0}{1}".format(settings.SITES_ROOT, site)):
-        run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
+    if not exists("{0}{1}/site-packages".format(settings.SITES_ROOT, site)):
+        with cd("{0}{1}".format(settings.SITES_ROOT, site)):
+            run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
     # egenix-mx-base is a strange psycopg2 dependency (http://goo.gl/paKd5 & http://goo.gl/nEG8n)
     venv("easy_install -i http://downloads.egenix.com/python/index/ucs4/ egenix-mx-base".format(site), site)
     pip_requirements("prod", site)
@@ -156,11 +162,11 @@ def venv(command, site):
     "The Python virtual environment used on the servers."
     with cd("{0}{1}/{1}".format(settings.SITES_ROOT, site)):
         run("source {0} && {1}".format(
-             join(settings.VIRTUALENVS_ROOT, site, "bin/activate"), command))
+             os.path.join(settings.VIRTUALENVS_ROOT, site, "bin/activate"), command))
 
 
 def venv_local(command, envname):
     "The Python virtual environment used on the local machine."
     with cd("{0}{1}/{1}".format(settings.SITES_LOCAL_ROOT, envname)):
         local("source {0} && {1}".format(
-              join(settings.VIRTUALENVS_LOCAL_ROOT, site, "bin/activate"), command))
+              os.path.join(settings.VIRTUALENVS_LOCAL_ROOT, site, "bin/activate"), command))
