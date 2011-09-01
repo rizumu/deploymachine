@@ -52,9 +52,9 @@ def launch(template="template1"):
 
     Usage:
         fab loadbalancer launch
+        fab dbserver launch:template_postgis
         fab appnode launch
         fab appbalancer launch
-        fab dbserver launch:template_postgis
     """
     if ("cachenode" or "brokernode") in env.server_types:
         raise NotImplementedError()
@@ -96,10 +96,8 @@ def launch(template="template1"):
                 run("git clone git://github.com/pinax/pinax.git")
             with cd(settings.PINAX_ROOT):
                 run("git checkout {0}".format(settings.PINAX_VERSION))
-        # call an extra checkouts signal signal
-        for site in settings.SITES:
-            launch_app(site["name"])
-        supervisor()
+        # call an extra checkouts signal?
+        launch_apps()
 
 
 def unlaunch():
@@ -107,6 +105,13 @@ def unlaunch():
     Undo the launch step, useful for debugging without reprovisioning.
     """
     sudo("rm -Rf {0}".format(settings.SITES_ROOT))
+
+
+def launch_apps():
+    "Launch all apps defined in ``settings_deploymachine.py``."
+    for site in settings.SITES:
+        launch_app(site["name"])
+    supervisor()
 
 
 def launch_app(site):
