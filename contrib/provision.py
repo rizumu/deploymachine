@@ -59,7 +59,7 @@ def provision():
     with cd("/tmp/"):
         run("curl --remote-name http://python-distribute.org/distribute_setup.py")
         run("python distribute_setup.py && rm distribute*")
-        run("git clone git://github.com/xvzf/vcprompt.git")
+        run("git clone git://github.com/djl/vcprompt.git")
     with cd("/tmp/vcprompt/"):
         run("python setup.py install && rm -rf /tmp/vcprompt/")
     run("easy_install pip && pip install virtualenv")
