@@ -9,9 +9,8 @@ def supervisor(process=None):
     Usage:
         fab appbalancer supervisor:gunicorn-snowprayers
     """
+    process_list = []
     if process is None:
-        process_list = ["gunicorn-{0}".format(site) for site in settings.SITES]
+        sudo("supervisorctl restart all".format(process))
     else:
-        process_list = [process]
-    for process in process_list:
         sudo("supervisorctl restart {0}".format(process))
