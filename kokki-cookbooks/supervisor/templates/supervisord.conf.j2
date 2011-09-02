@@ -31,7 +31,7 @@ files = {{ env.config.supervisor.custom_config_path }}/*.conf
 
 {% for site in env.config.supervisor.sites %}
 [program:gunicorn-{{ site.name }}]
-command=/home/deploy/.virtualenvs/{{ site.name }}/bin/python /home/deploy/.virtualenvs/{{ site.name }}/bin/gunicorn_django --preload  --log-file=/var/log/gunicorn/{{ site.name }}.log --config=/home/deploy/gunicorn/{{ site.name }}.conf --name gunicorn_{{ site.name }}
+command=/home/deploy/.virtualenvs/{{ site.name }}/bin/python /home/deploy/www/{{ site.name }}/{{ site.name }}/manage.py run_gunicorn --preload  --log-file=/var/log/gunicorn/{{ site.name }}.log --config=/home/deploy/gunicorn/{{ site.name }}.conf --name gunicorn_{{ site.name }}
 directory=/home/deploy/www/{{ site.name }}/{{ site.name }}/
 user=deploy
 autostart=true
