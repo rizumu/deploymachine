@@ -25,7 +25,6 @@ from django.conf import settings
 os.environ["DJANGO_SETTINGS_MODULE"] = "{{ name }}.settings"
 
 sys.path.insert(0, join(settings.PROJECT_ROOT, "apps"))
-# TODO: The following path inserts need to be be gathered from settings
 sys.path.insert(0, join(settings.PINAX_ROOT, "apps"))
 sys.path.insert(0, join(settings.PINAX_ROOT, "projects", "basic_project", "apps"))
 sys.path.insert(0, join(settings.SCENEMACHINE_ROOT, "apps"))
