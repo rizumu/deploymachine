@@ -22,11 +22,6 @@ server {
     }
     {% endif %}
 
-    # Serve media directly out of Nginx for performance
-    location /static/ {
-        alias /home/deploy/www/{{ site.name }}/{{ site.name }}/static_collected/;
-    }
-
     access_log {{ env.config.nginx.log_dir }}/{{ site.name }}.access.log;
 
     # Proxy everything else to the backend
