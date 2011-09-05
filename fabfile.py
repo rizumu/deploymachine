@@ -103,11 +103,19 @@ def launch(template="template1"):
         launch_apps()
 
 
-def unlaunch():
+def unlaunch_apps():
     """
-    Undo the launch step, useful for debugging without reprovisioning.
+    Undo the launch step for an app, useful for debugging without reprovisioning.
     """
-    sudo("rm -Rf {0}".format(settings.SITES_ROOT))
+    for site in settings.SITES:
+        unlaunch_app(site["name"])
+
+
+def unlaunch_app(site):
+    """
+    Undo the launch step for an app, useful for debugging without reprovisioning.
+    """
+    run("rm -Rf {0}{1}/".format(settings.SITES_ROOT, site))
 
 
 def launch_apps():
