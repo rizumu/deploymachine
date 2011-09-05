@@ -6,7 +6,7 @@ from fabric.contrib.files import exists
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
 from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
-    dbserver, dbappbalancer, loadbalancer)
+    broker, dbserver, dbappbalancer, loadbalancer)
 from deploymachine.contrib.providers.openstack_api import (openstack_list, openstack_boot,
     openstack_bootem, openstack_kill, openstack_sudokillem)
 from deploymachine.contrib.credentials import ssh, gitconfig
@@ -56,7 +56,7 @@ def launch(template="template1"):
         fab appnode launch
         fab appbalancer launch
     """
-    if ("cachenode" or "brokernode") in env.server_types:
+    if ("cachenode") in env.server_types:
         raise NotImplementedError()
 
     iptables()
@@ -68,6 +68,9 @@ def launch(template="template1"):
         dissite(site="default")
         for site in settings.SITES:
             ensite(site=site["name"])
+
+    if "broker" in env.server_types:
+        pass
 
     if "dbserver" in env.server_types:
         if db_template == "template_postgis":

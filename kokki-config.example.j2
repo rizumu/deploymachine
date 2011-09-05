@@ -108,6 +108,11 @@ def dbserver(kit):
      })
 
 
+def broker(kit):
+    base(kit)
+    kit.include_recipe("munin.node", "rabbitmq")
+
+
 def cachenode(kit):
     base(kit)
     kit.include_recipe("munin.node", "redis")

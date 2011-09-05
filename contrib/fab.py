@@ -30,6 +30,11 @@ def appnode():
     env_base(["appnode"])
 
 
+def broker():
+    "Message queue broker server type."
+    env_base(["broker"])
+
+
 def dbserver():
     "Database environment server type. Server specific settings here."
     env_base(["dbserver"])

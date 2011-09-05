@@ -38,7 +38,7 @@ def provision():
     except EnvironmentError as exc:
         client.close()
         if exc.errno == errno.ECONNREFUSED:
-            print("{0} is already provisioned".format(env.host))
+            print("``{0}`` has already been provisioned, skipping".format(env.host))
             return
         else:
             raise
