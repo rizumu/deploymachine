@@ -2,7 +2,7 @@
 from fabric.api import cd, env, local, sudo
 
 from deploymachine.conf import settings
-from deploymachine.contrib.django import collectstatic, settings_local
+from deploymachine.contrib.django import staticfiles, settings_local
 from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.fab import venv, venv_local
@@ -14,7 +14,7 @@ PYDISCOGS_ROOT = "{0}/pydiscogs/pydiscogs".format(settings.LIB_ROOT)
 def deploy_git_rizumu():
     git_pull("rizumu")
     git_pull_scenemachine()
-    collectstatic("rizumu")
+    staticfiles("rizumu")
     supervisor("rizumu")
 
 
@@ -44,11 +44,11 @@ def loaddata_sites(connection):
         print("Bad connection type. Use ``dev`` or ``prod``.")
 
 
-def full_deploy(collectstatic=False):
+def full_deploy(static=False):
     """
     Full scenemachine deploy
     Usage:
-        fab appbalancer full_deploy:collectstatic=True
+        fab appbalancer full_deploy:static=True
 
     Remember to handle requirements separately.
     """
@@ -56,8 +56,8 @@ def full_deploy(collectstatic=False):
     git_pull_scenemachine()
     settings_local("prod")
     git_pull()
-    if collectstatic:
-        collectstatic()
+    if static:
+        staticfiles()
 
 
 def symlinks(connection, site=None):

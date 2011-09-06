@@ -1,8 +1,10 @@
 import deploymachine
 import os
+import ssl
 import sys
 
 from fabric.api import local, put, sudo
+from fabric.colors import green
 from fabric.contrib.files import upload_template
 from jinja2 import Environment, PackageLoader
 
@@ -10,18 +12,31 @@ from deploymachine.conf import settings
 from deploymachine.contrib.fab import venv, venv_local
 
 
-def collectstatic(site=None):
+def staticfiles(site=None):
     """
-    Build the static media files.
+    Collect, compress, and sync the static media files to rackspace.
     Usage:
-        fab collectstatic:sitename
+        fab staticfiles:sitename
     """
     if site is None:
         sites = [site["name"] for site in settings.SITES]
     else:
         sites = [site]
     for site in sites:
-        venv("python manage.py collectstatic --noinput", site)
+        venv("python manage.py collectstatic --noinput --verbosity=0", site)
+        venv("python manage.py compress --force --verbosity=0", site)
+        try:
+            venv("python manage.py syncstatic", site)
+            print(green("sucessfully compressed {0}".format(site)))
+        except ssl.SSLError:
+            sleep(3)
+            try:
+                venv("python manage.py syncstatic", site)
+                print(green("sucessfully compressed {0}".format(site)))
+            except ssl.SSLError:
+                sleep(3)
+                venv("python manage.py syncstatic", site)
+                print(green("sucessfully compressed {0}".format(site)))
 
 
 def generate_settings_main(connection, site=None):

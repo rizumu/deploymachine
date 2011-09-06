@@ -10,7 +10,7 @@ from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appn
 from deploymachine.contrib.providers.openstack_api import (openstack_list, openstack_boot,
     openstack_bootem, openstack_kill, openstack_sudokillem)
 from deploymachine.contrib.credentials import ssh, gitconfig
-from deploymachine.contrib.django import (collectstatic, generate_settings_local,
+from deploymachine.contrib.django import (staticfiles, generate_settings_local,
     generate_settings_main, generate_urls_main, syncdb, test)
 from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
 from deploymachine.contrib.iptables import iptables
@@ -138,7 +138,7 @@ def launch_app(site):
     generate_virtualenv(site)
     generate_settings_local("prod", "scenemachine", site)  # TODO: remove hardcoded database name.
     generate_settings_main("prod", site)
-    collectstatic(site)
+    staticfiles(site)
     syncdb(site)
 
 
