@@ -1,6 +1,6 @@
 from os.path import join
 
-from fabric.api import cd, env, run, local
+from fabric.api import cd, env, run, lcd, local
 
 from providers.openstack_api import openstack_get_ips
 from deploymachine.conf import settings
@@ -59,6 +59,6 @@ def venv(command, site):
 
 def venv_local(command, site):
     "The Python virtual environment used on the local machine."
-    with cd("{0}{1}/{1}".format(settings.SITES_LOCAL_ROOT, site)):
+    with lcd("{0}{1}/{1}/".format(settings.SITES_LOCAL_ROOT, site)):
         local("source {0} && {1}".format(
               join(settings.VIRTUALENVS_LOCAL_ROOT, site, "bin/activate"), command))
