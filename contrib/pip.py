@@ -18,14 +18,13 @@ def pip_requirements(connection, site=None):
         print("started pip install for {0}".format(site))
         if connection == "dev":
             venv_local("pip install --upgrade pip", site)
-            venv_local("pip install --quiet --requirement=requirements", site)
+            venv_local("pip install --quiet --requirement=requirements.txt", site)
         elif connection == "prod":
             venv("pip install --upgrade pip", site)
             venv("pip install --quiet --requirement=requirements.txt", site)
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
         print("finished pip install for {0}".format(site))
-
 
 
 def pip_install(connection, repo, package, path=None, version=None, site=None):
