@@ -97,9 +97,6 @@ def launch(template="template1"):
             with cd(settings.LIB_ROOT):
                 # TODO move these into contrib_local
                 run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
-                run("git clone git://github.com/pinax/pinax.git")
-            with cd(settings.PINAX_ROOT):
-                run("git checkout {0}".format(settings.PINAX_VERSION))
         # call an extra checkouts signal?
         launch_apps()
 
