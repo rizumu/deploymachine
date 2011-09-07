@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import cd, env, local, sudo, put, run
+from fabric.api import cd, env, sudo, run
 from fabric.contrib.files import exists
 
 from deploymachine.conf import settings
@@ -21,6 +21,7 @@ from deploymachine.contrib.scm.kokki import kokki
 from deploymachine.contrib.scm.puppet import is_puppetmaster
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.users import useradd
+from deploymachine.contrib.virtualenv import generate_virtualenv, symlink_packages
 from deploymachine.contrib.webservers.nginx import ensite, dissite, reload_nginx, reload_nginx
 from deploymachine.contrib.webservers.maintenance_mode import splash_on, splash_off
 
@@ -135,30 +136,11 @@ def launch_app(site):
     if not exists("{0}{1}/{1}/".format(settings.SITES_ROOT, site)):
         with cd("{0}{1}/".format(settings.SITES_ROOT, site)):
             run("git clone --branch master git@github.com:{0}/{1}.git".format(settings.GITHUB_USERNAME, site))
-    generate_virtualenv(site)
+    generate_virtualenv("prod", site)
     generate_settings_local("prod", "scenemachine", site)  # TODO: remove hardcoded database name.
     generate_settings_main("prod", site)
     staticfiles(site)
     syncdb(site)
-
-
-def generate_virtualenv(site):
-    """
-    Creates or rebuilds a site's virtualenv.
-    TODO muliple envs for one site, aka predictable rollbacks.
-    """
-    run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
-    with cd(settings.VIRTUALENVS_ROOT):
-        run("virtualenv --no-site-packages --distribute {0}".format(site, settings.DEPLOY_USERNAME))
-    if not exists("{0}{1}/site-packages".format(settings.SITES_ROOT, site)):
-        with cd("{0}{1}".format(settings.SITES_ROOT, site)):
-            run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
-    pip_requirements("prod", site)
-    try:
-        # Hack to add sylinks for personal libraries which aren't on pypi and therefore not in requirements.
-        symlinks("prod", site)
-    except ImportError:
-        pass
 
 
 def launch_db(name, password, db_template="template1"):
