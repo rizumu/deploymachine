@@ -2,6 +2,7 @@ import os
 
 from fabric.api import cd, env, sudo, run
 from fabric.contrib.files import exists
+from fabric.operations import reboot
 
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
@@ -52,10 +53,6 @@ def launch(db_template="template_postgis"):
     """
     Launches all nodes in the given env: ./contrib/fab.py
 
-    ## There is a small bug that requires this to be run twice
-    for the dbserver. Changing the `shhmax` kernel settings
-    requires a reboot.
-
     Usage:
         fab loadbalancer launch
         fab dbserver launch:template_postgis
@@ -71,6 +68,7 @@ def launch(db_template="template_postgis"):
         kokki(role)
 
     if "loadbalancer" in env.server_types:
+        sudo("ls -hal")
         dissite(site="default")
         for site in settings.SITES:
             ensite(site=site["name"])
@@ -79,8 +77,9 @@ def launch(db_template="template_postgis"):
         pass
 
     if "dbserver" in env.server_types:
+        reboot(10)  # Kokki changed the `shhmax` kernel settings, reboot required.
         if db_template == "template_postgis":
-            "http://proft.me/2011/08/31/ustanovka-geodjango-postgresql-9-postgis-pod-ubunt/"
+            # http://proft.me/2011/08/31/ustanovka-geodjango-postgresql-9-postgis-pod-ubunt/
             with cd("/tmp/"):
                 run("wget http://postgis.refractions.net/download/postgis-1.5.3.tar.gz")
                 run("tar zxvf postgis-1.5.3.tar.gz")
@@ -91,7 +90,7 @@ def launch(db_template="template_postgis"):
             sudo("/tmp/create_template_postgis-1.5.sh", user="postgres")
             sudo("rm -rf /tmp/*postgis*")
         else:
-            raise NotImplementedError
+            raise NotImplementedError()
 
         for name, password in settings.DATABASES.iteritems():
            launch_db(name, password, db_template)
@@ -103,9 +102,11 @@ def launch(db_template="template_postgis"):
             with cd(settings.LIB_ROOT):
                 run("git clone git@github.com:{0}/deploymachine.git && git checkout master".format(settings.GITHUB_USERNAME))
             with cd(settings.LIB_ROOT):
-                # TODO move these into contrib_local
+                # TODO move these into a contrib_local list or call an extra checkouts signal?
                 run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
-        # call an extra checkouts signal?
+                run("git clone git://github.com/pinax/pinax.git")
+            with cd(settings.PINAX_ROOT):
+                run("git checkout {0}".format(settings.PINAX_VERSION))
         launch_apps()
 
 
