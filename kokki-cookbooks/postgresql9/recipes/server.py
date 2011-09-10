@@ -56,3 +56,21 @@ Directory("/usr/share/postgresql/9.1/contrib/",
     owner = "root",
     group = "root",
     mode = 0655)
+
+Directory("{0}db_backups/".format(env.config.deploy_home),
+    owner = "root",
+    mode = 0750)
+
+File("/etc/cron.d/pgdumpall",
+    owner = "postgres",
+    group = "postgres",
+    mode = 0644,
+    content = Template("postgresql9/cronfile.j2"),
+)
+
+File("{0}sendtocloudfiles.sh".format(env.config.deploy_home),
+    owner = "postgres",
+    group = "postgres",
+    mode = 0740,
+    content = Template("postgresql9/sendtocloudfiles.j2"),
+)

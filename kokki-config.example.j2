@@ -79,6 +79,9 @@ def dbserver(kit):
     base(kit)
     kit.include_recipe("munin.node", "postgresql9.server")
     kit.update_config({
+        "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
+        "openstack_username": "{{ deploymachine_settings.OPENSTACK_USERNAME }}",
+        "openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
         "postgresql9.listen_addresses": "*",
         "postgresql9.port": "{{ deploymachine_settings.PGSQL_PORT }}",
         "postgresql9.shared_buffers": "64MB",  # total mem / 4

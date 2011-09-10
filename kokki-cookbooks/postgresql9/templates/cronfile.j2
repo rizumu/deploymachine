@@ -1,0 +1,4 @@
+# hr min    dayofmonth month dayofweek    user    cmd
+
+0 0     0 * 0    postgres    FILE={{ deploy_home }}db_backups/pg_dumpall-$(date +"%B").gz /usr/bin/pg_dumpall --clean | gzip > $FILE && {{ deploy_home }}sendtocloudfiles $FILE
+0 0     0 0 *    postgres    FILE={{ deploy_home }}db_backups/pg_dumpall-$(date +"%A").gz /usr/bin/pg_dumpall --clean | gzip > $FILE && {{ deploy_home }}sendtocloudfiles $FILE
