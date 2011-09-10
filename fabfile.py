@@ -146,3 +146,11 @@ def launch_app(site):
     generate_settings_main("prod", site)
     staticfiles(site)
     syncdb(site)
+
+
+def upgrade_ubuntu():
+    """
+    What needs to happen when upgrading ubuntu versions.
+    1. Renable external repositories, ppa for postgresql.
+    """
+    pass
