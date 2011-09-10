@@ -1,6 +1,6 @@
 
 import os
-from kokki import Package, File, Template, Service
+from kokki import Directory, Package, File, Template, Service
 
 env.include_recipe("postgresql9")
 
@@ -10,8 +10,22 @@ Service("postgresql",
     supports_status = True,
     action = "nothing")
 
-Package("postgresql-9.0",
+Package("postgresql-9.1",
     notifies = [("stop", env.resources["Service"]["postgresql"], True)])
+Package("postgresql-server-dev-9.1")
+Package("postgresql-contrib-9.1")
+Package("postgis")
+Package("gdal-bin")
+Package("binutils")
+Package("libgeos-3.2.2")
+Package("libgeos-c1")
+Package("libgeos-dev")
+Package("libgdal1-1.8.0")
+Package("libgdal1-dev")
+Package("libxml2")
+Package("libxml2-dev")
+Package("checkinstall")
+Package("proj")
 
 File("pg_hba.conf",
     owner = "postgres",
@@ -28,3 +42,17 @@ File("postgresql.conf",
     path = os.path.join(env.config.postgresql9.config_dir, "postgresql.conf"),
     content = Template("postgresql9/postgresql.conf.j2"),
     notifies = [("restart", env.resources["Service"]["postgresql"])])
+
+File("30-postgresql-shm.conf",
+    owner = "root",
+    group = "root",
+    mode = 0644,
+    path = "/etc/sysctl.d/30-postgresql-shm.conf",
+    content = Template("postgresql9/30-postgresql-shm.conf.j2"),
+    notifies = [("restart", env.resources["Service"]["postgresql"])])
+    # BUG requries reboot
+
+Directory("/usr/share/postgresql/9.1/contrib/",
+    owner = "root",
+    group = "root",
+    mode = 0655)

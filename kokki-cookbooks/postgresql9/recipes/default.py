@@ -12,3 +12,6 @@ if env.system.platform == "ubuntu":
     Execute("add-apt-repository ppa:pitti/postgresql",
         not_if = lambda:os.path.exists(apt_list_path),
         notifies = [("run", env.resources["Execute"]["apt-update-postgresql9"], True)])
+    Execute("add-apt-repository ppa:ubuntugis/ubuntugis-unstable",
+        not_if = lambda:os.path.exists(apt_list_path),
+        notifies = [("run", env.resources["Execute"]["apt-update-postgresql9"], True)])
