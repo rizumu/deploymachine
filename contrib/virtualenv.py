@@ -35,7 +35,7 @@ def generate_virtualenv(connection, site=None, python_bin="python", force_rebuil
                 run("virtualenv --no-site-packages --distribute {0}".format(site))
             if not exists("{0}{1}/site-packages".format(settings.SITES_ROOT, site)):
                 with cd("{0}{1}".format(settings.SITES_ROOT, site)):
-                    run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
+                    run("ln -sf {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
             append("{0}{1}/bin/postactivate".format(settings.VIRTUALENVS_ROOT, site),
                    "{0}{1}/{1}".format(settings.SITES_ROOT, site,))
             symlink_packages("prod", site)
