@@ -7,7 +7,7 @@ from deploymachine.conf import settings
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
 
 
-def generate_virtualenv(connection, site=None, python_bin="python"):
+def generate_virtualenv(connection, site=None, python_bin="python", force_rebuild=False):
     """
     Creates or rebuilds a site's virtualenv.
     @@@TODO muliple envs for one site, aka predictable rollbacks.
@@ -20,7 +20,7 @@ def generate_virtualenv(connection, site=None, python_bin="python"):
     else:
         sites = [site]
     for site in sites:
-        if connection == "dev":
+        if connection == "dev" and (force_rebuild or not exists("{0}.{1}_build_successful".format(settings.SITES_ROOT, site))):
             local("rm -rf {0}{1}/".format(settings.VIRTUALENVS_LOCAL_ROOT, site))
             with lcd(settings.VIRTUALENVS_LOCAL_ROOT):
                 local("virtualenv --no-site-packages --distribute --python={0} {1}".format(python_bin, site))
@@ -29,8 +29,8 @@ def generate_virtualenv(connection, site=None, python_bin="python"):
             local("echo 'cd {0}{1}/{1}' >> {2}{1}/bin/postactivate".format(settings.SITES_LOCAL_ROOT, site, settings.VIRTUALENVS_LOCAL_ROOT))
             pip_requirements("dev", site)
             symlink_packages("dev", site)
-        elif connection == "prod":
-            run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
+        elif connection == "prod" and (force_rebuild or not exists("{0}.{1}_build_successful".format(settings.SITES_ROOT, site))):
+            run("rm -rf {0}{1}/".format(settings.SITES_ROOT, site))
             with cd(settings.VIRTUALENVS_ROOT):
                 run("virtualenv --no-site-packages --distribute {0}".format(site))
             if not exists("{0}{1}/site-packages".format(settings.SITES_ROOT, site)):
@@ -38,8 +38,9 @@ def generate_virtualenv(connection, site=None, python_bin="python"):
                     run("ln -s {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_ROOT, site, settings.PYTHON_VERSION))
             append("{0}{1}/bin/postactivate".format(settings.VIRTUALENVS_ROOT, site),
                    "{0}{1}/{1}".format(settings.SITES_ROOT, site,))
-            pip_requirements("prod", site)
             symlink_packages("prod", site)
+            pip_requirements("prod", site)
+            run("touch {0}.{1}_build_successful".format(settings.SITES_ROOT, site))
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
 

@@ -1,4 +1,5 @@
 import deploymachine
+import httplib
 import os
 import ssl
 import sys
@@ -24,19 +25,20 @@ def staticfiles(site=None):
         sites = [site]
     for site in sites:
         venv("python manage.py collectstatic --noinput --verbosity=0", site)
-        venv("python manage.py compress --force --verbosity=0", site)
+        venv("python manage.py compress --verbosity=0", site)
+        venv("rm -rf ./static_{0}/styles/ ./static_{0}/scripts/ ./static_{0}/css/ \
+                     ./static_{0}/js/ ./static_{0}/admin/js/ ./static_{0}/admin/css/".format(site), site)
         try:
             venv("python manage.py syncstatic", site)
             print(green("sucessfully compressed {0}".format(site)))
-        except ssl.SSLError:
+        except (ssl.SSLError, httplib.CannotSendRequest):
             sleep(3)
             try:
                 venv("python manage.py syncstatic", site)
-                print(green("sucessfully compressed {0}".format(site)))
-            except ssl.SSLError:
+            except (ssl.SSLError, httplib.CannotSendRequest):
                 sleep(3)
                 venv("python manage.py syncstatic", site)
-                print(green("sucessfully compressed {0}".format(site)))
+            print(green("sucessfully collceted/compressed/synced staticfiles for {0}".format(site)))
 
 
 def generate_settings_main(connection, site=None):
