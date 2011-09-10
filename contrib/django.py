@@ -1,8 +1,9 @@
 import deploymachine
-import httplib
 import os
-import ssl
 import sys
+
+from httplib import CannotSendRequest
+from ssl import SSLError
 
 from fabric.api import local, put, sudo
 from fabric.colors import green
@@ -31,12 +32,12 @@ def staticfiles(site=None):
         try:
             venv("python manage.py syncstatic", site)
             print(green("sucessfully compressed {0}".format(site)))
-        except (ssl.SSLError, httplib.CannotSendRequest):
-            sleep(3)
+        except (SSLError, CannotSendRequest):
+            sleep(5)
             try:
                 venv("python manage.py syncstatic", site)
-            except (ssl.SSLError, httplib.CannotSendRequest):
-                sleep(3)
+            except (SSLError, CannotSendRequest):
+                sleep(5)
                 venv("python manage.py syncstatic", site)
             print(green("sucessfully collceted/compressed/synced staticfiles for {0}".format(site)))
 

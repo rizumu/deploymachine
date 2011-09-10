@@ -30,7 +30,7 @@ def generate_virtualenv(connection, site=None, python_bin="python", force_rebuil
             pip_requirements("dev", site)
             symlink_packages("dev", site)
         elif connection == "prod" and (force_rebuild or not exists("{0}.{1}_build_successful".format(settings.SITES_ROOT, site))):
-            run("rm -rf {0}{1}/".format(settings.SITES_ROOT, site))
+            run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
             with cd(settings.VIRTUALENVS_ROOT):
                 run("virtualenv --no-site-packages --distribute {0}".format(site))
             if not exists("{0}{1}/site-packages".format(settings.SITES_ROOT, site)):
