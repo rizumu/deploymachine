@@ -27,7 +27,8 @@ def staticfiles(site=None):
     for site in sites:
         venv("python manage.py collectstatic --noinput --verbosity=0", site)
         venv("python manage.py compress --verbosity=0", site)
-        venv("rm -rf ./static_{0}/styles/ ./static_{0}/scripts/ ./static_{0}/css/ \
+        venv("rm -rf ./static_{0}/styles/ ./static_{0}/scripts/ ./static_{0}/css/ ./static_{0}/uni_form/ \
+                     ./static_{0}/pinax/css/ ./static_{0}/pinax/js/ ./static_{0}/ajax_validation/ \
                      ./static_{0}/js/ ./static_{0}/admin/js/ ./static_{0}/admin/css/".format(site), site)
         try:
             venv("python manage.py syncstatic", site)
