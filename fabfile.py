@@ -97,6 +97,9 @@ def launch(db_template="template_postgis"):
 
     if "appnode" in env.server_types:
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")  # move to recipies
+        sudo("ln -sf /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib/")
+        sudo("ln -sf /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/")
+        sudo("ln -sf /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib/")
         if not exists(settings.LIB_ROOT):
             run("mkdir --parents {0}".format(settings.LIB_ROOT))
             with cd(settings.LIB_ROOT):
