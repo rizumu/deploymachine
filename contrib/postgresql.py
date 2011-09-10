@@ -1,4 +1,4 @@
-from fabric.api import local, user
+from fabric.api import local, sudo
 
 
 def install_local_postgres(db_template="template_postgis", postgis_version="1.5"):
@@ -36,3 +36,14 @@ def install_local_postgres(db_template="template_postgis", postgis_version="1.5"
     local("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
     local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
     local("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")
+
+
+def launch_db(name, password, db_template="template_postgis"):
+    """
+    Launches a new database. Typically used when launching a new site.
+    The default database template is ``template_postgis`` for GeoDjango.
+    An standard when not using GeoDjango is ``template1``.
+    """
+    sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
+    sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
+    sudo("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")

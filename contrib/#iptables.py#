@@ -18,5 +18,5 @@ def iptables():
                         "RABBITMQ_PORT": settings.RABBITMQ_PORT,
                     })
     sudo("iptables --flush")
-    #sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
-    #      rm -rf /root/.ssh/ && reload ssh")
+    sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
+          rm -rf /root/.ssh/ && reload ssh")

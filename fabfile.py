@@ -17,6 +17,7 @@ from deploymachine.contrib.iptables import iptables
 from deploymachine.contrib.logs import site_logs
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
 from deploymachine.contrib.provision import provision
+from deploymachine.contrib.postgresql import install_local_postgres, launch_db
 from deploymachine.contrib.scm.kokki import kokki
 from deploymachine.contrib.scm.puppet import is_puppetmaster
 from deploymachine.contrib.supervisor import supervisor
@@ -47,9 +48,13 @@ Aside from prelimiary customizations and ongoing maintenance...
 """
 
 
-def launch(template="template1"):
+def launch(db_template="template_postgis"):
     """
     Launches all nodes in the given env: ./contrib/fab.py
+
+    ## There is a small bug that requires this to be run twice
+    for the dbserver. Changing the `shhmax` kernel settings
+    requires a reboot.
 
     Usage:
         fab loadbalancer launch
@@ -75,18 +80,21 @@ def launch(template="template1"):
 
     if "dbserver" in env.server_types:
         if db_template == "template_postgis":
-            sudo("createdb -E UTF8 template_postgis -T template0", user="postgres")  # Create the template spatial database.
-            sudo("createlang -d template_postgis plpgsql", user="postgres")  # Adding PLPGSQL language support.
-            sudo("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
-            sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis.sql", user="postgres")  # Loading the PostGIS SQL routines
-            sudo("psql -d template_postgis -f $(pg_config --sharedir)/contrib/spatial_ref_sys.sql", user="postgres")
-            sudo("psql -d template_postgis -c \"GRANT ALL ON geometry_columns TO PUBLIC;\"", user="postgres")  # Enabling users to alter spatial tables.
-            sudo("psql -d template_postgis -c \"GRANT ALL ON spatial_ref_sys TO PUBLIC;\"", user="postgres")
+            "http://proft.me/2011/08/31/ustanovka-geodjango-postgresql-9-postgis-pod-ubunt/"
+            with cd("/tmp/"):
+                run("wget http://postgis.refractions.net/download/postgis-1.5.3.tar.gz")
+                run("tar zxvf postgis-1.5.3.tar.gz")
+            with cd("/tmp/postgis-1.5.3/"):
+                sudo("./configure && make && checkinstall --pkgname postgis-1.5.3 --pkgversion 1.5.3-src --default")
+            run("wget http://docs.djangoproject.com/en/dev/_downloads/create_template_postgis-1.5.sh -O /tmp/create_template_postgis-1.5.sh")
+            run("chmod 777 /tmp/create_template_postgis-1.5.sh")
+            sudo("/tmp/create_template_postgis-1.5.sh", user="postgres")
+            sudo("rm -rf /tmp/*postgis*")
         else:
             raise NotImplementedError
 
         for name, password in settings.DATABASES.iteritems():
-            launch_db(name, password, db_template)
+           launch_db(name, password, db_template)
 
     if "appnode" in env.server_types:
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")  # move to recipies
@@ -138,13 +146,3 @@ def launch_app(site):
     generate_settings_main("prod", site)
     staticfiles(site)
     syncdb(site)
-
-
-def launch_db(name, password, db_template="template1"):
-    """
-    Launches a new database. Typically used when launching a new site.
-    An alternative database template is ``template_postgis`` for GeoDjango.
-    """
-    sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
-    sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
-    sudo("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")

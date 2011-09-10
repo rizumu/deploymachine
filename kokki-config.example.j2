@@ -75,11 +75,14 @@ def appnode(kit):
 
 
 def dbserver(kit):
+    """ http://www.revsys.com/writings/postgresql-performance.html """
     base(kit)
     kit.include_recipe("munin.node", "postgresql9.server")
     kit.update_config({
         "postgresql9.listen_addresses": "*",
         "postgresql9.port": "{{ deploymachine_settings.PGSQL_PORT }}",
+        "postgresql9.shared_buffers": "64MB",  # total mem / 4
+        "postgresql9.ssl": "on",
         "postgresql9.auth": [
             dict(type="local",
                  database="all",
@@ -88,7 +91,7 @@ def dbserver(kit):
             ),
             dict(type="host",
                  database="all",
-                 uset="all",
+                 user="all",
                  cidr="127.0.0.1/32",
                  method="md5",
             ),
@@ -101,7 +104,7 @@ def dbserver(kit):
             dict(type="hostssl",
                  database="all",
                  user="all",
-                 cidr="10.179.0.0/16",
+                 cidr="10.179.0.0/16",  # limit only to rackspace network
                  method="md5",
             ),
         ],
