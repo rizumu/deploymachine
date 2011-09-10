@@ -1,6 +1,7 @@
 import os
 
 from fabric.api import cd, env, lcd, local, sudo, put, run
+from fabric.contrib.files import append, exists
 
 from deploymachine.conf import settings
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
