@@ -107,6 +107,7 @@ def launch(db_template="template_postgis"):
             with cd(settings.LIB_ROOT):
                 # TODO move these into a contrib_local list or call an extra checkouts signal?
                 run("git clone git@github.com:{0}/scenemachine.git scenemachine && git checkout master".format(settings.GITHUB_USERNAME))
+                run("git submodule init && git submodule update")
                 run("git clone git://github.com/pinax/pinax.git")
             with cd(settings.PINAX_ROOT):
                 run("git checkout {0}".format(settings.PINAX_VERSION))
