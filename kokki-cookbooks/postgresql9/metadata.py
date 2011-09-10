@@ -57,7 +57,7 @@ __config__ = {
         default = False,
     ),
     "postgresql9.shared_buffers": dict(
-        default = "28MB",
+        default = "25MB",
     ),
     "postgresql9.log_min_duration_statement": dict(
         description = "-1 is disabled, 0 logs all statements and their durations, > 0 logs only statements running at least this number of milliseconds",
