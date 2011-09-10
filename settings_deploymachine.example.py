@@ -74,10 +74,10 @@ OPENSTACK_SERVERS = {"appnode": [("finnegan", "1")]}
 PUPPETMASTER = "finnegan" # Name of puppetmaster machiene
 
 KOKKI_VERSION = "0.4.1"
-OPENSTACK_COMPUTE_VERSION = None # currently must install from git 
+OPENSTACK_COMPUTE_VERSION = None  # currently must install from git
 # @@@ Eventually auto build a custom python version, ie 2.5, 2.6, 2.7.1
 PYTHON_VERSION = "2.6" # Distro's python version
-PINAX_VERSION = "0.9a2.dev10"
+PINAX_VERSION = "0.9a1"
 
 # Change the default SSH port of 22
 SSH_PORT = "30000"

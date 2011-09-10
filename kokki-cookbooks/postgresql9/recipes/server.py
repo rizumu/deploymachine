@@ -68,9 +68,9 @@ File("/etc/cron.d/pgdumpall",
     content = Template("postgresql9/cronfile.j2"),
 )
 
-File("{0}sendtocloudfiles.sh".format(env.config.deploy_home),
+File("{0}backup2cloudfiles.sh".format(env.config.deploy_home),
     owner = "postgres",
     group = "postgres",
     mode = 0740,
-    content = Template("postgresql9/sendtocloudfiles.j2"),
+    content = Template("postgresql9/backup2cloudfiles.j2"),
 )
