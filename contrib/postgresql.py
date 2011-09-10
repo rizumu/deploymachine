@@ -12,6 +12,7 @@ def install_local_postgres(db_template="template_postgis", postgis_version="1.5"
         brew install postgresql
         brew install postgis gdal
     """
+    raise NotImplementedError()  # needs a test run
 
     # Initialize database
     local("initdb -D /usr/local/pgsql/data")
