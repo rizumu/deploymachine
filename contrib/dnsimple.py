@@ -1,21 +1,22 @@
 import base64
 import json
 
-from fabric.api import cd, env, sudo, run
+from fabric.api import local
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 from urllib2 import Request, URLError, urlopen
 
 from deploymachine.conf import settings
 
+# sudo gem install --remote dnsimple-ruby
 
 # Update Pythons list of error codes with some that are missing
 newhttpcodes = {
-    422:("Unprocessable Entity","HTTP_UNPROCESSABLE_ENTITY"),
-    423:("Locked","HTTP_LOCKED"),
-    424:("Failed Dependency","HTTP_FAILED_DEPENDENCY"),
-    425:("No code","HTTP_NO_CODE"),
-    426:("Upgrade Required","HTTP_UPGRADE_REQUIRED"),
+    422:("Unprocessable Entity", "HTTP_UNPROCESSABLE_ENTITY"),
+    423:("Locked", "HTTP_LOCKED"),
+    424:("Failed Dependency", "HTTP_FAILED_DEPENDENCY"),
+    425:("No code", "HTTP_NO_CODE"),
+    426:("Upgrade Required", "HTTP_UPGRADE_REQUIRED"),
 }
 
 
@@ -27,21 +28,29 @@ def change_loadbalancer_ip(old_ip, new_ip):
     dns = DNSimple()
     for domain in dns.get_domains():
         domain_id = domain["domain"]["id"]
-        if not domain["domain"]["name"] in settings.ACTIVE_DOMAIN_LIST:
+        domain_name = domain["domain"]["name"]
+        if not domain_name in settings.ACTIVE_DOMAIN_LIST:
             continue
         site_records = dns.rest_helper("/domains/{0}/records.json".format(domain_id))
         for arecord in [r for r in site_records if r["record"]["content"] == old_ip]:
-            arecord_id = arecord["record"]["id"]
-            updated_arecord = {
-                u"record": {
-                    u"name": arecord["record"]["name"],
-                    u"content": unicode(new_ip),
-                    u"ttl": arecord["record"]["ttl"],
-                    u"prio": arecord["record"]["prio"],
-                }
-            }
-            dns.rest_helper(url="/domains/{0}/records/{1}.json".format(domain_id, arecord_id),
-                            postdata=unicode(updated_arecord))
+            local("dnsimple record:update {0} {1} name:{2} content:{3} ttl:{4} prio:{5}".format(
+                domain_name,
+                arecord["record"]["id"],
+                arecord["record"]["name"],
+                new_ip,
+                arecord["record"]["ttl"],
+                arecord["record"]["prio"],
+            ))
+            # arecord_id = arecord["record"]["id"]
+            # updated_arecord = [{
+            #     "record": {
+            #         "name": arecord["record"]["name"],
+            #         "content": (new_ip),
+            #         "ttl": arecord["record"]["ttl"],
+            #         "prio": arecord["record"]["prio"],
+            #     }
+            # }]
+            #dns.rest_helper("/domains/{0}/records/{1}.json".format(domain_name, arecord_id), json.dumps(updated_arecord))
 
 
 class DNSimple(object):
@@ -65,8 +74,7 @@ class DNSimple(object):
         url = self.endpoint + url
         headers = {"Authorization": self.authstring,
                    "User-Agent": self.useragent}
-        request = Request(url, postdata, headers)
-        result = self.request_helper(request)
+        result = self.request_helper(Request(url, postdata, headers))
         if result:
             return json.loads(result)
         else:
@@ -74,7 +82,6 @@ class DNSimple(object):
 
     def request_helper(self, request):
         """Does requests and maps HTTP responses into delicious Python juice"""
-        import ipdb; ipdb.set_trace()
         try:
             handle = urlopen(request)
         except URLError, e:
@@ -93,3 +100,4 @@ class DNSimple(object):
     def get_domains(self):
         """Get a list of all domains in your account."""
         return self.rest_helper("/domains.json")
+
