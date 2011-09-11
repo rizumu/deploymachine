@@ -8,8 +8,6 @@ from urllib2 import Request, URLError, urlopen
 
 from deploymachine.conf import settings
 
-# sudo gem install --remote dnsimple-ruby
-
 # Update Pythons list of error codes with some that are missing
 newhttpcodes = {
     422:("Unprocessable Entity", "HTTP_UNPROCESSABLE_ENTITY"),
@@ -25,6 +23,16 @@ for code in newhttpcodes:
 
 
 def change_loadbalancer_ip(old_ip, new_ip):
+    """
+    Install the ruby dnsimple api::
+
+        sudo gem install --remote dnsimple-ruby
+
+    Usage::
+
+        fab change_loadbalancer_ip:192.168.0.1,0.0.0.0
+
+    """
     dns = DNSimple()
     for domain in dns.get_domains():
         domain_id = domain["domain"]["id"]
@@ -33,7 +41,10 @@ def change_loadbalancer_ip(old_ip, new_ip):
             continue
         site_records = dns.rest_helper("/domains/{0}/records.json".format(domain_id))
         for arecord in [r for r in site_records if r["record"]["content"] == old_ip]:
-            local("dnsimple record:update {0} {1} name:{2} content:{3} ttl:{4} prio:{5}".format(
+            local("dnsimple -u {0} -p {1} \
+                   record:update {2} {3} name:{4} content:{5} ttl:{6} prio:{7}".format(
+                settings.DNSIMPLE_USERNAME,
+                settings.DNSIMPLE_PASSWORD,
                 domain_name,
                 arecord["record"]["id"],
                 arecord["record"]["name"],
@@ -51,6 +62,32 @@ def change_loadbalancer_ip(old_ip, new_ip):
             #     }
             # }]
             #dns.rest_helper("/domains/{0}/records/{1}.json".format(domain_name, arecord_id), json.dumps(updated_arecord))
+
+def change_subdomain_container(container_subdomain_name, container_domain_name, container_address):
+    """
+    Usage::
+
+        fab change_subdomain_container:static,snowprayers.net,c24014.xxx.xxx.rackcdn.com
+
+    """
+    dns = DNSimple()
+    for domain in dns.get_domains():
+        domain_id = domain["domain"]["id"]
+        domain_name = domain["domain"]["name"]
+        if not domain_name == container_domain_name:
+            continue
+        site_records = dns.rest_helper("/domains/{0}/records.json".format(domain_id))
+        for record in [r for r in site_records \
+                       if r["record"]["name"] == container_subdomain_name and \
+                          r["record"]["record_type"] == "CNAME"]:
+            local("dnsimple -u {0} -p {1} \
+                   record:update {2} {3} content:{4}".format(
+                settings.DNSIMPLE_USERNAME,
+                settings.DNSIMPLE_PASSWORD,
+                domain_name,
+                record["record"]["id"],
+                container_address,
+            ))
 
 
 class DNSimple(object):
