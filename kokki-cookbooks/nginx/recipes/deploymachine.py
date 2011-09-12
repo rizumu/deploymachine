@@ -1,7 +1,20 @@
 
+import os
 import openstack.compute
 
-from kokki import Package, Directory, File, Template, Service
+from kokki import Execute, Package, Directory, File, Template, Service
+
+
+apt_list_path = "/etc/apt/sources.list.d/nginx-stable-natty.list"
+
+Execute("apt-update-nginx", command="apt-get update", action="nothing")
+
+apt = None
+if env.system.platform == "ubuntu":
+    Package("python-software-properties")
+    Execute("add-apt-repository ppa:nginx/stable",
+        not_if = lambda:os.path.exists(apt_list_path),
+        notifies = [("run", env.resources["Execute"]["apt-update-nginx"], True)])
 
 
 def get_internal_appnode_ips():
