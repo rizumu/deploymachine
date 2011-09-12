@@ -10,11 +10,11 @@ from deploymachine.conf import settings
 
 # Update Pythons list of error codes with some that are missing
 newhttpcodes = {
-    422:("Unprocessable Entity", "HTTP_UNPROCESSABLE_ENTITY"),
-    423:("Locked", "HTTP_LOCKED"),
-    424:("Failed Dependency", "HTTP_FAILED_DEPENDENCY"),
-    425:("No code", "HTTP_NO_CODE"),
-    426:("Upgrade Required", "HTTP_UPGRADE_REQUIRED"),
+    422: ("Unprocessable Entity", "HTTP_UNPROCESSABLE_ENTITY"),
+    423: ("Locked", "HTTP_LOCKED"),
+    424: ("Failed Dependency", "HTTP_FAILED_DEPENDENCY"),
+    425: ("No code", "HTTP_NO_CODE"),
+    426: ("Upgrade Required", "HTTP_UPGRADE_REQUIRED"),
 }
 
 
@@ -62,6 +62,32 @@ def change_loadbalancer_ip(old_ip, new_ip):
             #     }
             # }]
             #dns.rest_helper("/domains/{0}/records/{1}.json".format(domain_name, arecord_id), json.dumps(updated_arecord))
+
+
+def change_arecord_ttl(ttl):
+    """
+    Usage::
+
+        fab change_arecord_ttl:
+
+    """
+    dns = DNSimple()
+    for domain in dns.get_domains():
+        domain_id = domain["domain"]["id"]
+        domain_name = domain["domain"]["name"]
+        if not domain_name in settings.ACTIVE_DOMAIN_LIST:
+            continue
+        site_records = dns.rest_helper("/domains/{0}/records.json".format(domain_id))
+        for arecord in [r for r in site_records if r["record"]["record_type"] == "A"]:
+            local("dnsimple -u {0} -p {1} \
+                   record:update {2} {3} ttl:{4}".format(
+                settings.DNSIMPLE_USERNAME,
+                settings.DNSIMPLE_PASSWORD,
+                domain_name,
+                arecord["record"]["id"],
+                ttl,
+            ))
+
 
 def change_subdomain_container(container_subdomain_name, container_domain_name, container_address):
     """

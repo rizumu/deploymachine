@@ -14,7 +14,8 @@ from deploymachine.contrib.credentials import ssh, gitconfig
 from deploymachine.contrib.django import (staticfiles, generate_settings_local,
     generate_settings_main, generate_urls_main, syncdb, test)
 from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
-from deploymachine.contrib.dnsimple import change_loadbalancer_ip, change_subdomain_container
+from deploymachine.contrib.dnsimple import (change_loadbalancer_ip, change_subdomain_container,
+    change_arecord_ttl)
 from deploymachine.contrib.iptables import iptables
 from deploymachine.contrib.logs import site_logs
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
