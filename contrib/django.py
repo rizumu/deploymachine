@@ -29,7 +29,7 @@ def staticfiles(site=None):
         venv("python manage.py compress --verbosity=0", site)
         venv("rm -rf ./static_{0}/styles/ ./static_{0}/scripts/ ./static_{0}/css/ ./static_{0}/uni_form/ \
                      ./static_{0}/pinax/css/ ./static_{0}/pinax/js/ ./static_{0}/ajax_validation/ \
-                     ./static_{0}/js/ ./static_{0}/admin/js/ ./static_{0}/admin/css/".format(site), site)
+                     ./static_{0}/js/".format(site), site)
         try:
             venv("python manage.py syncstatic", site)
             print(green("sucessfully compressed {0}".format(site)))
