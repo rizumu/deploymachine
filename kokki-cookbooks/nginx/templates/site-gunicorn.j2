@@ -8,7 +8,7 @@ upstream gunicorn_cluster_{{ site.name }} {
 # Virtual server definition
 server {
 
-    listen {{ env.config.nginx.port }};
+    listen {{ env.config.nginx.port }} {% if site.default_server %}default_server{% endif %};
 
     {% if env.config.nginx.client_max_body_size %}
     client_max_body_size {{ env.config.nginx.client_max_body_size }};
