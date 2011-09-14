@@ -56,9 +56,36 @@ __config__ = {
     "postgresql9.ssl": dict(
         default = False,
     ),
+    # tip: Set to 25% available RAM and move up/down 5% to find sweet spot
     "postgresql9.shared_buffers": dict(
-        default = "25MB",
+        default = "64MB",
     ),
+    # tip: Planning hint that tells PG how much RAM it can expect for OS disk cache.
+    # Set to 50-75% of available RAM.
+    "postgresql9.effective_cache_size": dict(
+        default = "128MB",
+    ),
+    # tip: Per process amount of ORDER BY space. 5MBs is a good starting point.
+    "postgresql9.work_mem": dict(
+        default = "5MB",
+    ),
+    # tip: Set to 16MB and forget it.
+    "postgresql9.wall_buffers": dict(
+        default = "16MB",
+    ),
+    # tip: Increase to at least 10.
+    "postgresql9.checkpoint_segments_buffers": dict(
+        default = "10",
+    ),
+    # tip: 50MB for every GB of RAM.
+    "postgresql9.maintenance_work_mem": dict(
+        default = "16MB",
+    ),
+    # tip: turn off with data loss risks
+    "postgresql9.synchronous_commit": dict(
+        default = "off",
+    ),
+    # tip: Set to 1000 to detect slow queries.
     "postgresql9.log_min_duration_statement": dict(
         description = "-1 is disabled, 0 logs all statements and their durations, > 0 logs only statements running at least this number of milliseconds",
         default = -1,

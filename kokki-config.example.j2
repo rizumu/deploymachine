@@ -84,8 +84,9 @@ def dbserver(kit):
         "openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
         "postgresql9.listen_addresses": "*",
         "postgresql9.port": "{{ deploymachine_settings.PGSQL_PORT }}",
-        "postgresql9.shared_buffers": "64MB",  # total mem / 4
+        "postgresql9.shared_buffers": "64MB",
         "postgresql9.ssl": "on",
+        "postgresql9.log_min_duration_statement": 1000,
         "postgresql9.auth": [
             dict(type="local",
                  database="all",
