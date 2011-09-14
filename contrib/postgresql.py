@@ -9,6 +9,7 @@ def install_local_postgres(db_template="template_postgis", postgis_version="1.5"
 
     First install postgres with gis bindings.
     OSX::
+        sudo pip install numpy
         brew install postgresql
         brew install postgis gdal
     """
