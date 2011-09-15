@@ -31,12 +31,12 @@ def staticfiles(site=None):
             venv("python manage.py syncstatic", site)
         except (SSLError, CannotSendRequest):
             print(red("syncstatic failed 1 time for {0}".format(site)))
-            sleep(5)
+            sleep(30)
             try:
                 venv("python manage.py syncstatic", site)
             except (SSLError, CannotSendRequest):
                 print(red("syncstatic failed 2 times for {0}".format(site)))
-                sleep(5)
+                sleep(30)
                 venv("python manage.py syncstatic", site)
         print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
 
