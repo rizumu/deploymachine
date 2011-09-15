@@ -6,7 +6,7 @@ from httplib import CannotSendRequest
 from ssl import SSLError
 
 from fabric.api import local, put, sudo
-from fabric.colors import green
+from fabric.colors import green, red
 from fabric.contrib.files import upload_template
 from jinja2 import Environment, PackageLoader
 
@@ -27,20 +27,18 @@ def staticfiles(site=None):
     for site in sites:
         venv("python manage.py collectstatic --noinput --verbosity=0", site)
         venv("python manage.py compress --verbosity=0", site)
-        venv("rm -rf ./static_{0}/styles/ ./static_{0}/scripts/ ./static_{0}/css/ ./static_{0}/uni_form/ \
-                     ./static_{0}/pinax/css/ ./static_{0}/pinax/js/ ./static_{0}/ajax_validation/ \
-                     ./static_{0}/js/".format(site), site)
         try:
             venv("python manage.py syncstatic", site)
-            print(green("sucessfully compressed {0}".format(site)))
         except (SSLError, CannotSendRequest):
+            print(red("syncstatic failed 1 time for {0}".format(site)))
             sleep(5)
             try:
                 venv("python manage.py syncstatic", site)
             except (SSLError, CannotSendRequest):
+                print(red("syncstatic failed 2 times for {0}".format(site)))
                 sleep(5)
                 venv("python manage.py syncstatic", site)
-            print(green("sucessfully collceted/compressed/synced staticfiles for {0}".format(site)))
+        print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
 
 
 def generate_settings_main(connection, site=None):
