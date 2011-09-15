@@ -70,11 +70,11 @@ __config__ = {
         default = "5MB",
     ),
     # tip: Set to 16MB and forget it.
-    "postgresql9.wall_buffers": dict(
+    "postgresql9.wal_buffers": dict(
         default = "16MB",
     ),
     # tip: Increase to at least 10.
-    "postgresql9.checkpoint_segments_buffers": dict(
+    "postgresql9.checkpoint_segments": dict(
         default = "10",
     ),
     # tip: 50MB for every GB of RAM.
