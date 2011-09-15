@@ -58,7 +58,8 @@ Directory("/usr/share/postgresql/9.1/contrib/",
     mode = 0655)
 
 Directory("{0}db_backups/".format(env.config.deploy_home),
-    owner = "root",
+    owner = "postgres",
+    group = "deploy",
     mode = 0750)
 
 File("/etc/cron.d/pgdumpall",
