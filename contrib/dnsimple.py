@@ -22,7 +22,7 @@ for code in newhttpcodes:
     BaseHTTPRequestHandler.responses[code] = newhttpcodes[code]
 
 
-def change_loadbalancer_ip(old_ip, new_ip):
+def change_loadbalancer_ip(old_ip, new_ip, api="python"):
     """
     Install the ruby dnsimple api::
 
@@ -30,7 +30,7 @@ def change_loadbalancer_ip(old_ip, new_ip):
 
     Usage::
 
-        fab change_loadbalancer_ip:192.168.0.1,0.0.0.0
+        fab change_loadbalancer_ip:192.168.0.1,0.0.0.0,
 
     """
     dns = DNSimple()
@@ -41,27 +41,29 @@ def change_loadbalancer_ip(old_ip, new_ip):
             continue
         site_records = dns.rest_helper("/domains/{0}/records.json".format(domain_id))
         for arecord in [r for r in site_records if r["record"]["content"] == old_ip]:
-            local("dnsimple -u {0} -p {1} \
-                   record:update {2} {3} name:{4} content:{5} ttl:{6} prio:{7}".format(
-                settings.DNSIMPLE_USERNAME,
-                settings.DNSIMPLE_PASSWORD,
-                domain_name,
-                arecord["record"]["id"],
-                arecord["record"]["name"],
-                new_ip,
-                arecord["record"]["ttl"],
-                arecord["record"]["prio"],
-            ))
-            # arecord_id = arecord["record"]["id"]
-            # updated_arecord = [{
-            #     "record": {
-            #         "name": arecord["record"]["name"],
-            #         "content": (new_ip),
-            #         "ttl": arecord["record"]["ttl"],
-            #         "prio": arecord["record"]["prio"],
-            #     }
-            # }]
-            #dns.rest_helper("/domains/{0}/records/{1}.json".format(domain_name, arecord_id), json.dumps(updated_arecord))
+            if api == "python":
+                arecord_id = arecord["record"]["id"]
+                updated_arecord = [{
+                    "record": {
+                        "name": arecord["record"]["name"],
+                        "content": (new_ip),
+                        "ttl": arecord["record"]["ttl"],
+                        "prio": arecord["record"]["prio"],
+                    }
+                }]
+                dns.rest_helper("/domains/{0}/records/{1}.json".format(domain_name, arecord_id), json.dumps(updated_arecord))
+            else:
+                local("dnsimple -u {0} -p {1} \
+                       record:update {2} {3} name:{4} content:{5} ttl:{6} prio:{7}".format(
+                    settings.DNSIMPLE_USERNAME,
+                    settings.DNSIMPLE_PASSWORD,
+                    domain_name,
+                    arecord["record"]["id"],
+                    arecord["record"]["name"],
+                    new_ip,
+                    arecord["record"]["ttl"],
+                    arecord["record"]["prio"],
+                ))
 
 
 def change_arecord_ttl(ttl):
@@ -163,4 +165,3 @@ class DNSimple(object):
     def get_domains(self):
         """Get a list of all domains in your account."""
         return self.rest_helper("/domains.json")
-
