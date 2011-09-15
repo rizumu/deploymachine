@@ -4,6 +4,7 @@ from fabric.api import local, sudo
 def install_local_postgres(db_template="template_postgis", postgis_version="1.5"):
     """
     Show logs for a site.
+
     Usage:
         fab install_local_postgres:template_postgis,1.5
 
@@ -12,6 +13,14 @@ def install_local_postgres(db_template="template_postgis", postgis_version="1.5"
         sudo pip install numpy
         brew install postgresql
         brew install postgis gdal
+
+    If you get the error: "FATAL: role is not permitted to log in",
+    try manually granting the privilege to login on your database user
+    account. This can be done by executing the following as postgres
+    in the psql prompt::
+
+        ALTER ROLE <username> LOGIN;
+
     """
     raise NotImplementedError()  # needs a test run
 
