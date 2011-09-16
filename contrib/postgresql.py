@@ -12,6 +12,11 @@ def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
     """
     Show logs for a site.
 
+    tip: make sure your local user is also a postgres superuser
+
+        sudo su postgres
+        createuser username
+
     Usage:
         fab install_local_postgres:template_postgis,1.5
 
@@ -39,21 +44,21 @@ def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
 
     # Create gis template, add PLPGSQL language support,
     # load the PostGIS SQL routines, enabling users to alter spatial tables.
-    local("createdb -E UTF8 template_postgis -T template0", user="postgres")
-    local("createlang -d template_postgis plpgsql", user="postgres")
-    local("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"", user="postgres")
+    local("createdb -E UTF8 template_postgis -T template0")
+    local("createlang -d template_postgis plpgsql")
+    local("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"")
 
     # check postgis path for your distro
-    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/postgis.sql", user="postgres")
-    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/spatial_ref_sys.sql", user="postgres")
-    local("psql -d template_postgis -c 'GRANT ALL ON geometry_columns TO PUBLIC;'", user="postgres")
-    local("psql -d template_postgis -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;'", user="postgres")
-    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
+    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/postgis.sql")
+    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/spatial_ref_sys.sql")
+    local("psql -d template_postgis -c 'GRANT ALL ON geometry_columns TO PUBLIC;'")
+    local("psql -d template_postgis -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;'")
+    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
     # Create database user and database
-    local("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname), user="postgres")
-    local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password), user="postgres")
-    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
+    local("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname))
+    local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password))
+    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
 
 def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
@@ -69,20 +74,25 @@ def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
 
 def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis"):
     """
-    fab pg_dbrestore:scenemachine,/home/deploy/db_backups/scenemachine.dump
+    Usage:
+        fab pg_dbrestore:scenemachine,/home/deploy/db_backups/scenemachine.dump
+
+    tip: make sure your local user is also a postgres superuser
     """
     if not dbtemplate == "template_postgis":
         raise NotImplementedError()
     with fab_settings(warn_only=True):
         local("dropdb {0}".format(dbname))
-        local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
+        local("createdb --template={0} --owner={1} {1}".format(dbtemplate, dbname))
         local("pg_restore --dbname={0} {1}".format(dbname, path_to_dump_file))
 
 
 def pg_dbrestore(dbname, dbtemplate="template_postgis"):
     """
-     Usage:
+    Usage:
         fab dbserver pg_dbrestore:scenemachine
+
+    tip: make sure your local user is also a postgres superuser
     """
     dump_filename = "{0}-fabric-auto.dump".format(dbname)
     remote_dump_file = os.path.join(settings.DBDUMP_ROOT, dump_filename)
@@ -94,3 +104,5 @@ def pg_dbrestore(dbname, dbtemplate="template_postgis"):
         os.path.join(settings.DBDUMP_ROOT, dump_filename),
         dump_filename))
     pg_dbrestore_local(dbname, "/tmp/{0}".format(dump_filename), dbtemplate="template_postgis")
+    sudo("rm {0}".format(remote_dump_file))
+    local("rm /tmp/{0}".format(dump_filename))

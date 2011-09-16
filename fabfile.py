@@ -95,7 +95,7 @@ def launch(dbtemplate="template_postgis"):
             raise NotImplementedError()
 
         for dbname, password in settings.DATABASES.iteritems():
-           pg_dblaunch(dbname, password, dbtemplate)
+            pg_dblaunch(dbname, password, dbtemplate)
 
     if "appnode" in env.server_types:
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")  # move to recipies
