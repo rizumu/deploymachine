@@ -1,7 +1,14 @@
-from fabric.api import local, sudo
+import os
+
+from fabric.api import env, local, sudo
+from fabric.api import settings as fab_settings
+
+from deploymachine.conf import settings
+
+from providers.openstack_api import openstack_get_ips
 
 
-def install_local_postgres(db_template="template_postgis", postgis_version="1.5"):
+def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
     """
     Show logs for a site.
 
@@ -41,20 +48,49 @@ def install_local_postgres(db_template="template_postgis", postgis_version="1.5"
     local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/spatial_ref_sys.sql", user="postgres")
     local("psql -d template_postgis -c 'GRANT ALL ON geometry_columns TO PUBLIC;'", user="postgres")
     local("psql -d template_postgis -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;'", user="postgres")
-    local("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")
+    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
 
     # Create database user and database
-    local("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
-    local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
-    local("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")
+    local("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname), user="postgres")
+    local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password), user="postgres")
+    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
 
 
-def launch_db(name, password, db_template="template_postgis"):
+def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
     """
     Launches a new database. Typically used when launching a new site.
     The default database template is ``template_postgis`` for GeoDjango.
     An standard when not using GeoDjango is ``template1``.
     """
-    sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(name), user="postgres")
-    sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(name, password), user="postgres")
-    sudo("createdb --template {0} --owner {1} {1}".format(db_template, name), user="postgres")
+    sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname), user="postgres")
+    sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password), user="postgres")
+    sudo("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
+
+
+def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis"):
+    """
+    fab pg_dbrestore:scenemachine,/home/deploy/db_backups/scenemachine.dump
+    """
+    if not dbtemplate == "template_postgis":
+        raise NotImplementedError()
+    with fab_settings(warn_only=True):
+        local("dropdb {0}".format(dbname))
+        local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
+        local("pg_restore --dbname={0} {1}".format(dbname, path_to_dump_file))
+
+
+def pg_dbrestore(dbname, dbtemplate="template_postgis"):
+    """
+     Usage:
+        fab dbserver pg_dbrestore:scenemachine
+    """
+    dump_filename = "{0}-fabric-auto.dump".format(dbname)
+    remote_dump_file = os.path.join(settings.DBDUMP_ROOT, dump_filename)
+    sudo("pg_dump -Fc {0} > {1}".format(dbname, remote_dump_file), user="postgres")
+    local("scp -P {0} {1}@{2}:{3} /tmp/{4}".format(
+        settings.SSH_PORT,
+        settings.DEPLOY_USERNAME,
+        openstack_get_ips(env.server_types, append_port=False)[0],
+        os.path.join(settings.DBDUMP_ROOT, dump_filename),
+        dump_filename))
+    pg_dbrestore_local(dbname, "/tmp/{0}".format(dump_filename), dbtemplate="template_postgis")

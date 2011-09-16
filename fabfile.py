@@ -20,7 +20,7 @@ from deploymachine.contrib.iptables import iptables
 from deploymachine.contrib.logs import site_logs
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
 from deploymachine.contrib.provision import provision
-from deploymachine.contrib.postgresql import install_local_postgres, launch_db
+from deploymachine.contrib.postgresql import pg_install_local, pg_dblaunch, pg_dbrestore
 from deploymachine.contrib.scm.kokki import kokki
 from deploymachine.contrib.scm.puppet import is_puppetmaster
 from deploymachine.contrib.supervisor import supervisor
@@ -51,7 +51,7 @@ Aside from prelimiary customizations and ongoing maintenance...
 """
 
 
-def launch(db_template="template_postgis"):
+def launch(dbtemplate="template_postgis"):
     """
     Launches all nodes in the given env: ./contrib/fab.py
 
@@ -80,7 +80,7 @@ def launch(db_template="template_postgis"):
 
     if "dbserver" in env.server_types:
         reboot(10)  # Kokki changed the `shhmax` kernel settings, reboot required.
-        if db_template == "template_postgis":
+        if dbtemplate == "template_postgis":
             # http://proft.me/2011/08/31/ustanovka-geodjango-postgresql-9-postgis-pod-ubunt/
             with cd("/tmp/"):
                 run("wget http://postgis.refractions.net/download/postgis-1.5.3.tar.gz")
@@ -94,8 +94,8 @@ def launch(db_template="template_postgis"):
         else:
             raise NotImplementedError()
 
-        for name, password in settings.DATABASES.iteritems():
-           launch_db(name, password, db_template)
+        for dbname, password in settings.DATABASES.iteritems():
+           pg_dblaunch(dbname, password, dbtemplate)
 
     if "appnode" in env.server_types:
         sudo("mkdir --parents /var/log/gunicorn/ /var/log/supervisor/ && chown -R deploy:www-data /var/log/gunicorn/")  # move to recipies
