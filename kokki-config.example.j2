@@ -80,6 +80,7 @@ def dbserver(kit):
     kit.include_recipe("munin.node", "postgresql9.server")
     kit.update_config({
         "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
+        "dbname": {% for dbname in deploymachine_settings.DATABASES.keys() %}"{{ dbname }}"{% endfor %},
         "openstack_username": "{{ deploymachine_settings.OPENSTACK_USERNAME }}",
         "openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
         "postgresql9.listen_addresses": "*",

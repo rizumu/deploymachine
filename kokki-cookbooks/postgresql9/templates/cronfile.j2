@@ -1,4 +1,4 @@
 # hr min    dayofmonth month dayofweek    user    cmd
 
-0 0     0 * 0    postgres    FILE={{ deploy_home }}db_backups/pg_dumpall-$(date + "%B").tar.bz2 /usr/bin/pg_dumpall --clean > $FILE && tar cvjf $FILE && {{ deploy_home }}backup2cloudfiles $(FILE + ".tar.bz2")
-0 0     0 0 *    postgres    FILE={{ deploy_home }}db_backups/pg_dumpall-$(date + "%A").tar.bz2 /usr/bin/pg_dumpall --clean > $FILE && tar cvjf $FILE && {{ deploy_home }}backup2cloudfiles $(FILE + ".tar.bz2")
+0 0     0 * 0    postgres    FILE={{ deploy_home }}dbdumps/pg_dump-{{ dbname }}-$(date +%B).tar.bz2 /usr/bin/pg_dump -Fc > $FILE && tar cvjf $FILE && {{ deploy_home }}backup2cloudfiles $(FILE + ".tar.bz2")
+0 0     0 0 *    postgres    FILE={{ deploy_home }}dbdumps/pg_dump-{{ dbname }}-$(date +%A).tar.bz2 /usr/bin/pg_dump -Fc > $FILE && tar cvjf $FILE && {{ deploy_home }}backup2cloudfiles $(FILE + ".tar.bz2")

@@ -62,14 +62,14 @@ Directory("{0}db_backups/".format(env.config.deploy_home),
     group = "deploy",
     mode = 0750)
 
-File("/etc/cron.d/pgdumpall",
+File("/etc/cron.d/pgdump",
     owner = "postgres",
     group = "postgres",
     mode = 0644,
     content = Template("postgresql9/cronfile.j2"),
 )
 
-File("{0}backup2cloudfiles.sh".format(env.config.deploy_home),
+File("{0}backup2cloudfiles".format(env.config.deploy_home),
     owner = "postgres",
     group = "postgres",
     mode = 0740,
