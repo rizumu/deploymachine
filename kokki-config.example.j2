@@ -77,12 +77,14 @@ def appnode(kit):
 def dbserver(kit):
     """ http://www.revsys.com/writings/postgresql-performance.html """
     base(kit)
-    kit.include_recipe("munin.node", "postgresql9.server")
+    kit.include_recipe("munin.node", "postgresql9.server", "postgresql-cloudfiles-backup")
     kit.update_config({
-        "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
-        "dbname": {% for dbname in deploymachine_settings.DATABASES.keys() %}"{{ dbname }}"{% endfor %},
-        "openstack_username": "{{ deploymachine_settings.OPENSTACK_USERNAME }}",
-        "openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
+        "cloudfiles.deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
+        "cloudfiles.dbname": {% for dbname in deploymachine_settings.DATABASES.keys() %}"{{ dbname }}"{% endfor %},
+        "cloudfiles.openstack_username": "{{ deploymachine_settings.OPENSTACK_USERNAME }}",
+        "cloudfiles.openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
+        "cloudfiles.openstack_dbdumps_container": "dbdumps",
+        "cloudfiles.openstack_datacentre": "us",
         "postgresql9.listen_addresses": "*",
         "postgresql9.port": "{{ deploymachine_settings.PGSQL_PORT }}",
         "postgresql9.shared_buffers": "64MB",
