@@ -1,0 +1,9 @@
+{% for config in env.apt.configs %}
+{% for group, pairs in config.items() %}
+{{ group }} {
+  {% for key, value in pairs.items() %}
+  {{ key }} "{{ value }}";
+  {% endfor %}
+};
+{% endfor %}
+{% endfor %}

@@ -22,9 +22,9 @@ def base(kit):
             dict(domain="root", type="hard", item="nofile", value="30000"),
         ],
         "apt.sources": [
-             "deb http://archive.ubuntu.com/ubuntu/ lucid main restricted universe multiverse",
-             "deb http://archive.ubuntu.com/ubuntu/ lucid-updates main restricted universe multiverse",
-             "deb http://security.ubuntu.com/ubuntu/ lucid-security main restricted universe multiverse",
+             "deb http://archive.ubuntu.com/ubuntu/ natty main restricted universe multiverse",
+             "deb http://archive.ubuntu.com/ubuntu/ natty-updates main restricted universe multiverse",
+             "deb http://security.ubuntu.com/ubuntu/ natty-security main restricted universe multiverse",
         ],
         "apt.configs": {
             "APT::Periodic": {
@@ -35,7 +35,7 @@ def base(kit):
             },
         },
     })
-    kit.include_recipe("limits", "monit", "sysadmin", "sendmail")#, "apt")
+    kit.include_recipe("limits", "monit", "sysadmin", "sendmail", "apt")
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
 
