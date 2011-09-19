@@ -1,0 +1,10 @@
+#!/bin/bash
+
+OUTPUT_PATH="{{ env.config.cloudfiles.dbdumps_root }}"
+
+CLOUDFILES_CONTAINER={{ env.config.cloudfiles.openstack_dbdumps_container }}
+export CLOUDFILES_USERNAME={{ env.config.cloudfiles.openstack_username }}
+export CLOUDFILES_APIKEY={{ env.config.cloudfiles.openstack_api_key }}
+export PASSPHRASE={{ env.config.cloudfiles.passphrase_for_dbdump }}
+
+duplicity cf+http://${CLOUDFILES_CONTAINER} ${OUTPUT_PATH}
