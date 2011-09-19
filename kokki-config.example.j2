@@ -10,6 +10,7 @@ def base(kit):
         "openstack_compute": dict(username="{{ deploymachine_settings.OPENSTACK_USERNAME }}",
                                   api_key="{{ deploymachine_settings.OPENSTACK_API_KEY }}",
                                   servers={{ deploymachine_settings.OPENSTACK_SERVERS }}),
+        "sendmail.default_email": "{{ deploymachine_settings.SENDMAIL_DEFAULT_EMAIL }}",
         "limits": [
             dict(domain="redis", type="soft", item="nofile", value="10000"),
             dict(domain="redis", type="hard", item="nofile", value="10000"),
@@ -24,17 +25,17 @@ def base(kit):
              "deb http://archive.ubuntu.com/ubuntu/ lucid main restricted universe multiverse",
              "deb http://archive.ubuntu.com/ubuntu/ lucid-updates main restricted universe multiverse",
              "deb http://security.ubuntu.com/ubuntu/ lucid-security main restricted universe multiverse",
-         ],
-         "apt.configs": {
-             "APT::Periodic": {
-                 "Unattended-Upgrade": 1,
-                 "MaxSize": 1024,
-                 "MinAge": 10,
-                 "MaxAge": 90,
-             },
-         },
+        ],
+        "apt.configs": {
+            "APT::Periodic": {
+                "Unattended-Upgrade": 1,
+                "MaxSize": 1024,
+                "MinAge": 10,
+                "MaxAge": 90,
+            },
+        },
     })
-    kit.include_recipe("limits", "monit", "sysadmin")#, "apt")
+    kit.include_recipe("limits", "monit", "sysadmin", "sendmail")#, "apt")
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
 
@@ -80,11 +81,13 @@ def dbserver(kit):
     kit.include_recipe("munin.node", "postgresql9.server", "postgresql-cloudfiles-backup")
     kit.update_config({
         "cloudfiles.deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
+        "cloudfiles.dbdumps_root": "{{ deploymachine_settings.DBDUMPS_ROOT }}",
         "cloudfiles.dbname": {% for dbname in deploymachine_settings.DATABASES.keys() %}"{{ dbname }}"{% endfor %},
         "cloudfiles.openstack_username": "{{ deploymachine_settings.OPENSTACK_USERNAME }}",
         "cloudfiles.openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
         "cloudfiles.openstack_dbdumps_container": "dbdumps",
         "cloudfiles.openstack_datacentre": "us",
+        "cloudfiles.passphrase_for_dbdump": "{{ deploymachine_settings.PASSPHRASE_FOR_DBDUMP }}",
         "postgresql9.listen_addresses": "*",
         "postgresql9.port": "{{ deploymachine_settings.PGSQL_PORT }}",
         "postgresql9.shared_buffers": "64MB",

@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import env, local, sudo
+from fabric.api import cd, env, local, sudo
 from fabric.api import settings as fab_settings
 
 from deploymachine.conf import settings
@@ -106,3 +106,13 @@ def pg_dbrestore(dbname, dbtemplate="template_postgis"):
     pg_dbrestore_local(dbname, "/tmp/{0}".format(dump_filename), dbtemplate="template_postgis")
     sudo("rm {0}".format(remote_dump_file))
     local("rm /tmp/{0}".format(dump_filename))
+
+
+def pg_dbrestore_prod(dbname, dump_filename, dbtemplate="template_postgis"):
+    if not dbtemplate == "template_postgis":
+        raise NotImplementedError()
+    with fab_settings(warn_only=True):
+        with cd(settings.DBDUMP_ROOT):
+            sudo("dropdb {0}".format(dbname), user="postgres")
+            sudo("createdb --template={0} --owner={1} {1}".format(dbtemplate, dbname), user="postgres")
+            sudo("pg_restore --dbname={0} {1}{2}".format(dbname, settings.DBDUMP_ROOT, dump_filename), user="postgres")

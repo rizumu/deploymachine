@@ -20,7 +20,8 @@ from deploymachine.contrib.iptables import iptables
 from deploymachine.contrib.logs import site_logs
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
 from deploymachine.contrib.provision import provision
-from deploymachine.contrib.postgresql import pg_install_local, pg_dblaunch, pg_dbrestore
+from deploymachine.contrib.postgresql import (pg_install_local, pg_dblaunch, pg_dbrestore,
+    pg_dbrestore_prod)
 from deploymachine.contrib.scm.kokki import kokki
 from deploymachine.contrib.scm.puppet import is_puppetmaster
 from deploymachine.contrib.supervisor import supervisor
