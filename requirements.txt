@@ -6,6 +6,7 @@ git+git://github.com/jacobian/openstack.compute#egg=openstack_compute
 redis==2.4.9
 setproctitle==1.1.2
 django-redis-cache==0.9.1
+python-cloudfiles==1.7.9.1
 Sphinx==1.0.7
 
 # must track master, don't rely on a tagged release

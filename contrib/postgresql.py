@@ -75,7 +75,7 @@ def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
 def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis"):
     """
     Usage:
-        fab pg_dbrestore:scenemachine,/home/deploy/db_backups/scenemachine.dump
+        fab pg_dbrestore_local:scenemachine,/home/deploy/dbdumps/scenemachine.dump
 
     tip: make sure your local user is also a postgres superuser
     """
@@ -95,13 +95,13 @@ def pg_dbrestore(dbname, dbtemplate="template_postgis"):
     tip: make sure your local user is also a postgres superuser
     """
     dump_filename = "{0}-fabric-auto.dump".format(dbname)
-    remote_dump_file = os.path.join(settings.DBDUMP_ROOT, dump_filename)
+    remote_dump_file = os.path.join(settings.DBDUMPS_ROOT, dump_filename)
     sudo("pg_dump -Fc {0} > {1}".format(dbname, remote_dump_file), user="postgres")
     local("scp -P {0} {1}@{2}:{3} /tmp/{4}".format(
         settings.SSH_PORT,
         settings.DEPLOY_USERNAME,
         openstack_get_ips(env.server_types, append_port=False)[0],
-        os.path.join(settings.DBDUMP_ROOT, dump_filename),
+        os.path.join(settings.DBDUMPS_ROOT, dump_filename),
         dump_filename))
     pg_dbrestore_local(dbname, "/tmp/{0}".format(dump_filename), dbtemplate="template_postgis")
     sudo("rm {0}".format(remote_dump_file))
@@ -112,7 +112,7 @@ def pg_dbrestore_prod(dbname, dump_filename, dbtemplate="template_postgis"):
     if not dbtemplate == "template_postgis":
         raise NotImplementedError()
     with fab_settings(warn_only=True):
-        with cd(settings.DBDUMP_ROOT):
+        with cd(settings.DBDUMPS_ROOT):
             sudo("dropdb {0}".format(dbname), user="postgres")
             sudo("createdb --template={0} --owner={1} {1}".format(dbtemplate, dbname), user="postgres")
-            sudo("pg_restore --dbname={0} {1}{2}".format(dbname, settings.DBDUMP_ROOT, dump_filename), user="postgres")
+            sudo("pg_restore --dbname={0} {1}{2}".format(dbname, settings.DBDUMPS_ROOT, dump_filename), user="postgres")
