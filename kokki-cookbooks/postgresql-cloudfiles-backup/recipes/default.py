@@ -10,9 +10,10 @@ Directory("{0}/dbdumps/".format(env.config.cloudfiles.deploy_home),
     group = "deploy",
     mode = 0750)
 
+# /etc/crontab and the files in /etc/cron.d must be owned by root# and must *not* be group- or other-writable
 File("/etc/cron.d/dbdumps",
-    owner = "postgres",
-    group = "postgres",
+    owner = "root",
+    group = "root",
     mode = 0644,
     content = Template("postgresql-cloudfiles-backup/cronfile.j2"),
 )
