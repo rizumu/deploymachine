@@ -38,7 +38,7 @@ File("/etc/aliases",
     group = "root",
     mode = 0644,
     content = Template("sendmail/aliases.j2"),
-    #notifies = [("run", env.resources["Execute"]["newaliases"], True)],
+    notifies = [("run", env.resources["Execute"]["newaliases"], True)],
 )
 
 # Unfortunately, there is no automagic way to migrate to /etc/sasldb2 :(
