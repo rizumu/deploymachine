@@ -78,6 +78,8 @@ def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis")
         fab pg_dbrestore_local:scenemachine,/home/deploy/dbdumps/scenemachine.dump
 
     tip: make sure your local user is also a postgres superuser
+    tip: setup a local cronjob to sync backups
+         0 0 0 0 * postgres duplicity cf+http://dbdumps /home/rizumu/dbdumps
     """
     if not dbtemplate == "template_postgis":
         raise NotImplementedError()
