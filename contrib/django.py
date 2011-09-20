@@ -92,6 +92,7 @@ def generate_settings_local(connection, database, site=None):
             context = {
                 "site": site,
                 "psql_port": settings.PGSQL_PORT,
+                "redis_port": settings.REDIS_PORT,
                 "db_password": settings.DATABASES[database],
                 "openstack_username": settings.OPENSTACK_USERNAME,
                 "openstack_api_key": settings.OPENSTACK_API_KEY,

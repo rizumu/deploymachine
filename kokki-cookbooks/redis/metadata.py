@@ -5,6 +5,10 @@ __config__ = {
         description = "Path to the config file",
         default = "/etc/redis.conf",
     ),
+    "redis.listen": dict(
+        description = "All the interfaces will listen for connections",
+        default = False,
+    ),
     "redis.bind": dict(
         description = "Interface to listen on",
         default = "127.0.0.1",

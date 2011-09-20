@@ -4,7 +4,7 @@ from kokki import Script, Directory, File, Service, Package, Link, Template
 
 # env.include_recipe("monit")
 
-version = "2.2.0-rc2"
+version = "2.2.13"
 dirname = "redis-%s" % version
 filename = "%s.tar.gz" % dirname
 url = "http://redis.googlecode.com/files/%s" % filename
@@ -18,6 +18,13 @@ Script("install-redis",
         "cd %(dirname)s\n"
         "make install\n") % dict(url=url, dirname=dirname, filename=filename))
 
+Service("redis",
+    supports_restart=True,
+    supports_reload=True,
+    supports_status=True,
+    action="nothing")
+
+
 Directory(env.config.redis.dbdir,
     owner = "root",
     group = "root",
@@ -29,7 +36,8 @@ File("redis.conf",
     owner = "root",
     group = "root",
     mode = 0644,
-    content = Template("redis/redis.conf.j2"))
+    content = Template("redis/redis.conf.j2"),
+    notifies = [("reload", env.resources["Service"]["redis"], True)])
 
 # env.cookbooks.monit.rc("redis",
 #     content = Template("redis/monit.conf.j2"))
@@ -50,11 +58,6 @@ File("/etc/init.d/redis",
     # notifies = [
     #     ("reload", env.resources["Service"]["redis"], True),
     # ])
-
-Service("redis",
-    subscribes = [
-        ("restart", env.resources["Script"]["install-redis"]),
-    ])
 
 if "munin.node" in env.included_recipes:
     Package("redis",

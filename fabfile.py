@@ -7,7 +7,7 @@ from fabric.operations import reboot
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
 from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
-    broker, dbserver, dbappbalancer, loadbalancer)
+    broker, cachenode, dbserver, dbappbalancer, loadbalancer)
 from deploymachine.contrib.providers.openstack_api import (openstack_list, openstack_boot,
     openstack_bootem, openstack_kill, openstack_sudokillem)
 from deploymachine.contrib.credentials import ssh, gitconfig
@@ -60,24 +60,23 @@ def launch(dbtemplate="template_postgis"):
         fab loadbalancer launch
         fab dbserver launch:template_postgis
         fab appnode launch
+        fab cachenode launch
         fab appbalancer launch
     """
-    if ("cachenode") in env.server_types:
-        raise NotImplementedError()
 
     iptables()
 
     for role in env.server_types:
         kokki(role)
 
+    if "broker" or "cachenode" in env.server_types:
+        pass
+
     if "loadbalancer" in env.server_types:
         sudo("ls -hal")
         dissite(site="default")
         for site in settings.SITES:
             ensite(site=site["name"])
-
-    if "broker" in env.server_types:
-        pass
 
     if "dbserver" in env.server_types:
         reboot(10)  # Kokki changed the `shhmax` kernel settings, reboot required.
