@@ -1,10 +1,11 @@
 from kokki import Package, File, Execute, Template
 
+
 Package("unattended-upgrades")
 
 Execute("update-package-index",
-        action="nothing",
-        command="DEBIAN_FRONTEND=noninteractive apt-get -qq update")
+        command="DEBIAN_FRONTEND=noninteractive apt-get -qq update",
+        action="nothing")
 
 File("/etc/apt/apt.conf",
      owner = "root",
@@ -13,8 +14,9 @@ File("/etc/apt/apt.conf",
      content = Template("apt/apt.conf.j2"))
 
 File("/etc/apt/sources.list",
-     owner = "root",
-     group = "root",
-     mode = 0644,
-     content = "%s\n" % "\n".join(env["apt"]["sources"]),
-     notifies = [("run", env.resources["Execute"]["update-package-index"])])
+     owner="root",
+     group="root",
+     mode=0644,
+     content="%s\n" % "\n".join(env.config.apt.sources),
+     notifies=[("run", env.resources["Execute"]["update-package-index"])])
+

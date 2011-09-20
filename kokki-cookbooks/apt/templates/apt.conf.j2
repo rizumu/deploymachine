@@ -1,9 +1,2 @@
-{% for config in env.apt.configs %}
-{% for group, pairs in config.items() %}
-{{ group }} {
-  {% for key, value in pairs.items() %}
-  {{ key }} "{{ value }}";
-  {% endfor %}
-};
-{% endfor %}
-{% endfor %}
+{% for config, settings in env.config.apt.configs.items() %}{% for setting, value in settings.items() %}
+{{ config }}::{{ setting }} "{{ value }}";{% endfor %}{% endfor %}
