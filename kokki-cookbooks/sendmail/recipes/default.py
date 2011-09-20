@@ -1,7 +1,6 @@
 import os
 from kokki import Execute, File, Package, Service, Template
 
-env.include_recipe("sendmail")
 
 Service("sendmail",
     supports_restart=True,
@@ -45,6 +44,3 @@ File("/etc/aliases",
 
 #❄  sudo newaliases
 #WARNING: local host name (dbserver) is not qualified; see cf/README: WHO AM I?
-#/etc/mail/aliases: line 23: abuse... Warning: duplicate alias name abuse
-#/etc/mail/aliases: line 27: root:           ... missing value for alias
-#/etc/mail/aliases: 15 aliases, longest 10 bytes, 175 bytes total
