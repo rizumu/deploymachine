@@ -35,6 +35,11 @@ def broker():
     env_base(["broker"])
 
 
+def cachenode():
+    "Redis cachenode and/or messagequeue."
+    env_base(["cachenode"])
+
+
 def dbserver():
     "Database environment server type. Server specific settings here."
     env_base(["dbserver"])
