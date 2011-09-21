@@ -26,9 +26,8 @@ def kokki(role, restart=False):
                      context={"deploymachine_settings": settings}, use_jinja=True)
     for public_ip in public_ip_addresses:
         # put the local cookbooks on the server
-        local("rsync -e 'ssh -p {0}' -avzp \
-               {1}kokki-cookbooks/ deploy@{2}:/home/deploy/kokki-cookbooks/".format(
-               settings.SSH_PORT, settings.DEPLOYMACHINE_LOCAL_ROOT, public_ip))
+        local("rsync -e 'ssh -p {0}' -avzp {1}kokki-cookbooks/ {2}@{3}:/home/deploy/kokki-cookbooks/".format(
+               settings.SSH_PORT, settings.DEPLOYMACHINE_LOCAL_ROOT, settings.DEPLOY_USERNAME, public_ip))
     # run kokki and restart the apps
     with cd(settings.DEPLOY_HOME):
         sudo("kokki -f kokki-config.py {0}".format(role))
