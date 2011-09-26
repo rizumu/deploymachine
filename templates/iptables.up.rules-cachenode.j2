@@ -16,6 +16,9 @@
 -A INPUT -i eth1 -s {{ appnode_ip }} -p tcp --dport {{ REDIS_PORT }} -j ACCEPT
 {% endfor %}
 
+# Allows for connections from Munin master process
+-A INPUT -i eth1 -s {{ LOADBALANCER_INTERNAL_IP }} -p tcp --dport {{ MUNIN_PORT }} -j ACCEPT
+
 # Allows SSH connections
 -A INPUT -p tcp -m state --state NEW --dport {{ SSH_PORT }} -j ACCEPT
 

@@ -16,6 +16,7 @@ def iptables():
         "PGSQL_PORT": settings.PGSQL_PORT,
         "RABBITMQ_PORT": settings.RABBITMQ_PORT,
         "REDIS_PORT": settings.REDIS_PORT,
+        "MUNIN_PORT": settings.MUNIN_PORT,
     }
     context["APPNODE_INTERNAL_IPS"] = openstack_get_ips(
         ["appnode"], port=settings.SSH_PORT, ip_type="private", append_port=False)
