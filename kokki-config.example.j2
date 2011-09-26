@@ -35,16 +35,18 @@ def base(kit):
             },
         },
     })
-    kit.include_recipe("limits", "monit", "sysadmin", "sendmail", "apt")
+    kit.include_recipe("limits", "monit", "sysadmin", "apt", "munin.node") # "sendmail",
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
-
 
 def loadbalancer(kit):
     base(kit)
     kit.include_recipe("munin.master", "nginx.deploymachine")
     kit.update_config({
         "munin.dbdir": "/var/lib/munin",
+        {% if deploymachine_settings.MUNIN_CONTACTS %}
+        "munin.contacts": [{% for contact in deploymachine_settings.MUNIN_CONTACTS %}{{ contact }}, {% endfor %}],
+        {% endif %}
         "nginx.worker_processes": 4,
         "nginx.worker_connections": 100,
         "nginx.keepalive_timeout": 5,
@@ -56,12 +58,11 @@ def loadbalancer(kit):
 
 def appnode(kit):
     base(kit)
-    kit.include_recipe("munin.node", "supervisor", "gunicorn.deploymachine")
+    kit.include_recipe("supervisor", "gunicorn.deploymachine")
     kit.update_config({
         "python_version": "{{ deploymachine_settings.PYTHON_VERSION }}",
         "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
         "virtualenvs_root": "{{ deploymachine_settings.VIRTUALENVS_ROOT }}",
-        "munin.dbdir": "/var/lib/munin",
         "gunicorn.sites": {{ deploymachine_settings.SITES }},
         "supervisor.sites": {{ deploymachine_settings.SITES }},
         "supervisor.logrotate": dict(
@@ -78,7 +79,7 @@ def appnode(kit):
 def dbserver(kit):
     """ http://www.revsys.com/writings/postgresql-performance.html """
     base(kit)
-    kit.include_recipe("munin.node", "postgresql9.server", "postgresql-cloudfiles-backup")
+    kit.include_recipe("postgresql9.server", "postgresql-cloudfiles-backup")
     kit.update_config({
         "cloudfiles.deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
         "cloudfiles.dbdumps_root": "{{ deploymachine_settings.DBDUMPS_ROOT }}",
@@ -123,12 +124,12 @@ def dbserver(kit):
 
 def broker(kit):
     base(kit)
-    kit.include_recipe("munin.node", "rabbitmq")
+    kit.include_recipe("rabbitmq")
 
 
 def cachenode(kit):
     base(kit)
-    kit.include_recipe("munin.node", "redis")
+    kit.include_recipe("redis")
     kit.update_config({
         "redis.listen": True,
     })

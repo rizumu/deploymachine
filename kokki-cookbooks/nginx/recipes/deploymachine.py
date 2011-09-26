@@ -66,10 +66,9 @@ if "librato.silverline" in env.included_recipes:
         notifies=[("restart", env.resources["Service"]["nginx"])])
 
 for site in env.config.nginx.sites:
-    File("%s/sites-available/%s" % (
-            env.config.nginx.dir,
-            site["name"]),
-            content=Template("nginx/site-gunicorn.j2",
+    File("%s/sites-available/%s" % (env.config.nginx.dir, site["name"]),
+        content=Template(
+            "nginx/site-gunicorn.j2",
             variables={
                 "site": site,
                 "appnode_internal_ip_list": get_internal_appnode_ips()

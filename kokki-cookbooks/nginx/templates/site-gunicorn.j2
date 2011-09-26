@@ -43,3 +43,26 @@ server {
         rewrite ^(.*)$ /maintenance.html break;
     }
 }
+
+{% if site.munin_master %}
+server {
+  listen 80;
+  server_name localhost;
+  location /nginx_status {
+    stub_status on;
+    access_log off;
+    allow 127.0.0.1;
+    deny all;
+  }
+}
+
+server {
+    listen 80;
+    server_name munin.{{ site.primary }};
+    location / {
+        allow all;
+        #deny all;
+        root /var/cache/munin/www;
+    }
+}
+{% endif %}
