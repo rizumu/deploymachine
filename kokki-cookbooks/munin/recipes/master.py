@@ -31,5 +31,5 @@ File("/etc/munin/munin.conf",
     content=Template(
         "munin/munin.conf.j2",
          variables=dict(
-             munin=dict(get_munin_nodes()
-    ))))
+             munin_hosts=get_munin_nodes()
+    )))
