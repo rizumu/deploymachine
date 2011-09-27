@@ -60,8 +60,8 @@ server {
     listen 80;
     server_name munin.{{ site.primary }};
     location / {
-        allow all;
-        #deny all;
+        auth_basic            "Restricted";
+        auth_basic_user_file  {{ env.config.nginx.dir}}/htpasswd;
         root /var/cache/munin/www;
     }
 }

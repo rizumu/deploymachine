@@ -48,6 +48,13 @@ File("nginx.conf",
     group="root",
     mode=0644)
 
+File("htpasswd",
+    path="%s/htpasswd" % env.config.nginx.dir,
+    content="admin:{0}\n".format(env.config.nginx.munin_password_encrypted),
+    owner="root",
+    group="root",
+    mode=0644)
+
 Service("nginx",
     supports_status=True,
     supports_restart=True,
@@ -71,7 +78,7 @@ for site in env.config.nginx.sites:
             "nginx/site-gunicorn.j2",
             variables={
                 "site": site,
-                "appnode_internal_ip_list": get_internal_appnode_ips()
+                "appnode_internal_ip_list": get_internal_appnode_ips(),
             }
         ),
         owner="root",

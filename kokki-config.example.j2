@@ -34,6 +34,8 @@ def base(kit):
                 "MaxAge": 90,
             },
         },
+        "munin.bind": "*",
+        "munin.cidr_allow": None,
     })
     kit.include_recipe("limits", "monit", "sysadmin", "apt", "munin.node") # "sendmail",
     #logrotate, logwatch, icinga, heartbeat
@@ -53,6 +55,7 @@ def loadbalancer(kit):
         "nginx.accept_mutex": False,
         "nginx.client_max_body_size": "4G",
         "nginx.sites": {{ deploymachine_settings.SITES }},
+        "nginx.munin_password_encrypted": "{{ deploymachine_settings.MUNIN_PASSWORD_ENCRYPTED }}",
     })
 
 

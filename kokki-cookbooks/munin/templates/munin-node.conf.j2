@@ -28,9 +28,15 @@ ignore_file \.pod$
 # doesn't understand CIDR-style network notation.  You may repeat
 # the allow line as many times as you'd like
 
-{% for cidr in env.config.munin.allow %}
+{% if env.config.munin.cidr_allow %}
+{% for cidr in env.config.munin.cidr_allow %}
 cidr_allow {{ cidr }}
 {% endfor %}
+{% endif %}
+
+{% if munin_master_ip %}
+allow {{ munin_master_ip }}
+{% endif %}
 
 # Which address to bind to;
 host {{ env.config.munin.bind }}

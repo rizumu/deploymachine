@@ -105,4 +105,12 @@ __config__ = {
         description = "The maximum accepted body size of client request",
         default = None,
     ),
+    "nginx.auth_basic_user_file_path": dict(
+        description = "Path to the auth_basic_user_file",
+        default = None,
+    ),
+    "nginx.munin_password_encrypted": dict(
+        description = "The munin password encrypted with crypt. How to: perl -e \"print crypt('password', 'salt')\"",
+        default = None,
+    ),
 }

@@ -23,8 +23,7 @@ def iptables():
     context["LOADBALANCER_INTERNAL_IP"] = openstack_get_ips(
         ["loadbalancer"], port=settings.SSH_PORT, ip_type="private", append_port=False)[0]
     upload_template("templates/iptables.up.rules-{0}.j2".format("_".join(env.server_types)),
-                    "/etc/iptables.up.rules", use_sudo=True, use_jinja=True,
-                    context=context)
+                    "/etc/iptables.up.rules", use_sudo=True, use_jinja=True, context=context)
     sudo("iptables --flush")
     sudo("/sbin/iptables-restore < /etc/iptables.up.rules && \
           rm -rf /root/.ssh/ && reload ssh")

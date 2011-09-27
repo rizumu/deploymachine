@@ -9,9 +9,13 @@ __config__ = {
         description="Port number munin-node should listen on",
         default=4949,
     ),
-    "munin.allow": dict(
+    "munin.cidr_allow": dict(
         description="IP address ranges that are allowed to connect to munin-node",
         default=["127.0.0.1/32"],
+    ),
+    "munin.allow": dict(
+        description="IP address of munin master that is allowed to connect to munin-node",
+        default=None,
     ),
     "munin.contacts": dict(
         description="Who to contact on alerts. List of dictionaries with keys name, email, and subject(optional).",
