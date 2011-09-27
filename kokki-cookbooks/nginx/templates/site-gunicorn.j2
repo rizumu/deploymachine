@@ -38,6 +38,14 @@ server {
             break;
         }
     }
+    {% if site.munin_master %}
+    location /nginx_status {
+        stub_status on;
+        access_log off;
+        allow 127.0.0.1;
+        deny all;
+    }
+    {% endif %}
     error_page 503 @maintenance;
     location @maintenance {
         rewrite ^(.*)$ /maintenance.html break;
@@ -45,17 +53,6 @@ server {
 }
 
 {% if site.munin_master %}
-server {
-  listen 80;
-  server_name localhost;
-  location /nginx_status {
-    stub_status on;
-    access_log off;
-    allow 127.0.0.1;
-    deny all;
-  }
-}
-
 server {
     listen 80;
     server_name munin.{{ site.primary }};
