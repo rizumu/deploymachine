@@ -15,6 +15,9 @@
 -A INPUT -p tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp --dport 443 -j ACCEPT
 
+# Allows for HTTP and HTTPS connections from anywhere (Monit website port)
+-A INPUT -p tcp --dport 2828 -j ACCEPT
+
 # Allows SSH connections
 -A INPUT -p tcp -m state --state NEW --dport {{ SSH_PORT }} -j ACCEPT
 

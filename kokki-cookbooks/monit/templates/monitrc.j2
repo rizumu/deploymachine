@@ -1,4 +1,4 @@
-set daemon 20
+set daemon {{ env.config.monit.daemon_interval }}
 set logfile syslog facility log_daemon
 
 {% if env.config.mailserver and env.config.mailserver != "localhost" %}
@@ -17,7 +17,7 @@ set mail-format { from: {{ env.config.monit.mail_format }} }
 {% for email in env.config.monit.alert_emails %}
 set alert {{ email }}
 {% endfor %}
- 
+
 set httpd port 2828 and
     use address localhost
     allow localhost
