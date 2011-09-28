@@ -63,9 +63,6 @@ def launch(dbtemplate="template_postgis"):
         fab cachenode launch
         fab appbalancer launch
     """
-
-    iptables()
-
     for role in env.server_types:
         kokki(role)
 

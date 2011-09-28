@@ -36,8 +36,14 @@ def base(kit):
         },
         "munin.bind": "*",
         "munin.cidr_allow": None,
+        "iptables.ssh_port": "{{ deploymachine_settings.SSH_PORT }}",
+        "iptables.public_ports": {{ deploymachine_settings.APPLICATION_PORTS }},
+        "iptables.public_port_ranges": {{ deploymachine_settings.APPLICATION_PORT_RANGES }},
+        "iptables.ssh_port": "{{ deploymachine_settings.SSH_PORT }}",
+        "iptables.munin_node_port": "{{ deploymachine_settings.MUNIN_NODE_PORT }}",
+        "iptables.monit_port": "{{ deploymachine_settings.MONIT_PORT }}",
     })
-    kit.include_recipe("limits", "monit", "sysadmin", "apt", "munin.node") # "sendmail",
+    kit.include_recipe("limits", "monit", "sysadmin", "apt", "munin.node", "iptables") # "sendmail",
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
 
@@ -56,6 +62,7 @@ def loadbalancer(kit):
         "nginx.client_max_body_size": "4G",
         "nginx.sites": {{ deploymachine_settings.SITES }},
         "nginx.munin_password_encrypted": "{{ deploymachine_settings.MUNIN_PASSWORD_ENCRYPTED }}",
+        "iptables.loadbalancer": True,
     })
 
 
@@ -76,6 +83,7 @@ def appnode(kit):
             rotate=10,
             interval="weekly",
         ),
+        "iptables.appnode": True,
     })
 
 
@@ -122,17 +130,24 @@ def dbserver(kit):
                  method="md5",
             ),
         ],
+        "iptables.dbserver": True,
+        "iptables.pgsql_port": "{{ deploymachine_settings.PGSQL_PORT }}",
      })
 
 
 def broker(kit):
     base(kit)
     kit.include_recipe("rabbitmq")
-
+    kit.update_config({
+        "iptables.broker": True,
+        "iptables.rabbitmq_port": "{{ deploymachine_settings.RABBITMQ_PORT }}",
+    })
 
 def cachenode(kit):
     base(kit)
     kit.include_recipe("redis")
     kit.update_config({
         "redis.listen": True,
+        "iptables.cachenode": True,
+        "iptables.redis_port": "{{ deploymachine_settings.REDIS_PORT }}",
     })

@@ -1,11 +1,11 @@
-
 from kokki import Directory, File, Template
 
 
 Directory("{0}gunicorn/".format(env.config.deploy_home),
-    mode = 0755,
-    owner = "deploy",
-    action = "create")
+    mode=0755,
+    owner="deploy",
+    action="create")
+
 
 for site in env.config.gunicorn.sites:
     File("{0}gunicorn/{1}.conf".format(env.config.deploy_home, site["name"]),
@@ -18,6 +18,6 @@ for site in env.config.gunicorn.sites:
                  "virtualenvs_root": env.config.virtualenvs_root,
              },
          ),
-         owner = "root",
-         group = "root",
-         mode = 0644)
+         owner="root",
+         group="root",
+         mode=0644)
