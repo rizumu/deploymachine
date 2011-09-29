@@ -29,3 +29,10 @@ File("/etc/iptables.up.rules",
         "iptables/iptables.up.rules.j2",
         variables=get_openstack_ips()
     ))
+
+File("/etc/network/if-pre-up.d/iptables",
+    owner="root",
+    group="root",
+    mode=0644,
+    content=Template("supervisor/iptables.j2")
+)
