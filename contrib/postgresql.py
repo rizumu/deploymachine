@@ -58,11 +58,10 @@ def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
     local("psql -d template_postgis -c 'GRANT ALL ON geometry_columns TO PUBLIC;' -U postgres")
     local("psql -d template_postgis -c 'GRANT ALL ON geography_columns TO PUBLIC;' -U postgres")
     local("psql -d template_postgis -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;' -U postgres")
-    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
     # Create database user and database
     local("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname))
-    local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password))
+    local("psql -d template_postgis --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password))
     local("createdb  -E UTF8 --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
 
