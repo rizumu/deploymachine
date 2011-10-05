@@ -33,8 +33,12 @@ def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
 
         ALTER ROLE <username> LOGIN;
 
+    To upgrade an existing pg install, do something like this:
+
+        sudo -u postgres pg_upgrade -d /var/lib/postgres-old/data -D /var/lib/postgres/data -b /tmp/usr/bin/ -B /usr/bin
     """
-    raise NotImplementedError()  # needs a test run
+    raise NotImplementedError()  # this is just documentation for now
+    local("sudo su postgres && createuser yourusername")
 
     # Initialize database
     local("initdb -D /usr/local/pgsql/data")
@@ -46,19 +50,20 @@ def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
     # load the PostGIS SQL routines, enabling users to alter spatial tables.
     local("createdb -E UTF8 template_postgis -T template0")
     local("createlang -d template_postgis plpgsql")
-    local("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\"")
+    local("psql -d postgres -c \"UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';\" -U postgres")
 
     # check postgis path for your distro
-    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/postgis.sql")
-    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/spatial_ref_sys.sql")
-    local("psql -d template_postgis -c 'GRANT ALL ON geometry_columns TO PUBLIC;'")
-    local("psql -d template_postgis -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;'")
+    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/postgis.sql -U postgres")
+    local("psql -d template_postgis -f $(pg_config --sharedir)/contrib/postgis-1.5/spatial_ref_sys.sql -U postgres")
+    local("psql -d template_postgis -c 'GRANT ALL ON geometry_columns TO PUBLIC;' -U postgres")
+    local("psql -d template_postgis -c 'GRANT ALL ON geography_columns TO PUBLIC;' -U postgres")
+    local("psql -d template_postgis -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;' -U postgres")
     local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
     # Create database user and database
     local("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname))
     local("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password))
-    local("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname))
+    local("createdb  -E UTF8 --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
 
 def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
@@ -69,7 +74,7 @@ def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
     """
     sudo("createuser --no-superuser --no-createdb --no-createrole {0}".format(dbname), user="postgres")
     sudo("psql --command \"ALTER USER {0} WITH PASSWORD '{1}';\"".format(dbname, password), user="postgres")
-    sudo("createdb --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
+    sudo("createdb -E UTF8 --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
 
 
 def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis"):
@@ -116,5 +121,5 @@ def pg_dbrestore_prod(dbname, dump_filename, dbtemplate="template_postgis"):
     with fab_settings(warn_only=True):
         with cd(settings.DBDUMPS_ROOT):
             sudo("dropdb {0}".format(dbname), user="postgres")
-            sudo("createdb --template={0} --owner={1} {1}".format(dbtemplate, dbname), user="postgres")
+            sudo("createdb -E UTF8 --template={0} --owner={1} {1}".format(dbtemplate, dbname), user="postgres")
             sudo("pg_restore --dbname={0} {1}{2}".format(dbname, settings.DBDUMPS_ROOT, dump_filename), user="postgres")
