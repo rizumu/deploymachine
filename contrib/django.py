@@ -7,7 +7,7 @@ from ssl import SSLError
 
 from fabric.api import local, put, sudo
 from fabric.colors import green, red
-from fabric.contrib.files import upload_template
+from fabric.contrib.files import append, contains, exists, upload_template
 from jinja2 import Environment, PackageLoader
 
 from deploymachine.conf import settings
@@ -24,22 +24,26 @@ def staticfiles(site=None):
         sites = [site["name"] for site in settings.SITES]
     else:
         sites = [site]
+
     for site in sites:
-        venv("python manage.py collectstatic --noinput --verbosity=0", site)
-        venv("python manage.py compress --verbosity=0", site)
-        try:
-            venv("python manage.py syncstatic", site)
-        except (SSLError, CannotSendRequest):
-            print(red("syncstatic failed 1 time for {0}".format(site)))
-            sleep(30)
+        if not contains("{0}{1}".format(settings.SITES_ROOT, "static.log"), site):
+            venv("python manage.py collectstatic --noinput --verbosity=0", site)
+            venv("python manage.py compress --verbosity=0", site)
             try:
                 venv("python manage.py syncstatic", site)
             except (SSLError, CannotSendRequest):
-                print(red("syncstatic failed 2 times for {0}".format(site)))
+                print(red("syncstatic failed 1 time for {0}".format(site)))
                 sleep(30)
-                venv("python manage.py syncstatic", site)
-        print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
-
+                try:
+                    venv("python manage.py syncstatic", site)
+                except (SSLError, CannotSendRequest):
+                    print(red("syncstatic failed 2 times for {0}".format(site)))
+                    sleep(30)
+                    venv("python manage.py syncstatic", site)
+            append("{0}{1}".format(settings.SITES_ROOT, "static.log"), site)
+            print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
+    run("rm {0}{1}".format(settings.SITES_ROOT, "static.log"))
+    print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
 
 def generate_settings_main(connection, site=None):
     """

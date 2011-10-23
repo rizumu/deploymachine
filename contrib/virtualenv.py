@@ -1,13 +1,13 @@
 import os
 
 from fabric.api import cd, env, lcd, local, sudo, put, run
-from fabric.contrib.files import append, exists
+from fabric.contrib.files import append, contains, exists
 
 from deploymachine.conf import settings
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
 
 
-def generate_virtualenv(connection, site=None, python_bin="python", force_rebuild=False):
+def generate_virtualenv(connection, site=None, python_bin="python"):
     """
     Creates or rebuilds a site's virtualenv.
     @@@TODO muliple envs for one site, aka predictable rollbacks.
@@ -20,16 +20,18 @@ def generate_virtualenv(connection, site=None, python_bin="python", force_rebuil
     else:
         sites = [site]
     for site in sites:
-        if connection == "dev" and (force_rebuild or not exists("{0}.{1}_build_successful".format(settings.SITES_ROOT, site))):
+        if connection == "dev" and not contains("{0}{1}".format(settings.SITES_ROOT, "virtualenv_dev.log"), site):
+            log_name = "virtualenv_dev.log"
             local("rm -rf {0}{1}/".format(settings.VIRTUALENVS_LOCAL_ROOT, site))
             with lcd(settings.VIRTUALENVS_LOCAL_ROOT):
                 local("virtualenv --no-site-packages --distribute --python={0} {1}".format(python_bin, site))
             with lcd("{0}{1}".format(settings.SITES_LOCAL_ROOT, site)):
                 local("ln -sf {0}{1}/lib/python{2}/site-packages".format(settings.VIRTUALENVS_LOCAL_ROOT, site, settings.PYTHON_VERSION))
             local("echo 'cd {0}{1}/{1}' >> {2}{1}/bin/postactivate".format(settings.SITES_LOCAL_ROOT, site, settings.VIRTUALENVS_LOCAL_ROOT))
-            pip_requirements("dev", site)
             symlink_packages("dev", site)
-        elif connection == "prod" and (force_rebuild or not exists("{0}.{1}_build_successful".format(settings.SITES_ROOT, site))):
+            pip_requirements("dev", site)
+        elif connection == "prod" and not contains("{0}{1}".format(settings.SITES_ROOT, "virtualenv_prod.log"), site):
+            log_name = "virtualenv_prod.log"
             run("rm -rf {0}{1}/".format(settings.VIRTUALENVS_ROOT, site))
             with cd(settings.VIRTUALENVS_ROOT):
                 run("virtualenv --no-site-packages --distribute {0}".format(site))
@@ -40,9 +42,12 @@ def generate_virtualenv(connection, site=None, python_bin="python", force_rebuil
                    "{0}{1}/{1}".format(settings.SITES_ROOT, site,))
             symlink_packages("prod", site)
             pip_requirements("prod", site)
-            run("touch {0}.{1}_build_successful".format(settings.SITES_ROOT, site))
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
+        append("{0}{1}".format(settings.SITES_ROOT, log_name), site)
+        print(green("sucessfully built virtualenv for for {0}".format(site)))
+    run("rm {0}{1}".format(settings.SITES_ROOT, "virtualenv.log"))
+    print(green("sucessfully built virtualenvs for all sites!".format(site)))
 
 
 def symlink_packages(connection, site=None):
