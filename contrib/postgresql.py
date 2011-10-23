@@ -5,7 +5,7 @@ from fabric.api import settings as fab_settings
 
 from deploymachine.conf import settings
 
-from providers.openstack_api import openstack_get_ips
+from deploymachine.contrib.openstack_api import openstack_get_ips
 
 
 def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):

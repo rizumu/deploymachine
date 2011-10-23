@@ -3,7 +3,7 @@ from fabric.api import cd, env, local, sudo
 
 from deploymachine.conf import settings
 from deploymachine.contrib.django import staticfiles, settings_local
-from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
+from deploymachine.contrib.git import git_pull, git_pull_deploymachine
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.fab import venv, venv_local
 

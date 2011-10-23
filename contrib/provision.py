@@ -7,8 +7,8 @@ from fabric.network import connect
 from fabric.utils import abort
 
 from deploymachine.conf import settings
-from deploymachine.contrib.providers.openstack_api import openstack_get_ips
-from deploymachine.contrib.scm.puppet import is_puppetmaster
+from deploymachine.contrib.openstack_api import openstack_get_ips
+from deploymachine.contrib.puppet import is_puppetmaster
 from deploymachine.contrib.users import useradd
 
 

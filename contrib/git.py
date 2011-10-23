@@ -1,7 +1,6 @@
 from fabric.api import env, cd, lcd, local
 
 from deploymachine.conf import settings
-from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.fab import venv, venv_local
 
 
@@ -22,7 +21,6 @@ def git_pull(connection, site=None):
             venv_local("git pull", site)
         elif connection == "prod":
             venv("git pull", site)
-            supervisor("gunicorn-{0}".format(site))
         else:
             print("Bad connection type. Use ``dev`` or ``prod``.")
 

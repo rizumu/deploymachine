@@ -2,8 +2,8 @@ from fabric.api import env, sudo
 from fabric.contrib.files import upload_template
 
 from deploymachine.conf import settings
-from providers.openstack_api import openstack_get_ips
-from deploymachine.contrib.scm.kokki import kokki
+from deploymachine.contrib.kokki import kokki
+from deploymachine.contrib.openstack_api import openstack_get_ips
 
 
 def iptables():

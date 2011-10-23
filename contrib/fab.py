@@ -2,7 +2,7 @@ from os.path import join
 
 from fabric.api import cd, env, run, lcd, local
 
-from providers.openstack_api import openstack_get_ips
+from deploymachine.contrib.openstack_api import openstack_get_ips
 from deploymachine.conf import settings
 
 

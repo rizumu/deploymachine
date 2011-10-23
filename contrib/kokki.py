@@ -4,10 +4,10 @@ from fabric.api import cd, env, local, sudo, put
 from fabric.contrib.files import upload_template
 
 from deploymachine.conf import settings
-from deploymachine.contrib.dvcs.git import git_pull_deploymachine
-from deploymachine.contrib.providers.openstack_api import openstack_get_ips
+from deploymachine.contrib.git import git_pull_deploymachine
+from deploymachine.contrib.openstack_api import openstack_get_ips
 from deploymachine.contrib.supervisor import supervisor
-from deploymachine.contrib.webservers.nginx import reload_nginx
+from deploymachine.contrib.nginx import reload_nginx
 
 
 def kokki(role, restart=False):

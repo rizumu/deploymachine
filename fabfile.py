@@ -8,12 +8,12 @@ from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
 from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
     broker, cachenode, dbserver, dbappbalancer, loadbalancer)
-from deploymachine.contrib.providers.openstack_api import (openstack_list, openstack_boot,
+from deploymachine.contrib.openstack_api import (openstack_list, openstack_boot,
     openstack_bootem, openstack_kill, openstack_sudokillem)
 from deploymachine.contrib.credentials import ssh, gitconfig
 from deploymachine.contrib.django import (staticfiles, generate_settings_local,
     generate_settings_main, generate_urls_main, syncdb, test)
-from deploymachine.contrib.dvcs.git import git_pull, git_pull_deploymachine
+from deploymachine.contrib.git import git_pull, git_pull_deploymachine
 from deploymachine.contrib.dnsimple import (change_loadbalancer_ip, change_subdomain_container,
     change_arecord_ttl)
 from deploymachine.contrib.iptables import iptables
@@ -22,13 +22,13 @@ from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninsta
 from deploymachine.contrib.provision import provision
 from deploymachine.contrib.postgresql import (pg_install_local, pg_dblaunch, pg_dbrestore,
     pg_dbrestore_local, pg_dbrestore_prod)
-from deploymachine.contrib.scm.kokki import kokki
-from deploymachine.contrib.scm.puppet import is_puppetmaster
+from deploymachine.contrib.kokki import kokki
+from deploymachine.contrib.puppet import is_puppetmaster
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.users import useradd
 from deploymachine.contrib.virtualenv import generate_virtualenv, symlink_packages
-from deploymachine.contrib.webservers.nginx import ensite, dissite, reload_nginx, reload_nginx
-from deploymachine.contrib.webservers.maintenance_mode import splash_on, splash_off
+from deploymachine.contrib.nginx import ensite, dissite, reload_nginx, reload_nginx
+from deploymachine.contrib.maintenance_mode import splash_on, splash_off
 
 # define domain specific fabric methods in fabfile_local.py, not tracked by git.
 try:
