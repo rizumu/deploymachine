@@ -24,6 +24,7 @@ from deploymachine.contrib.postgresql import (pg_install_local, pg_dblaunch, pg_
     pg_dbrestore_local, pg_dbrestore_prod)
 from deploymachine.contrib.kokki import kokki
 from deploymachine.contrib.puppet import is_puppetmaster
+from deploymachine.contrib.redis import redis_flushdb, redis_keys_all, redis_keys_search
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.users import useradd
 from deploymachine.contrib.virtualenv import generate_virtualenv, symlink_packages

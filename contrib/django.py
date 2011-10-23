@@ -5,7 +5,7 @@ import sys
 from httplib import CannotSendRequest
 from ssl import SSLError
 
-from fabric.api import local, put, sudo
+from fabric.api import local, put, run, sudo
 from fabric.colors import green, red
 from fabric.contrib.files import append, contains, exists, upload_template
 from jinja2 import Environment, PackageLoader
@@ -43,7 +43,9 @@ def staticfiles(site=None):
             append("{0}{1}".format(settings.SITES_ROOT, "static.log"), site)
             print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
     run("rm {0}{1}".format(settings.SITES_ROOT, "static.log"))
+    local("fab cachenode redis_flushdb:0")
     print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
+
 
 def generate_settings_main(connection, site=None):
     """
