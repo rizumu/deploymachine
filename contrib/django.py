@@ -14,7 +14,7 @@ from deploymachine.conf import settings
 from deploymachine.contrib.fab import venv, venv_local
 
 
-def staticfiles(site=None):
+def staticfiles(site=None, wipe=False):
     """
     Collect, compress, and sync the static media files to rackspace.
     Usage:
@@ -25,21 +25,24 @@ def staticfiles(site=None):
     else:
         sites = [site]
 
+    if wipe:
+        wipe = "--wipe"
+
     for site in sites:
         if not contains("{0}{1}".format(settings.SITES_ROOT, "static.log"), site):
             venv("python manage.py collectstatic --noinput --verbosity=0", site)
             venv("python manage.py compress --verbosity=0", site)
             try:
-                venv("python manage.py syncstatic", site)
+                venv("python manage.py syncstatic {0}".format(wipe), site)
             except (SSLError, CannotSendRequest):
                 print(red("syncstatic failed 1 time for {0}".format(site)))
                 sleep(30)
                 try:
-                    venv("python manage.py syncstatic", site)
+                    venv("python manage.py syncstatic {0}".format(wipe), site)
                 except (SSLError, CannotSendRequest):
                     print(red("syncstatic failed 2 times for {0}".format(site)))
                     sleep(30)
-                    venv("python manage.py syncstatic", site)
+                    venv("python manage.py syncstatic {0}".format(wipe), site)
             append("{0}{1}".format(settings.SITES_ROOT, "static.log"), site)
             print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
     run("rm {0}{1}".format(settings.SITES_ROOT, "static.log"))
