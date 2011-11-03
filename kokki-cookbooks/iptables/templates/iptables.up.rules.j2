@@ -20,7 +20,7 @@
 -A INPUT -i eth1 -s {{ loadbalancer_internal_ip }} -p tcp --dport {{ env.config.iptables.munin_node_port }} -j ACCEPT
 {% endif %}
 
-{% if env.config.iptables.appserver %}
+{% if env.config.iptables.appnode %}
 # Allows HTTP and HTTPS connections from ports application runs on
 {% for port in env.config.iptables.public_ports %}
 -A INPUT -i eth1 -s {{ loadbalancer_internal_ip }} -p tcp --dport {{ port }} -j ACCEPT

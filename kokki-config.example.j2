@@ -47,6 +47,7 @@ def base(kit):
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
 
+
 def loadbalancer(kit):
     base(kit)
     kit.include_recipe("munin.master", "nginx.deploymachine")

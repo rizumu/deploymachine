@@ -11,7 +11,7 @@ def get_openstack_ips():
         if "balancer" in server.name:  # matches loadbalancer, appbalancer, dbappbalancer
             ip_addresses["loadbalancer_internal_ip"] = server.addresses["private"][0]
         if "app" in server.name:  # matches appnode, appbalancer, dbappbalancer
-            ip_addresses["appnode_internal_ips"] = server.addresses["private"][0]
+            ip_addresses["appnode_internal_ips"] = server.addresses["private"]
     return ip_addresses
 
 
@@ -34,5 +34,5 @@ File("/etc/network/if-pre-up.d/iptables",
     owner="root",
     group="root",
     mode=0644,
-    content=Template("supervisor/iptables.j2")
+    content=Template("iptables/iptables.j2")
 )
