@@ -42,8 +42,10 @@ def base(kit):
         "iptables.ssh_port": "{{ deploymachine_settings.SSH_PORT }}",
         "iptables.munin_node_port": "{{ deploymachine_settings.MUNIN_NODE_PORT }}",
         "iptables.monit_port": "{{ deploymachine_settings.MONIT_PORT }}",
+        "newrelic.license_key": "{{ deploymachine_settings.NEWRELIC_LICENSE_KEY }}",
+        "newrelic.application_name": "{{ deploymachine_settings.NEWRELIC_APPLICATION_NAME }}",
     })
-    kit.include_recipe("limits", "monit", "sysadmin", "apt", "munin.node", "iptables") # "sendmail",
+    kit.include_recipe("limits", "monit", "sysadmin", "apt", "newrelic", "munin.node", "iptables") # "sendmail",
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
 
@@ -144,9 +146,10 @@ def broker(kit):
         "iptables.rabbitmq_port": "{{ deploymachine_settings.RABBITMQ_PORT }}",
     })
 
+
 def cachenode(kit):
     base(kit)
-    kit.include_recipe("redis")
+    kit.include_recipe("redis")#"inspircd")
     kit.update_config({
         "redis.listen": True,
         "iptables.cachenode": True,

@@ -2,6 +2,9 @@
 
 import os
 import sys
+import newrelic.agent
+
+newrelic.agent.initialize("{{ env.config.newrelic.ini_file }}")
 
 def numCPUs():
     if not hasattr(os, "sysconf"):
