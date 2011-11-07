@@ -45,8 +45,8 @@ def staticfiles(site=None, wipe=False):
                     venv("python manage.py syncstatic {0}".format(wipe), site)
             append("{0}{1}".format(settings.SITES_ROOT, "static.log"), site)
             print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
+        local("fab cachenode redis_flushdb:0")
     run("rm {0}{1}".format(settings.SITES_ROOT, "static.log"))
-    local("fab cachenode redis_flushdb:0")
     print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
 
 
