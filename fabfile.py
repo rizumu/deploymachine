@@ -23,6 +23,7 @@ from deploymachine.contrib.provision import provision
 from deploymachine.contrib.postgresql import (pg_install_local, pg_dblaunch, pg_dbrestore,
     pg_dbrestore_local, pg_dbrestore_prod)
 from deploymachine.contrib.kokki import kokki
+from deploymachine.contrib.newrelic import newrelic
 from deploymachine.contrib.puppet import is_puppetmaster
 from deploymachine.contrib.redis import redis_flushdb, redis_keys_all, redis_keys_search
 from deploymachine.contrib.supervisor import supervisor
