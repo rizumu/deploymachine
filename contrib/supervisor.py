@@ -1,3 +1,4 @@
+import time
 from fabric.api import sudo
 
 from deploymachine.conf import settings
@@ -17,4 +18,5 @@ def supervisor(process=None):
     else:
         sudo("supervisorctl restart {0}".format(process))
     if hasattr(settings, "NEWRELIC_PING_URL"):
+        time.sleep(10)
         newrelic("enable")
