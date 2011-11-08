@@ -34,6 +34,7 @@ def staticfiles(site=None, wipe=False):
             print(yellow(time.ctime()))
             venv("python manage.py collectstatic --noinput --verbosity=0", site)
             venv("python manage.py compress --verbosity=0", site)
+            local("fab cachenode redis_flushdb:0")
             try:
                 venv("python manage.py syncstatic {0}".format(wipe), site)
             except (SSLError, CannotSendRequest):
@@ -48,7 +49,6 @@ def staticfiles(site=None, wipe=False):
             append("{0}{1}".format(settings.SITES_ROOT, "static.log"), site)
             print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
             print(green(time.ctime()))
-        local("fab cachenode redis_flushdb:0")
     run("rm {0}{1}".format(settings.SITES_ROOT, "static.log"))
     if len(sites) > 1:
         print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
