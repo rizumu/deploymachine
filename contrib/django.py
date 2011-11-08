@@ -1,12 +1,13 @@
 import deploymachine
 import os
 import sys
+import time
 
 from httplib import CannotSendRequest
 from ssl import SSLError
 
 from fabric.api import local, put, run, sudo
-from fabric.colors import green, red
+from fabric.colors import green, red, yellow
 from fabric.contrib.files import append, contains, exists, upload_template
 from jinja2 import Environment, PackageLoader
 
@@ -30,6 +31,7 @@ def staticfiles(site=None, wipe=False):
 
     for site in sites:
         if not contains("{0}{1}".format(settings.SITES_ROOT, "static.log"), site):
+            print(yellow(time.ctime()))
             venv("python manage.py collectstatic --noinput --verbosity=0", site)
             venv("python manage.py compress --verbosity=0", site)
             try:
@@ -45,9 +47,11 @@ def staticfiles(site=None, wipe=False):
                     venv("python manage.py syncstatic {0}".format(wipe), site)
             append("{0}{1}".format(settings.SITES_ROOT, "static.log"), site)
             print(green("sucessfully collected/compressed/synced staticfiles for {0}".format(site)))
+            print(green(time.ctime()))
         local("fab cachenode redis_flushdb:0")
     run("rm {0}{1}".format(settings.SITES_ROOT, "static.log"))
-    print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
+    if len(sites) > 1:
+        print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
 
 
 def generate_settings_main(connection, site=None):
