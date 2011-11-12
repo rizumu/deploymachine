@@ -93,7 +93,7 @@ def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis")
         local("pg_restore --dbname={0} {1}".format(dbname, path_to_dump_file))
 
 
-def pg_dbrestore(dbname, dbtemplate="template_postgis"):
+def pg_dbrestore(dbname, dbtemplate="template_postgis", keep_tmp=True):
     """
     Usage:
         fab dbserver pg_dbrestore:scenemachine
@@ -111,7 +111,8 @@ def pg_dbrestore(dbname, dbtemplate="template_postgis"):
         dump_filename))
     pg_dbrestore_local(dbname, "/tmp/{0}".format(dump_filename), dbtemplate="template_postgis")
     sudo("rm {0}".format(remote_dump_file))
-    local("rm /tmp/{0}".format(dump_filename))
+    if keep_tmp:
+        local("rm /tmp/{0}".format(dump_filename))
 
 
 def pg_dbrestore_prod(dbname, dump_filename, dbtemplate="template_postgis"):
