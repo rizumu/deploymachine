@@ -28,7 +28,7 @@ def pip_requirements(connection, site=None):
         print(green("finished pip install for {0}".format(site)))
 
 
-def pip_install(connection, repo, package, path=None, version=None, site=None):
+def pip_install(connection, repo, package, path=None, version=None, site=None, nodeps=False):
     """
     Install one package for a project, or all projects.
     Usage:
@@ -55,10 +55,12 @@ def pip_install(connection, repo, package, path=None, version=None, site=None):
     else:
         sites = [site]
     for site in sites:
+        if nodeps:
+            nodeps = "--no-dependencies"
         if connection == "dev":
-            venv_local("pip install --ignore-installed {0}".format(fmt_egg), site)
+            venv_local("pip install --ignore-installed {0} {1}".format(nodeps, fmt_egg), site)
         elif connection == "prod":
-            venv("pip install --ignore-installed {0}".format(fmt_egg), site)
+            venv("pip install --ignore-installed {0} {1}".format(nodeps, fmt_egg), site)
         else:
             print(red("Bad connection type. Use ``dev`` or ``prod``."))
 
