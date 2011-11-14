@@ -55,12 +55,13 @@ def pip_install(connection, repo, package, path=None, version=None, site=None, n
     else:
         sites = [site]
     for site in sites:
+        args = ""
         if nodeps:
-            nodeps = "--no-dependencies"
+            args += "--no-dependencies"
         if connection == "dev":
-            venv_local("pip install --ignore-installed {0} {1}".format(nodeps, fmt_egg), site)
+            venv_local("pip install --ignore-installed {0} {1}".format(args, fmt_egg), site)
         elif connection == "prod":
-            venv("pip install --ignore-installed {0} {1}".format(nodeps, fmt_egg), site)
+            venv("pip install --ignore-installed {0} {1}".format(args, fmt_egg), site)
         else:
             print(red("Bad connection type. Use ``dev`` or ``prod``."))
 
