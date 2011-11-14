@@ -3,7 +3,7 @@ __description__ = "New Relic settings"
 __config__ = {
     "newrelic.version": dict(
         description="Version of newrelic agent to install from pypi",
-        default="0.5.58.122",
+        default="1.0.2.130",
     ),
     "newrelic.license_key": dict(
         description="License key for newrelic agent",
