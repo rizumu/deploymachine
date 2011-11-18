@@ -65,7 +65,7 @@ Ongoing Deployments
 To add a new app node to the mix follow this three step process::
 
     $ fab openstack_boot appnode2
-    $ fab provision
+    $ fab root provision
     $ fab appnode launch
     $ fab kokki:loadbalancer
 
