@@ -48,13 +48,12 @@ def provision():
     run("sed -i 's/universe/universe multiverse/g' /etc/apt/sources.list")
     run("/usr/sbin/locale-gen en_US.UTF-8 && /usr/sbin/update-locale LANG=en_US.UTF-8")
     run("apt-get update && apt-get -y dist-upgrade")
-    run("apt-get install -y {0}".format(" ".join(settings.BASE_PACKAGES)))
-    run("pip install meld3")  # https://bugs.launchpad.net/ubuntu/+source/supervisor/+bug/777862
-    # vcprompt for system
-    with cd("/tmp/"):
-        run("git clone git://github.com/djl/vcprompt.git")
-    with cd("/tmp/vcprompt/"):
-        run("python setup.py install && rm -rf /tmp/vcprompt/")
+    run("apt-get install -y {0}".format(" ".join(settings.BASE_OS_PACKAGES)))
+    # python/pip setup
+    run("wget http://python-distribute.org/distribute_setup.py && python distribute_setup.py")
+    run("easy_install pip")
+    run("pip install {0}".format(" ".join(settings.BASE_PYTHON_PACKAGES)))
+    run("pip install meld3==0.6.7")  # https://bugs.launchpad.net/ubuntu/+source/supervisor/+bug/777862
     # deploy user setup
     run("groupadd wheel && groupadd sshers")
     run("cp /etc/sudoers /etc/sudoers.bak")
