@@ -24,11 +24,12 @@ def provision():
         @@@ Figure out why this occasionaly happens and prevent it.
 
     """
+    # @@@ Check if the server is still in the BUILD stage
     # preliminary testing to determine if machine can and should be provisioned
     if env.user != "root":
         abort("Must provision as root: ``fab root provision``")
     if settings.SSH_PORT == "22":
-        abort("Must change ``settings.SSH_PORT`` to something other than ``22``")
+        abort("Security Error: change ``settings.SSH_PORT`` to something other than ``22``")
     try:
         client = paramiko.SSHClient()
         client.load_system_host_keys()
