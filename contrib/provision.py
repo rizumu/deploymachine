@@ -65,14 +65,15 @@ def provision():
     if "kokki" in settings.CONFIGURATORS:
         run("pip install git+git://github.com/samuel/kokki#egg=kokki \
                          git+git://github.com/jacobian/openstack.compute#egg=openstack_compute")
-    if "chef" or "puppet" in settings.CONFIGURATORS:
+    if "chef" in settings.CONFIGURATORS:
+        raise(NotImplementedError)
         run("apt-get install -y ruby-dev rubygems rdoc")
-        if "chef" in settings.CONFIGURATORS:
-            run("gem install chef")
-        if "puppet" in settings.CONFIGURATORS:
-            if is_puppetmaster(public_ip=env.host):
-                run("apt-get install -y puppetmaster")
-            run("gem install puppet")
+        run("gem install chef")
+    if "puppet" in settings.CONFIGURATORS:
+        raise(NotImplementedError)
+        if is_puppetmaster(public_ip=env.host):
+            run("apt-get install -y puppetmaster")
+        run("gem install puppet")
     run("chown -R {0}:{0} /home/{0}/".format("deploy"))
     # firewall + prevent root login
     upload_template("templates/iptables.up.rules-provision.j2", "/etc/iptables.up.rules",
