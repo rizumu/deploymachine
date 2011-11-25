@@ -1,7 +1,7 @@
 from os.path import join
 
 from fabric.api import put, run
-from fabric.contrib.files import append
+from fabric.contrib.files import append, upload_template
 
 from deploymachine.conf import settings
 
@@ -31,9 +31,8 @@ def gitconfig():
     """
     Add or update the machines git config with your private gihub settings.
     """
-    run("> /home/deploy/.gitconfig")
-    append("/home/deploy/.gitconfig", "\
-[github]\
-    user = {0}\
-    token = {1}\
-".format(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
+    upload_template("templates/gitconfig.j2", join(settings.DEPLOY_HOME, ".gitconfig"),
+                    context={
+                        "GITHUB_USERNAME": settings.GITHUB_USERNAME,
+                        "GITHUB_TOKEN": settings.GITHUB_TOKEN,
+                    }, use_jinja=True)

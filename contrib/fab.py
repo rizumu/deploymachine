@@ -46,13 +46,13 @@ def dbserver():
 
 
 def appbalancer():
-    "Combined ``loadbalancer`` and ``appnode`` environment specific settings."
-    env_base(["appnode", "loadbalancer"])
+    "Combined ``loadbalancer``, ``cachenode``, ``appnode`` environment specific settings."
+    env_base(["appnode", "loadbalancer", "cachenode"])
 
 
 def dbappbalancer():
-    "Combined ``loadbalancer``, ``appnode``, ``dbserver`` environment specific settings."
-    env_base(["appnode", "dbserver", "loadbalancer"])
+    "Combined ``loadbalancer``, ``appnode``, ``cachenode``, ``dbserver`` environment specific settings."
+    env_base(["appnode", "dbserver", "loadbalancer", "cachenode"])
 
 
 def venv(command, site):
