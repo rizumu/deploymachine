@@ -28,7 +28,7 @@ from deploymachine.contrib.kokki import bootstrap_kokki, kokki
 from deploymachine.contrib.newrelic import newrelic
 from deploymachine.contrib.puppet import bootstrap_puppet, is_puppetmaster
 from deploymachine.contrib.redis import redis_flushdb, redis_keys_all, redis_keys_search
-from deploymachine.contrib.salt import bootstrap_salt, is_saltmaster, upload_saltstates
+from deploymachine.contrib.salt import is_saltmaster, upload_saltstates, highstate
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.users import useradd
 from deploymachine.contrib.virtualenv import generate_virtualenv, symlink_packages
@@ -68,6 +68,7 @@ def launch(dbtemplate="template_postgis"):
         fab cachenode launch
         fab appbalancer launch
     """
+    raise NotImplementedError()
     if exists("{0}.launched".format(settings.DEPLOY_HOME)):
         print(green("``{0}`` has already been launched, skipping".format(env.host)))
         return
@@ -93,7 +94,7 @@ def launch(dbtemplate="template_postgis"):
 
     # software configuration management
     if "salt" == CONFIGURATOR:
-        bootstrap_salt()
+        pass
 
     if "kokki" == CONFIGURATOR:
         bootstrap_kokki()

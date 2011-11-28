@@ -30,3 +30,8 @@ def bootstrap_ubuntu(action="install"):
     run("/usr/sbin/locale-gen en_US.UTF-8 && /usr/sbin/update-locale LANG=en_US.UTF-8")
     run("apt-get update && apt-get -y dist-upgrade")
     run("apt-get install -y {0}".format(" ".join(BASE_UBUNTU_PACKAGES)))
+    bootstrap_salt()
+
+
+def bootstrap_salt():
+    raise NotImplementedError()

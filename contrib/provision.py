@@ -3,17 +3,16 @@ import os
 import paramiko
 
 from fabric.api import cd, env, local, run
+from fabric.api import run
 from fabric.colors import green, red, yellow
-from fabric.contrib.files import upload_template, sed, uncomment
+from fabric.contrib.files import exists
 from fabric.network import connect
 from fabric.utils import abort
 
 from deploymachine.conf import settings
-from deploymachine.contrib.openstack_api import openstack_get_ips
 from deploymachine.contrib.archlinux import bootstrap_archlinux
 from deploymachine.contrib.ubuntu import bootstrap_ubuntu
-from deploymachine.contrib.puppet import is_puppetmaster
-from deploymachine.contrib.salt import is_saltmaster, bootstrap_salt
+from deploymachine.contrib.salt import highstate
 from deploymachine.contrib.users import useradd
 
 
@@ -56,16 +55,15 @@ def provision():
     # permanently add server to the list of known hosts
     local("ssh {0}@{1} -o StrictHostKeyChecking=no &".format(env.user, env.host))
 
-    # upgrade system and install base packages
-    if settings.OPENSTACK_IMAGE == 55:
+    # upgrade distro and bootstrap salt
+    if exists("/etc/arch-release"):
         bootstrap_archlinux()
-
-    if settings.OPENSTACK_IMAGE == 115:
+    elif exists("/etc/debian_version") and "Ubuntu" in run("lsb_release -i"):
         bootstrap_ubuntu()
 
-    # @@@ salt should setup the firewall!
-    upload_template("templates/iptables.up.rules-provision.j2", "/etc/iptables.up.rules",
-                    context={"SSH_PORT": settings.SSH_PORT}, use_jinja=True)
-    sed("/etc/rc.conf", "syslog-ng network", "syslog-ng iptables network")
+    # setup deploy account manually until salt's ssh_auth state is figured out
+    run("groupadd sshers")
+    useradd("deploy")
 
-    bootstrap_salt()
+    # salt minions
+    highstate("'*'")

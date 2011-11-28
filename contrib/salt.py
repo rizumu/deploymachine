@@ -2,57 +2,22 @@ import os
 import time
 import openstack.compute
 
-from fabric.api import env, run, cd, sudo
-from fabric.contrib.files import contains, sed, uncomment
+from fabric.api import env, sudo
+from fabric.contrib.files import sed
 from fabric.contrib.project import rsync_project
 
+from deploymachine.conf import settings
 from deploymachine.contrib.openstack_api import openstack_get_ip
 from deploymachine.contrib.users import useradd
-from deploymachine.conf import settings
 
 
-def bootstrap_salt():
+def highstate(match="'*'"):
     """
-    Install salt from github, update the settings, and start the daemons.
+    run salt state.highstate for the given hosts
     """
-    # @@@ these commands are arch linux specific 'python2', 'rc.conf'
-    run("pacman -S --noconfirm rsync cython cython2 python2-jinja \
-                                python2-yaml python-m2crypto pycrypto zeromq")
-
-    run("git clone git://github.com/zeromq/pyzmq.git")
-    with cd("pyzmq"):
-        run("python2 setup.py install --optimize=1")
-
-    run("git clone git://github.com/saltstack/salt.git")
-    with cd("salt"):
-        run("python2 setup.py install --optimize=1")
-        run("cp pkg/arch/salt-* /etc/rc.d/ && chmod 755 /etc/rc.d/salt*")
-
-    upload_saltstates()
-
+    # @@@ Make smart enough so that a minion may trigger highstate on saltmaster
     if is_saltmaster(public_ip=env.host):
-        sed("/etc/rc.conf", "crond sshd", "crond sshd salt-master")
-        run("/etc/rc.d/salt-master start")
-
-    # setup all servers as minions, including the saltmaster
-    sed("/etc/rc.conf", "crond sshd", "crond sshd salt-minion")
-    sed("/etc/salt/minion", "\#master\: salt", "master: {0}".format(
-        openstack_get_ip(settings.SALTMASTER, ip_type="private")))
-    run("/etc/rc.d/salt-minion start")
-
-    if is_saltmaster(public_ip=env.host):
-        time.sleep(5)
-        run("salt-key -A")  # @@@ don't accept all!
-
-    run("/etc/rc.d/salt-master restart")
-    run("/etc/rc.d/salt-minion restart")
-
-    # setup deploy account manually until salt's ssh_auth state is figured out
-    run("groupadd sshers")
-    useradd("deploy")
-
-    if is_saltmaster(public_ip=env.host):
-        run("salt '*' state.highstate")
+        sudo("salt {0} state.highstate".format(match))
 
 
 def upload_saltstates():
@@ -61,9 +26,10 @@ def upload_saltstates():
     """
     if is_saltmaster(public_ip=env.host):
         # @@@ private (get saltstate directories from config)
-        # use `rsync_project` because `upload_project` fails
-        rsync_project(".salt-states.rsync", "/home/rizumu/www/lib/salt-states/", delete=True)
-        sudo("rsync -a --delete /home/deploy/.salt-states.rsync/ /srv/salt/ && chown -R root:root /srv/salt/")
+        # using `rsync_project` because `upload_project` fails for an unknown reason
+        rsync_project("/tmp/salt-states-rsync", settings.SALTSTATES_LOCAL_ROOT, delete=True)
+        sudo("rsync --recursive --links --times --compress --update --delete \
+                    /tmp/salt-states-rsync/ /srv/salt/ && chown -R root:root /srv/salt/")
 
 
 def is_saltmaster(public_ip=None, server_name=None):
