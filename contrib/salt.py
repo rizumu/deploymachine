@@ -34,7 +34,7 @@ def bootstrap_salt():
         sed("/etc/rc.conf", "crond sshd", "crond sshd salt-master")
         run("/etc/rc.d/salt-master start")
 
-    # all servers are minions, including the saltmaster
+    # setup all servers as minions, including the saltmaster
     sed("/etc/rc.conf", "crond sshd", "crond sshd salt-minion")
     sed("/etc/salt/minion", "\#master\: salt", "master: {0}".format(
         openstack_get_ip(settings.SALTMASTER, ip_type="private")))
@@ -47,8 +47,9 @@ def bootstrap_salt():
     run("/etc/rc.d/salt-master restart")
     run("/etc/rc.d/salt-minion restart")
 
+    # setup deploy account manually until salt's ssh_auth state is figured out
     run("groupadd sshers")
-    useradd("deploy")  # allow login to deploy account until ssh salt state is figured out
+    useradd("deploy")
 
     if is_saltmaster(public_ip=env.host):
         run("salt '*' state.highstate")
@@ -61,8 +62,8 @@ def upload_saltstates():
     if is_saltmaster(public_ip=env.host):
         # @@@ private (get saltstate directories from config)
         # use `rsync_project` because `upload_project` fails
-        rsync_project(".salt-states.rsync", "/home/rizumu/www/lib/salt-states/")
-        sudo("cp -R .salt-states.rsync /srv/salt && chown -R root:root /srv/salt")
+        rsync_project(".salt-states.rsync", "/home/rizumu/www/lib/salt-states/", delete=True)
+        sudo("rsync -a --delete /home/deploy/.salt-states.rsync/ /srv/salt/ && chown -R root:root /srv/salt/")
 
 
 def is_saltmaster(public_ip=None, server_name=None):
