@@ -5,7 +5,7 @@ import paramiko
 from fabric.api import cd, env, local, run
 from fabric.api import run
 from fabric.colors import green, red, yellow
-from fabric.contrib.files import exists
+from fabric.contrib.files import contains
 from fabric.network import connect
 from fabric.utils import abort
 
@@ -56,9 +56,9 @@ def provision():
     local("ssh {0}@{1} -o StrictHostKeyChecking=no &".format(env.user, env.host))
 
     # upgrade distro and bootstrap salt
-    if exists("/etc/arch-release"):
+    if contains("Arch Linux", "/etc/issue"):
         bootstrap_archlinux()
-    elif exists("/etc/debian_version") and "Ubuntu" in run("lsb_release -i"):
+    elif contains("Ubuntu", "/etc/issue"):
         bootstrap_ubuntu()
 
     # setup deploy account manually until salt's ssh_auth state is figured out
