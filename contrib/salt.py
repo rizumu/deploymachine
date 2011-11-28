@@ -2,7 +2,7 @@ import os
 import time
 import openstack.compute
 
-from fabric.api import env, run, cd
+from fabric.api import env, run, cd, sudo
 from fabric.contrib.files import contains, sed, uncomment
 from fabric.contrib.project import rsync_project
 
@@ -28,8 +28,9 @@ def bootstrap_salt():
         run("python2 setup.py install --optimize=1")
         run("cp pkg/arch/salt-* /etc/rc.d/ && chmod 755 /etc/rc.d/salt*")
 
+    upload_saltstates()
+
     if is_saltmaster(public_ip=env.host):
-        rsync_project("/srv/salt", "/home/rizumu/www/lib/salt-states/", delete=True)
         sed("/etc/rc.conf", "crond sshd", "crond sshd salt-master")
         run("/etc/rc.d/salt-master start")
 
@@ -51,6 +52,17 @@ def bootstrap_salt():
 
     if is_saltmaster(public_ip=env.host):
         run("salt '*' state.highstate")
+
+
+def upload_saltstates():
+    """
+    Sync local salt-states to the saltmaster
+    """
+    if is_saltmaster(public_ip=env.host):
+        # @@@ private (get saltstate directories from config)
+        # use `rsync_project` because `upload_project` fails
+        rsync_project(".salt-states.rsync", "/home/rizumu/www/lib/salt-states/")
+        sudo("cp -R .salt-states.rsync /srv/salt && chown -R root:root /srv/salt")
 
 
 def is_saltmaster(public_ip=None, server_name=None):
