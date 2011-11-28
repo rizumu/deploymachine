@@ -7,8 +7,9 @@ COOKBOOK_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kokki
 def base(kit):
     kit.add_cookbook_path(COOKBOOK_PATH)
     kit.update_config({
+        "fabric_env": None,
         "openstack_compute": dict(username="{{ deploymachine_settings.OPENSTACK_USERNAME }}",
-                                  api_key="{{ deploymachine_settings.OPENSTACK_API_KEY }}",
+                                  api_key="{{ deploymachine_settings.OPENSTACK_APIKEY }}",
                                   servers={{ deploymachine_settings.OPENSTACK_SERVERS }}),
         "sendmail.default_email": "{{ deploymachine_settings.SENDMAIL_DEFAULT_EMAIL }}",
         "limits": [
@@ -45,14 +46,14 @@ def base(kit):
         "newrelic.license_key": "{{ deploymachine_settings.NEWRELIC_LICENSE_KEY }}",
         "newrelic.application_name": "{{ deploymachine_settings.NEWRELIC_APPLICATION_NAME }}",
     })
-    kit.include_recipe("limits", "monit", "sysadmin", "apt", "newrelic", "munin.node", "iptables") # "sendmail",
+    kit.include_recipe("apt", "limits", "sysadmin")#, "newrelic", "iptables") # "sendmail", monit!
     #logrotate, logwatch, icinga, heartbeat
     #hosts, iptables, locales, timezone, openntpd
 
 
 def loadbalancer(kit):
     base(kit)
-    kit.include_recipe("munin.master", "nginx.deploymachine")
+    #kit.include_recipe("nginx.deploymachine")
     kit.update_config({
         "munin.dbdir": "/var/lib/munin",
         {% if deploymachine_settings.MUNIN_CONTACTS %}
@@ -71,7 +72,7 @@ def loadbalancer(kit):
 
 def appnode(kit):
     base(kit)
-    kit.include_recipe("supervisor", "gunicorn.deploymachine")
+    #kit.include_recipe("supervisor", "gunicorn.deploymachine")
     kit.update_config({
         "python_version": "{{ deploymachine_settings.PYTHON_VERSION }}",
         "deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
@@ -93,13 +94,13 @@ def appnode(kit):
 def dbserver(kit):
     """ http://www.revsys.com/writings/postgresql-performance.html """
     base(kit)
-    kit.include_recipe("postgresql9.server", "postgresql-cloudfiles-backup")
+    #kit.include_recipe("postgresql9.server", "postgresql-cloudfiles-backup")
     kit.update_config({
         "cloudfiles.deploy_home": "{{ deploymachine_settings.DEPLOY_HOME }}",
         "cloudfiles.dbdumps_root": "{{ deploymachine_settings.DBDUMPS_ROOT }}",
         "cloudfiles.dbname": {% for dbname in deploymachine_settings.DATABASES.keys() %}"{{ dbname }}"{% endfor %},
         "cloudfiles.openstack_username": "{{ deploymachine_settings.OPENSTACK_USERNAME }}",
-        "cloudfiles.openstack_api_key": "{{ deploymachine_settings.OPENSTACK_API_KEY }}",
+        "cloudfiles.openstack_api_key": "{{ deploymachine_settings.OPENSTACK_APIKEY }}",
         "cloudfiles.openstack_dbdumps_container": "dbdumps",
         "cloudfiles.openstack_datacentre": "us",
         "cloudfiles.passphrase_for_dbdump": "{{ deploymachine_settings.PASSPHRASE_FOR_DBDUMP }}",
@@ -149,7 +150,7 @@ def broker(kit):
 
 def cachenode(kit):
     base(kit)
-    kit.include_recipe("redis")#"inspircd")
+    #kit.include_recipe("redis")#"inspircd")
     kit.update_config({
         "redis.listen": True,
         "iptables.cachenode": True,

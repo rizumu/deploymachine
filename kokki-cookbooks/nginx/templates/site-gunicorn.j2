@@ -50,6 +50,9 @@ server {
     location @maintenance {
         rewrite ^(.*)$ /maintenance.html break;
     }
+    #location /machine/ {
+    #    limit_req zone=machine burst=7 nodelay;
+    #}
 }
 
 {% if site.munin_master %}

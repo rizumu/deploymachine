@@ -39,7 +39,7 @@ def openstack_boot(nodename, flavor=1, image=69):
         fab openstack_boot:role,nodename
     """
     compute = openstack.compute.Compute(username=settings.OPENSTACK_USERNAME,
-                                        apikey=settings.OPENSTACK_API_KEY)
+                                        apikey=settings.OPENSTACK_APIKEY)
     if nodename in [server.name for server in compute.servers.list()]:
         print("``{0}`` has already been booted, skipping.".format(nodename))
         return
@@ -95,14 +95,14 @@ def openstack_get_ips(roles=[], port="22", ip_type="public", append_port=True):
     """
     ips = []
     compute = openstack.compute.Compute(username=settings.OPENSTACK_USERNAME,
-                                        apikey=settings.OPENSTACK_API_KEY)
+                                        apikey=settings.OPENSTACK_APIKEY)
     for server in compute.servers.list():
         # Verify (by name) that the live server was defined in the settings.
         try:
             node = [n for n in settings.OPENSTACK_SERVERS if n['nodename'] == server.name][0]
         except IndexError:
             continue
-        # If a ``roles`` list was passed in, verify it matches the node's roles.
+        # If a ``roles`` list was passed in, verify it identically matches the node's roles.
         if roles and sorted(roles) != sorted(node["roles"]):
             continue
         if append_port:
@@ -110,3 +110,15 @@ def openstack_get_ips(roles=[], port="22", ip_type="public", append_port=True):
         else:
             ips.append(server.addresses[ip_type][0])
     return ips
+
+
+def openstack_get_ip(name, ip_type="public"):
+    """
+    Use when know that exactly one IP address will be returned.
+    """
+    compute = openstack.compute.Compute(username=settings.OPENSTACK_USERNAME,
+                                        apikey=settings.OPENSTACK_APIKEY)
+    for server in compute.servers.list():
+        if server.name == name:
+            return server.addresses[ip_type][0]
+

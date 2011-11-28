@@ -108,7 +108,7 @@ def generate_settings_local(connection, database, site=None):
                 "redis_port": settings.REDIS_PORT,
                 "db_password": settings.DATABASES[database],
                 "openstack_username": settings.OPENSTACK_USERNAME,
-                "openstack_api_key": settings.OPENSTACK_API_KEY,
+                "openstack_api_key": settings.OPENSTACK_APIKEY,
             }
             upload_template(filename, destination, context=context, use_jinja=True)
         else:

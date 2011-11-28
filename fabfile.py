@@ -1,16 +1,18 @@
 import os
 
-from fabric.api import cd, env, sudo, run
+from fabric.api import cd, env, sudo, run, put
+from fabric.colors import green, red, yellow
 from fabric.contrib.files import exists
 from fabric.operations import reboot
 
 from deploymachine.conf import settings
 # Importing everything so commands are available to Fabric in the shell.
 from deploymachine.contrib.fab import (venv, venv_local, root, appbalancer, appnode,
-    broker, cachenode, dbserver, dbappbalancer, loadbalancer)
+    broker, cachenode, dbserver, loadbalancer, allinone)
 from deploymachine.contrib.openstack_api import (openstack_list, openstack_boot,
     openstack_bootem, openstack_kill, openstack_sudokillem)
-from deploymachine.contrib.credentials import ssh, gitconfig
+from deploymachine.contrib.credentials import put_sshkeys, put_gitconfig
+from deploymachine.contrib.chef import bootstrap_chef, is_chefserver
 from deploymachine.contrib.django import (staticfiles, generate_settings_local,
     generate_settings_main, generate_urls_main, syncdb, test)
 from deploymachine.contrib.git import git_pull, git_pull_deploymachine
@@ -22,10 +24,11 @@ from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninsta
 from deploymachine.contrib.provision import provision
 from deploymachine.contrib.postgresql import (pg_install_local, pg_dblaunch, pg_dbrestore,
     pg_dbrestore_local, pg_dbrestore_prod)
-from deploymachine.contrib.kokki import kokki
+from deploymachine.contrib.kokki import bootstrap_kokki, kokki
 from deploymachine.contrib.newrelic import newrelic
-from deploymachine.contrib.puppet import is_puppetmaster
+from deploymachine.contrib.puppet import bootstrap_puppet, is_puppetmaster
 from deploymachine.contrib.redis import redis_flushdb, redis_keys_all, redis_keys_search
+from deploymachine.contrib.salt import bootstrap_salt, is_saltmaster
 from deploymachine.contrib.supervisor import supervisor
 from deploymachine.contrib.users import useradd
 from deploymachine.contrib.virtualenv import generate_virtualenv, symlink_packages
@@ -65,9 +68,44 @@ def launch(dbtemplate="template_postgis"):
         fab cachenode launch
         fab appbalancer launch
     """
-    for role in env.server_types:
-        kokki(role)
+    if exists("{0}.launched".format(settings.DEPLOY_HOME)):
+        print(green("``{0}`` has already been launched, skipping".format(env.host)))
+        return
 
+    # These Python packages are essential for bootstrapping.
+    BASE_PYTHON_PACKAGES = [
+        "Mercurial==2.0",
+        "virtualenv==1.6.4",
+        "Jinja2==2.6",
+    ]
+    if hasattr(settings, "EXTRA_BASE_PYTHON_PACKAGES"):
+        BASE_PYTHON_PACKAGES.append(settings.EXTRA_BASE_PYTHON_PACKAGES)
+
+    # python/pip setup
+    # run("wget http://python-distribute.org/distribute_setup.py && python distribute_setup.py")
+    # run("easy_install pip")
+    # run("pip install {0}".format(" ".join(BASE_PYTHON_PACKAGES)))
+    # run("pip install meld3==0.6.7")  # https://bugs.launchpad.net/ubuntu/+source/supervisor/+bug/777862
+
+    CONFIGURATOR = "salt"
+    if hasattr(settings, "CONFIGURATOR"):
+        CONFIGURATOR = settings.CONFIGURATOR
+
+    # software configuration management
+    if "salt" == CONFIGURATOR:
+        bootstrap_salt()
+
+    if "kokki" == CONFIGURATOR:
+        bootstrap_kokki()
+        kokki()
+
+    if "chef" == CONFIGURATOR:
+        bootstrap_chef()
+
+    if "puppet" == CONFIGURATOR:
+        bootstrap_puppet()
+    return
+    # server type specifics
     if "broker" or "cachenode" in env.server_types:
         pass
 
@@ -113,6 +151,9 @@ def launch(dbtemplate="template_postgis"):
             with cd(settings.PINAX_ROOT):
                 run("git checkout {0}".format(settings.PINAX_VERSION))
         launch_apps()
+
+    print(green("sucessfully launched!"))
+    run("touch {0}.launched".format(settings.DEPLOY_HOME))
 
 
 def unlaunch_apps():

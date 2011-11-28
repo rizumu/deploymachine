@@ -1,4 +1,4 @@
-
+import json
 import os
 import openstack.compute
 
@@ -18,12 +18,16 @@ if env.system.platform == "ubuntu":
 
 
 def get_internal_appnode_ips():
+    fabric_env = json.loads(env.config.fabric_env)
     appnode_list = []
     compute = openstack.compute.Compute(username=env.config.openstack_compute.username,
                                         apikey=env.config.openstack_compute.api_key)
-    for server in compute.servers.list():
-        if "app" in server.name:  # matches appnode, appbalancer, dbappbalancer
-            appnode_list.append(server.addresses["private"][0])
+    if fabric_env["node_type"] == "allinone":
+        appnode_list.append(["127.0.0.1"])
+    else:
+        for server in compute.servers.list():
+            if "appnode" in server.name:
+                appnode_list.append(server.addresses["private"][0])
     return appnode_list
 
 

@@ -12,6 +12,6 @@ def newrelic(action):
     fmt_dict = dict(
         action=action,
         url=settings.NEWRELIC_PING_URL,
-        key=settings.NEWRELIC_API_KEY)
+        key=settings.NEWRELIC_APIKEY)
     local("curl {url}{action} -X POST -H 'X-Api-Key: {key}'".format(**fmt_dict))
 
