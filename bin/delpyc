@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-find . \( -name "*.pyc" -o -name "*.pyo" \) -exec rm -v {} \;
