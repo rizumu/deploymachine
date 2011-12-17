@@ -1,15 +1,17 @@
 import time
 from fabric.api import sudo
+from fabric.decorators import task
 
-from deploymachine.conf import settings
+import deploymachine_settings as settings
 from deploymachine.contrib.newrelic import newrelic
 
 
-def supervisor(process=None):
+@task
+def restart(process=None):
     """
     Kills all supervisor managed processes, or an individual process by name.
     Usage:
-        fab appbalancer supervisor:gunicorn-snowprayers
+        fab appbalancer supervisor.restart:gunicorn-snowprayers
     """
     if hasattr(settings, "NEWRELIC_PING_URL"):
         newrelic("disable")

@@ -2,11 +2,8 @@ Fabric==1.3.2
 gunicorn==0.13.1
 Jinja2==2.6
 psycopg2==2.4.2
-git+git://github.com/jacobian/openstack.compute#egg=openstack_compute
 setproctitle==1.1.2
-python-cloudfiles==1.7.9.1
 Sphinx==1.0.7
-
 git+git://github.com/samuel/kokki@5aab081f5398a1bf53af263b2f4ac2676f1de945#egg=kokki_2011-05-18
 
 # errors on clean install because it absolutely depends on setproctitle

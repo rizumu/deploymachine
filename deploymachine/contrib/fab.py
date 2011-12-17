@@ -2,8 +2,7 @@ from os.path import join
 
 from fabric.api import cd, env, run, lcd, local
 
-from deploymachine.contrib.openstack_api import openstack_get_ips
-from deploymachine.conf import settings
+import deploymachine_settings as settings
 
 
 def root():
@@ -21,38 +20,45 @@ def env_base(server_types):
 
 
 def loadbalancer():
-    "Load balancer server type. Server specific settings here."
+    "Load balancer."
     env_base(["loadbalancer"])
+    env.node_type = ["loadbalancer"]
 
 
 def appnode():
-    "Appplication node server type. Server specific settings here."
+    "Appplication node."
     env_base(["appnode"])
-
-
-def broker():
-    "Message queue broker server type."
-    env_base(["broker"])
+    env.node_type = ["appnode"]
 
 
 def cachenode():
     "Redis cachenode and/or messagequeue."
     env_base(["cachenode"])
+    env.node_type = ["cachenode"]
+
+
+def broker():
+    "Message queue broker. Use if RabbitMQ is desired over redis."
+    env_base(["broker"])
+    env.node_type = ["broker"]
 
 
 def dbserver():
-    "Database environment server type. Server specific settings here."
+    "Database server."
     env_base(["dbserver"])
+    env.node_type = ["dbserver"]
 
 
 def appbalancer():
-    "Combined ``loadbalancer``, ``cachenode``, ``appnode`` environment specific settings."
-    env_base(["appnode", "loadbalancer", "cachenode"])
+    "All-in-one, except the database, a combined ``loadbalancer``, ``appnode``, ``cachenode``"
+    env_base(["loadbalancer", "appnode", "cachenode"])
+    env.node_type = ["appbalancer"]
 
 
-def dbappbalancer():
-    "Combined ``loadbalancer``, ``appnode``, ``cachenode``, ``dbserver`` environment specific settings."
-    env_base(["appnode", "dbserver", "loadbalancer", "cachenode"])
+def allinone():
+    "A true all-in-one, a combined ``loadbalancer``, ``appnode``, ``cachenode``, ``dbserver``."
+    env_base(["loadbalancer", "appnode", "cachenode", "dbserver"])
+    env.node_type = "allinone"
 
 
 def venv(command, site):

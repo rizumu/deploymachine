@@ -1,21 +1,21 @@
 user {{ env.config.nginx.user }};
 worker_processes  {{ env.config.nginx.worker_processes }};
- 
+
 error_log  {{ env.config.nginx.log_dir }}/error.log;
 pid        /var/run/nginx.pid;
- 
+
 events {
     worker_connections {{ env.config.nginx.worker_connections }};
     {% if env.config.nginx.event_model %}use {{ env.config.nginx.event_model }};{% endif %}
     {% if not env.config.nginx.accept_mutex %}accept_mutex off;{% endif %}
 }
- 
+
 http {
     include       {{ env.config.nginx.dir }}/mime.types;
     default_type  application/octet-stream;
 
     {% if env.config.nginx.log_format %}
-    log_format custom {{ repr(env.config.nginx.log_format.strip()) }}; 
+    log_format custom {{ repr(env.config.nginx.log_format.strip()) }};
     access_log {{ env.config.nginx.log_dir }}/access.log custom;
     {% else %}
     access_log {{ env.config.nginx.log_dir }}/access.log;
@@ -28,7 +28,9 @@ http {
     {% if env.config.nginx.keepalive == "on" %}
     keepalive_timeout  {{ env.config.nginx.keepalive_timeout }};
     {% endif %}
- 
+
+    #limit_req_zone $binary_remote_addr zone=login:10m rate=3r/m;
+
     {% if env.config.nginx.gzip %}
         gzip on;
         gzip_http_version {{ env.config.nginx.gzip_http_version }};
@@ -39,7 +41,7 @@ http {
     {% else %}
         gzip off;
     {% endif %}
- 
+
     {% if env.config.nginx.server_names_hash_max_size %}server_names_hash_max_size {{ env.config.nginx.server_names_hash_max_size }};{% endif %}
     {% if env.config.nginx.server_names_hash_bucket_size %}server_names_hash_bucket_size {{ env.config.nginx.server_names_hash_bucket_size }};{% endif %}
 

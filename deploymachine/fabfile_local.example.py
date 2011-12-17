@@ -1,21 +1,16 @@
 # scenemachine specific
 from fabric.api import cd, env, local, sudo
 
-from deploymachine.conf import settings
-from deploymachine.contrib.django import staticfiles, settings_local
-from deploymachine.contrib.git import git_pull, git_pull_deploymachine
-from deploymachine.contrib.supervisor import supervisor
-from deploymachine.contrib.fab import venv, venv_local
+import deploymachine_settings as settings
 
-
-PYDISCOGS_ROOT = "{0}/pydiscogs/pydiscogs".format(settings.LIB_ROOT)
+from deploymachine.contrib import django, fab, git, supervisor
 
 
 def deploy_git_rizumu():
-    git_pull("rizumu")
-    git_pull_scenemachine()
-    staticfiles("rizumu")
-    supervisor("rizumu")
+    git.pull("rizumu")
+    git.pull_scenemachine()
+    django.staticfiles("rizumu")
+    supervisor.restart("rizumu")
 
 
 def git_pull_sceneachine():
@@ -52,9 +47,9 @@ def full_deploy(static=False):
 
     Remember to handle requirements separately.
     """
-    git_pull_deploymachine()
     git_pull_scenemachine()
     settings_local("prod")
-    git_pull()
+    git.pull()
     if static:
-        staticfiles()
+        django.staticfiles()
+    supervisor.restart()

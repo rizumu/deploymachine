@@ -1,6 +1,8 @@
 from fabric.api import sudo
+from fabric.decorators import task
 
 
+@task
 def site_logs(site):
     """
     Show logs for a site.
