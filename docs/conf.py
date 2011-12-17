@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# DeployMachine documentation build configuration file, created by
+# deploymachine documentation build configuration file, created by
 # sphinx-quickstart on Sun Mar  6 11:14:05 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'DeployMachine'
-copyright = u'2011, Thomas Schreiber and Will Dyson'
+project = u'deploymachine'
+copyright = u'2011-2012, Thomas Schreiber and Contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -164,7 +164,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DeployMachinedoc'
+htmlhelp_basename = 'deploymachinedoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -178,7 +178,7 @@ htmlhelp_basename = 'DeployMachinedoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'DeployMachine.tex', u'DeployMachine Documentation',
+  ('index', 'deploymachine.tex', u'deploymachine Documentation',
    u'Thomas Schreiber', 'manual'),
 ]
 
@@ -211,6 +211,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'deploymachine', u'DeployMachine Documentation',
+    ('index', 'deploymachine', u'deploymachine Documentation',
      [u'Thomas Schreiber'], 1)
 ]

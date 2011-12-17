@@ -8,7 +8,6 @@ application. DeployMachine follows the standards set forth by the
 Slicehost provisioning documentation, the Django Deployment Workshop,
 and the Arch Linux wiki.
 
-
 * SLICEHOST PROVISIONING DOCS: http://articles.slicehost.com/ubuntu-10
 * DJANGO DEPLOYMENT WORKSHOP: https://github.com/jacobian/django-deployment-workshop/
 * ARCH LINUX WIKI: https://wiki.archlinux.org/
@@ -30,21 +29,6 @@ preparation and planning to ensure this.
 Very little OS specific logic occurs in the DeployMachine, minus the
 provision step. It is the job of Kokki, Puppet, or Chef to manage the
 OS packages beyond bootstrapping.
-
-Configuration Management
-========================
-
-DeployMachine leverages Kokki, a "System configuration management
-framework influenced by Chef" written in Python. More on Kokki at
-`http://github.com/samuel/kokki/wiki
-<https://github.com/samuel/kokki/wiki>`_
-
-DeployMachine initially attempted to support both kokki and chef, but
-drifted towards Kokki, because of developer comfortability with Python
-syntax, and lack of Ruby knowledge. Now there is a growing desire to
-have a puppet support, and it's easy enough, a few bits are already in
-place. See: https://github.com/uggedal/ddw-puppet
-
 
 Server Types
 ============
