@@ -11,11 +11,6 @@ docs/_build/
 
 kokki-config.j2
 fabfile_local.py
-settings_deploymachine.py
-templates/gunicorn.conf.j2
-templates/settings_local_dev.j2
-templates/settings_local_prod.j2
-templates/settings_main.j2
-templates/urls_main.j2
+deploymachine_settings.py
 
 _kcb-todo/

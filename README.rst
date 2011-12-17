@@ -3,7 +3,6 @@ DeployMachine
 
 DeployMachine is:
 
-* Bootstrapping tool for provisioning servers.
 * Tiny wrapper around configuration management tools such as chef,
   kokki, and puppet.
 * Deployment framework for launching and maintaining websites.

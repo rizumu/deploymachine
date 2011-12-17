@@ -2,11 +2,13 @@ import base64
 import json
 
 from fabric.api import local
+from fabric.decorators import task
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 from urllib2 import Request, URLError, urlopen
 
-from deploymachine.conf import settings
+import deploymachine_settings as settings
+
 
 # Update Pythons list of error codes with some that are missing
 newhttpcodes = {
@@ -22,6 +24,7 @@ for code in newhttpcodes:
     BaseHTTPRequestHandler.responses[code] = newhttpcodes[code]
 
 
+@task
 def change_loadbalancer_ip(old_ip, new_ip, api="python"):
     """
     Install the ruby dnsimple api::
@@ -66,6 +69,7 @@ def change_loadbalancer_ip(old_ip, new_ip, api="python"):
                 ))
 
 
+@task
 def change_arecord_ttl(ttl):
     """
     Usage::
@@ -91,6 +95,7 @@ def change_arecord_ttl(ttl):
             ))
 
 
+@task
 def change_subdomain_container(container_subdomain_name, container_domain_name, container_address):
     """
     Usage::

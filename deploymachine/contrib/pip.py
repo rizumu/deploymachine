@@ -1,10 +1,12 @@
 from fabric.api import local
 from fabric.colors import red, yellow, green
+from fabric.decorators import task
 
-from deploymachine.conf import settings
+import deploymachine_settings as settings
 from deploymachine.contrib.fab import venv, venv_local
 
 
+@task
 def pip_requirements(connection, site=None):
     """
     Run the pip requirements file for a project, or all projects.
@@ -28,6 +30,7 @@ def pip_requirements(connection, site=None):
         print(green("finished pip install for {0}".format(site)))
 
 
+@task
 def pip_install(connection, repo, package, path=None, version=None, site=None, nodeps=False):
     """
     Install one package for a project, or all projects.
@@ -66,6 +69,7 @@ def pip_install(connection, repo, package, path=None, version=None, site=None, n
             print(red("Bad connection type. Use ``dev`` or ``prod``."))
 
 
+@task
 def pip_uninstall(connection, package, site=None):
     """
     Uninstall one package for a project, or all projects.

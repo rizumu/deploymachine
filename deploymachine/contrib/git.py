@@ -1,15 +1,12 @@
 from fabric.api import env, cd, lcd, local
+from fabric.decorators import task
 
-from deploymachine.conf import settings
+import deploymachine_settings as settings
 from deploymachine.contrib.fab import venv, venv_local
 
 
-def git_pull_rebase():
-    return "alias git_current_branch=\"git symbolic-ref HEAD 2> /dev/null | sed -e 's/refs\/heads\///'\" && \
-        git fetch origin && git rebase --preserve-merges origin/$(git_current_branch)"
-
-
-def git_pull(connection, site=None):
+@task
+def pull(connection, site=None):
     """
     Checkout the site(s) repository.
         fab git_pull:dev
@@ -30,7 +27,8 @@ def git_pull(connection, site=None):
             print("Bad connection type. Use ``dev`` or ``prod``.")
 
 
-def git_pull_deploymachine():
+@task
+def pull_deploymachine():
     """
     Checkout the local deploymachine repository.
         fab appnode git_pull_deploymachine
@@ -39,6 +37,7 @@ def git_pull_deploymachine():
         local("git pull")
 
 
-def git_log(site=None):
+@task
+def log(site=None):
     "show last 3 commits"
     venv("git log -3", "rizumu")

@@ -9,12 +9,15 @@ from ssl import SSLError
 from fabric.api import local, put, run, sudo
 from fabric.colors import green, red, yellow
 from fabric.contrib.files import append, contains, exists, upload_template
+from fabric.decorators import task
+
 from jinja2 import Environment, PackageLoader
 
-from deploymachine.conf import settings
+import deploymachine_settings as settings
 from deploymachine.contrib.fab import venv, venv_local
 
 
+@task
 def staticfiles(site=None, wipe=False):
     """
     Collect, compress, and sync the static media files to rackspace.
@@ -54,6 +57,7 @@ def staticfiles(site=None, wipe=False):
         print(green("sucessfully collected/compressed/synced staticfiles for all sites!".format(site)))
 
 
+@task
 def generate_settings_main(connection, site=None):
     """
     Generate the site(s) main ``settings.py`` file.
@@ -81,6 +85,7 @@ def generate_settings_main(connection, site=None):
             print("Invalid connection type. Use ``dev`` or ``prod``.")
 
 
+@task
 def generate_settings_local(connection, database, site=None):
     """
     Generate the site(s) settings_local files.
@@ -115,6 +120,7 @@ def generate_settings_local(connection, database, site=None):
             print("Invalid connection type. Use ``dev`` or ``prod``.")
 
 
+@task
 def generate_urls_main(connection, site=None):
     """
     Generate the site(s) main ``urls.py`` file.
@@ -146,11 +152,13 @@ def generate_urls_main(connection, site=None):
             print("Invalid connection type. Use ``dev`` or ``prod``.")
 
 
+@task
 def syncdb(site):
     "Call syncdb for the given site."
     venv("python manage.py syncdb --noinput".format(site), site)
 
 
+@task
 def test():
     "Run tests."
     local("python manage.py test")

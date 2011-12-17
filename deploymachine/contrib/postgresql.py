@@ -2,12 +2,12 @@ import os
 
 from fabric.api import cd, env, local, sudo
 from fabric.api import settings as fab_settings
+from fabric.decorators import task
 
-from deploymachine.conf import settings
-
-from deploymachine.contrib.openstack_api import openstack_get_ips
+import deploymachine_settings as settings
 
 
+@task
 def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
     """
     Show logs for a site.
@@ -65,6 +65,7 @@ def pg_install_local(dbtemplate="template_postgis", postgis_version="1.5"):
     local("createdb  -E UTF8 --template {0} --owner {1} {1}".format(dbtemplate, dbname))
 
 
+@task
 def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
     """
     Launches a new database. Typically used when launching a new site.
@@ -76,6 +77,7 @@ def pg_dblaunch(dbname, password, dbtemplate="template_postgis"):
     sudo("createdb -E UTF8 --template {0} --owner {1} {1}".format(dbtemplate, dbname), user="postgres")
 
 
+@task
 def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis"):
     """
     Usage:
@@ -93,6 +95,7 @@ def pg_dbrestore_local(dbname, path_to_dump_file, dbtemplate="template_postgis")
         local("pg_restore --dbname={0} {1}".format(dbname, path_to_dump_file))
 
 
+@task
 def pg_dbrestore(dbname, dbtemplate="template_postgis", keep_tmp=True):
     """
     Usage:
@@ -115,6 +118,7 @@ def pg_dbrestore(dbname, dbtemplate="template_postgis", keep_tmp=True):
         local("rm /tmp/{0}".format(dump_filename))
 
 
+@task
 def pg_dbrestore_prod(dbname, dump_filename, dbtemplate="template_postgis"):
     if not dbtemplate == "template_postgis":
         raise NotImplementedError()

@@ -1,21 +1,13 @@
 import json
-from os.path import join
 
 from fabric.api import cd, env, local, sudo, put
 from fabric.contrib.files import upload_template
+from fabric.decorators import task
 
-from deploymachine.conf import settings
-from deploymachine.contrib.git import git_pull_deploymachine
-from deploymachine.contrib.openstack_api import openstack_get_ips
-from deploymachine.contrib.supervisor import supervisor
-from deploymachine.contrib.nginx import reload_nginx
+import deploymachine_settings as settings
 
 
-def bootstrap_kokki():
-    run("pip install git+git://github.com/samuel/kokki#egg=kokki \
-                     git+git://github.com/jacobian/openstack.compute#egg=openstack_compute")
-
-
+@task
 def kokki():
     """
     Cook all nodes which identically match the given role's ``env.server_types``. Servers

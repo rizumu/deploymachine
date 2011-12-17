@@ -2,11 +2,13 @@ import os
 
 from fabric.api import cd, env, lcd, local, sudo, put, run
 from fabric.contrib.files import append, contains, exists
+from fabric.decorators import task
 
-from deploymachine.conf import settings
+import deploymachine_settings as settings
 from deploymachine.contrib.pip import pip_install, pip_requirements, pip_uninstall
 
 
+@task
 def generate_virtualenv(connection, site=None, python_bin="python"):
     """
     Creates or rebuilds a site's virtualenv.
@@ -50,6 +52,7 @@ def generate_virtualenv(connection, site=None, python_bin="python"):
     print(green("sucessfully built virtualenvs for all sites!".format(site)))
 
 
+@task
 def symlink_packages(connection, site=None):
     """
     Hook to add symlinks into the virtualenv's site-package for

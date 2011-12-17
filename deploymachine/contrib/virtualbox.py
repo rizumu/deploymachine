@@ -1,6 +1,8 @@
 from fabric.api import local
+from fabric.decorators import task
 
 
+@task
 def create_vm(name):
     """
     Create a fresh ubuntu vm.

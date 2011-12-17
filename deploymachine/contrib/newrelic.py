@@ -1,7 +1,10 @@
 from fabric.api import local
-from deploymachine.conf import settings
+from fabric.decorators import task
+
+import deploymachine_settings as settings
 
 
+@task
 def newrelic(action):
     """
     Enable or disable pinging
