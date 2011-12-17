@@ -1,6 +1,12 @@
 DeployMachine
 =============
 
+.. warning::
+
+    Currently unstable and undergoing a major refactor. Stay tuned for
+    a cleaner interface, coming very soon!
+
+
 DeployMachine is:
 
 * Tiny wrapper around configuration management tools such as chef,
