@@ -15,7 +15,7 @@ Boto API via the bootmachine project.
 Dnsimple
 ========
 
-DeployMachine harnesses the dnsimple python API for directing our
+Deploymachine harnesses the dnsimple python API for directing our
 domain names to our loadbalancer's ip, even after a
 kill/create. @@@TODO
 

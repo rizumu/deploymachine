@@ -4,10 +4,10 @@ Assumptions:
     You have one github account for private projects.
     You name the github project the same as the website.
 
-The Deploy Machine will create following folder for each website:
+The deploymachine will create following folder for each website:
     ``/home/deploy/www/sitename/``
 
-Inside of this folder, Deploy Machine will checkout your github project of
+Inside of this folder, deploymachine will checkout your github project of
 the same exact name, and inside the top level of that project, it expects to
 find the following structure.
 
@@ -19,8 +19,8 @@ find the following structure.
 
 Use of the sitename/sitename structure  is to make a place for site
 specific files and folders that are outside of the repository. Mostly
-useful for local development, examples are high-res photos, personal 
-notes, local media files, fixture dumps, etc. A simple example is 
+useful for local development, examples are high-res photos, personal
+notes, local media files, fixture dumps, etc. A simple example is
 to store some high-res photos in ``home/deploy/www/sitename/highres``
 theryby keeping them out of the repo.
 
@@ -47,7 +47,7 @@ import os
 
 # Options "kokki", puppet", "chef"
 CONFIGURATORS = ["chef", "kokki", "puppet"]
-# DeployMachine would have fewer lines of code and a little less complex if it
+# Deploymachine would have fewer lines of code and a little less complex if it
 # ran all commands as root, but taking the extra precaution of requiring sudo
 # authentication for all commands post provision will be worth the added effort.
 DEPLOY_USERNAME = "deploy"
